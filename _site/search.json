@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CanadaForestryLidar",
+    "section": "",
+    "text": "A curated set of maps and summary statistics on the ALS data accompanying the manuscript:\nWhite, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)\n\n\n\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nTotal area\nTotal forest area\nManaged forest area\nALS area (total)\nALS area (managed forest)\n\n\n\n\nBritish Columbia (BC)\n925186\n632,864 (68.4%)\n500,534 (54.1%)\n206,335 (22.3%)\n122,942 (59.6%)\n\n\nAlberta (AB)\n642317\n341,261 (53.1%)\n250,011 (38.9%)\n386,888 (60.2%)\n233,081 (60.2%)\n\n\nSaskatchewan (SK)\n591670\n252,942 (42.8%)\n85,897 (14.5%)\n53,958 (9.1%)\n35,438 (65.7%)\n\n\nOntario (ON)\n917741\n652,763 (71.1%)\n334,150 (36.4%)\n380,393 (41.4%)\n284,444 (74.8%)\n\n\nQuebec (QC)\n1365128\n809,223 (59.3%)\n380,741 (27.9%)\n546,938 (40.1%)\n373,770 (68.3%)\n\n\nNew Brunswick (NB)\n71450\n65,902 (92.2%)\n58,270 (81.6%)\n78,520 (100%)\n58,479 (74.5%)\n\n\nPrince Edward Island (PE)\n5660\n2,888 (51%)\n2,493 (44%)\n6,762 (100%)\n2,497 (36.9%)\n\n\nNova Scotia (NS)\n53338\n47,958 (89.9%)\n37,708 (70.7%)\n65,953 (100%)\n37,802 (57.3%)"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "index.html#als-data-used-in-enhanced-forest-inventory",
+    "href": "index.html#als-data-used-in-enhanced-forest-inventory",
+    "title": "CanadaForestryLidar",
+    "section": "ALS data used in Enhanced Forest Inventory",
+    "text": "ALS data used in Enhanced Forest Inventory\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nData sharing policy\nURL\n\n\n\n\nBC\nLAS files are open data\nwww.lidar.gov.bc.ca\n\n\nAB\nSharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry.\n\n\n\nSK\nLAS files are currently not shared as open data.\n\n\n\nON\nLAS files are open data\nhttps://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about\n\n\nQC\nLAS files available for purchase\nhttp://geoboutique.mern.gouv.qc.ca/\n\n\nNB\nLAS files are open data\nhttp://www.snb.ca/geonb1/e/dc/lidar.asp\n\n\nPE\nLAS files and derivatives available on request.\n\n\n\nNS\nLAS files and derivatives are open data\nhttps://nsgi.novascotia.ca/datalocator/elevation/"
+  },
+  {
+    "objectID": "index.html#additional-als-datasets-in-canada",
+    "href": "index.html#additional-als-datasets-in-canada",
+    "title": "CanadaForestryLidar",
+    "section": "Additional ALS datasets in Canada",
+    "text": "Additional ALS datasets in Canada\nALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets can be found\n\nhttps://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995"
+  }
+]
