@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ALS data coverage in Canada</title>
+<title>Maps – ALS data coverage in Canada</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -91,11 +91,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./maps.html"> 
+    <a class="nav-link active" href="./maps.html" aria-current="page"> 
 <span class="menu-text">Maps</span></a>
   </li>  
   <li class="nav-item">
@@ -129,18 +129,36 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#most-recent-coverage-summary" id="toc-most-recent-coverage-summary" class="nav-link active" data-scroll-target="#most-recent-coverage-summary">Most recent coverage summary</a></li>
-  <li><a href="#maps" id="toc-maps" class="nav-link" data-scroll-target="#maps">Maps</a></li>
-  <li><a href="#cumulative-area-of-als-data-acquired-by-jurisdictions" id="toc-cumulative-area-of-als-data-acquired-by-jurisdictions" class="nav-link" data-scroll-target="#cumulative-area-of-als-data-acquired-by-jurisdictions">Cumulative area of ALS data acquired by jurisdictions</a></li>
+  <li><a href="#maps" id="toc-maps" class="nav-link active" data-scroll-target="#maps">Overview maps</a>
+  <ul class="collapse">
+  <li><a href="#maps-coverage" id="toc-maps-coverage" class="nav-link" data-scroll-target="#maps-coverage">ALS coverage</a></li>
+  <li><a href="#maps-density" id="toc-maps-density" class="nav-link" data-scroll-target="#maps-density">Point density</a></li>
+  <li><a href="#maps-year" id="toc-maps-year" class="nav-link" data-scroll-target="#maps-year">ALS acquisition year</a></li>
+  <li><a href="#maps-overlap" id="toc-maps-overlap" class="nav-link" data-scroll-target="#maps-overlap">Areas of multiple acquisitions</a></li>
+  </ul></li>
+  <li><a href="#maps-detailed-west" id="toc-maps-detailed-west" class="nav-link" data-scroll-target="#maps-detailed-west">Detailed maps - western Canada</a>
+  <ul class="collapse">
+  <li><a href="#als-coverage" id="toc-als-coverage" class="nav-link" data-scroll-target="#als-coverage">ALS coverage</a></li>
+  <li><a href="#point-density" id="toc-point-density" class="nav-link" data-scroll-target="#point-density">Point density</a></li>
+  <li><a href="#als-acquisition-year" id="toc-als-acquisition-year" class="nav-link" data-scroll-target="#als-acquisition-year">ALS acquisition year</a></li>
+  <li><a href="#areas-of-multiple-acquisitions" id="toc-areas-of-multiple-acquisitions" class="nav-link" data-scroll-target="#areas-of-multiple-acquisitions">Areas of multiple acquisitions</a></li>
+  </ul></li>
+  <li><a href="#maps-detailed-east" id="toc-maps-detailed-east" class="nav-link" data-scroll-target="#maps-detailed-east">Detailed maps - eastern Canada</a>
+  <ul class="collapse">
+  <li><a href="#als-coverage-1" id="toc-als-coverage-1" class="nav-link" data-scroll-target="#als-coverage-1">ALS coverage</a></li>
+  <li><a href="#point-density-1" id="toc-point-density-1" class="nav-link" data-scroll-target="#point-density-1">Point density</a></li>
+  <li><a href="#als-acquisition-year-1" id="toc-als-acquisition-year-1" class="nav-link" data-scroll-target="#als-acquisition-year-1">ALS acquisition year</a></li>
+  <li><a href="#areas-of-multiple-acquisitions-1" id="toc-areas-of-multiple-acquisitions-1" class="nav-link" data-scroll-target="#areas-of-multiple-acquisitions-1">Areas of multiple acquisitions</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/maps.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">ALS data coverage in Canada</h1>
+<h1 class="title">Maps</h1>
 </div>
 
 
@@ -157,99 +175,64 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada’s forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g.&nbsp;cities, or data acquired for research projects are not included.</p>
-<p>Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage.</p>
-<p>This webpage accompanies the publication by White et al.&nbsp;2024, and is designed to keep the statistics and maps presented in the paper up to date.</p>
-<p><em>White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)</em></p>
-<section id="most-recent-coverage-summary" class="level1">
-<h1>Most recent coverage summary</h1>
-<p>The total area of ALS coverage in Canada is currently 1,725,747 km<sup>2</sup>, which corresponds to approximately <strong>19%</strong> of the total land area of the country. The coverage of managed forests is approximately <strong>61.3%</strong>.</p>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 24%">
-<col style="width: 42%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Jurisdiction</th>
-<th style="text-align: left;">Total ALS coverage</th>
-<th style="text-align: left;">ALS coverage over managed forest</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">British Columbia (BC)</td>
-<td style="text-align: left;">206,335 (22.3%)</td>
-<td style="text-align: left;">122,942 (24.6%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Alberta (AB)</td>
-<td style="text-align: left;">386,888 (60.2%)</td>
-<td style="text-align: left;">233,081 (93.2%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Saskatchewan (SK)</td>
-<td style="text-align: left;">53,958 (9.1%)</td>
-<td style="text-align: left;">35,438 (41.3%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Ontario (ON)</td>
-<td style="text-align: left;">380,393 (41.4%)</td>
-<td style="text-align: left;">284,444 (84.9%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Quebec (QC)</td>
-<td style="text-align: left;">546,938 (40.1%)</td>
-<td style="text-align: left;">373,770 (98.2%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">New Brunswick (NB)</td>
-<td style="text-align: left;">78,520 (100%)</td>
-<td style="text-align: left;">58,479 (100%)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Prince Edward Island (PE)</td>
-<td style="text-align: left;">6,762 (100%)</td>
-<td style="text-align: left;">2,497 (100%)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Nova Scotia (NS)</td>
-<td style="text-align: left;">65,953 (100%)</td>
-<td style="text-align: left;">37,802 (100%)</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
 <section id="maps" class="level1">
-<h1>Maps</h1>
-<p>The map showing the overall ALS coverage is presented below. Additional <a href="./maps.html">Maps</a> show <strong><a href="./maps.html#maps-year">acquisition year</a></strong>, <strong><a href="./maps.html#maps-density">point cloud density</a></strong>, and <strong><a href="./maps.html#maps-overlap">areas of multiple overlapping acquisitions</a></strong>.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="img/map1_ALS_coverage.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="ALS coverage map"><img src="img/map1_ALS_coverage.png" class="img-fluid figure-img" alt="ALS coverage map"></a></p>
-<figcaption>ALS coverage map</figcaption>
-</figure>
-</div>
+<h1>Overview maps</h1>
+<section id="maps-coverage" class="level2">
+<h2 class="anchored" data-anchor-id="maps-coverage">ALS coverage</h2>
+<p><a href="img/map1_ALS_coverage.png" class="lightbox" data-gallery="maps"><img src="img/map1_ALS_coverage.png" class="img-fluid"></a></p>
 </section>
-<section id="cumulative-area-of-als-data-acquired-by-jurisdictions" class="level1">
-<h1>Cumulative area of ALS data acquired by jurisdictions</h1>
-<p>The total area of all ALS acquisitions, including overlapping areas,</p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="index_files/figure-html/unnamed-chunk-3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="PJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672" alt="PJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."></a></p>
-<figcaption>P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<section id="maps-density" class="level2">
+<h2 class="anchored" data-anchor-id="maps-density">Point density</h2>
+<p><a href="img/map2_ALS_density.png" class="lightbox" data-gallery="maps"><img src="img/map2_ALS_density.png" class="img-fluid"></a></p>
+</section>
+<section id="maps-year" class="level2">
+<h2 class="anchored" data-anchor-id="maps-year">ALS acquisition year</h2>
+<p><a href="img/map3_ALS_AcquisitionYear.png" class="lightbox" data-gallery="maps"><img src="img/map3_ALS_AcquisitionYear.png" class="img-fluid"></a></p>
+</section>
+<section id="maps-overlap" class="level2">
+<h2 class="anchored" data-anchor-id="maps-overlap">Areas of multiple acquisitions</h2>
+<p><a href="img/map4_ALS_overlap.png" class="lightbox" data-gallery="maps"><img src="img/map4_ALS_overlap.png" class="img-fluid"></a></p>
+</section>
+</section>
+<section id="maps-detailed-west" class="level1">
+<h1>Detailed maps - western Canada</h1>
+<section id="als-coverage" class="level2">
+<h2 class="anchored" data-anchor-id="als-coverage">ALS coverage</h2>
+<p><a href="img/map1_ALS_coverage_focused1.png" class="lightbox" data-gallery="maps1"><img src="img/map1_ALS_coverage_focused1.png" class="img-fluid"></a></p>
+</section>
+<section id="point-density" class="level2">
+<h2 class="anchored" data-anchor-id="point-density">Point density</h2>
+<p><a href="img/map2_ALS_density_focused1.png" class="lightbox" data-gallery="maps1"><img src="img/map2_ALS_density_focused1.png" class="img-fluid"></a></p>
+</section>
+<section id="als-acquisition-year" class="level2">
+<h2 class="anchored" data-anchor-id="als-acquisition-year">ALS acquisition year</h2>
+<p><a href="img/map3_ALS_AcquisitionYear_focused1.png" class="lightbox" data-gallery="maps1"><img src="img/map3_ALS_AcquisitionYear_focused1.png" class="img-fluid"></a></p>
+</section>
+<section id="areas-of-multiple-acquisitions" class="level2">
+<h2 class="anchored" data-anchor-id="areas-of-multiple-acquisitions">Areas of multiple acquisitions</h2>
+<p><a href="img/map4_ALS_overlap_focus1.png" class="lightbox" data-gallery="maps1"><img src="img/map4_ALS_overlap_focus1.png" class="img-fluid"></a></p>
+</section>
+</section>
+<section id="maps-detailed-east" class="level1">
+<h1>Detailed maps - eastern Canada</h1>
+<section id="als-coverage-1" class="level2">
+<h2 class="anchored" data-anchor-id="als-coverage-1">ALS coverage</h2>
+<p><a href="img/map1_ALS_coverage_focused2.png" class="lightbox" data-gallery="maps2"><img src="img/map1_ALS_coverage_focused2.png" class="img-fluid"></a></p>
+</section>
+<section id="point-density-1" class="level2">
+<h2 class="anchored" data-anchor-id="point-density-1">Point density</h2>
+<p><a href="img/map2_ALS_density_focused2.png" class="lightbox" data-gallery="maps2"><img src="img/map2_ALS_density_focused2.png" class="img-fluid"></a></p>
+</section>
+<section id="als-acquisition-year-1" class="level2">
+<h2 class="anchored" data-anchor-id="als-acquisition-year-1">ALS acquisition year</h2>
+<p><a href="img/map3_ALS_AcquisitionYear_focused2.png" class="lightbox" data-gallery="maps2"><img src="img/map3_ALS_AcquisitionYear_focused2.png" class="img-fluid"></a></p>
+</section>
+<section id="areas-of-multiple-acquisitions-1" class="level2">
+<h2 class="anchored" data-anchor-id="areas-of-multiple-acquisitions-1">Areas of multiple acquisitions</h2>
+<p><a href="img/map4_ALS_overlap_focus2.png" class="lightbox" data-gallery="maps2"><img src="img/map4_ALS_overlap_focus2.png" class="img-fluid"></a></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -674,7 +657,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/maps.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"closeEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

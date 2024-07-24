@@ -1,145 +1,123 @@
 ---
-title: "CanadaForestryLidar"
+title: "ALS data coverage in Canada"
+format: html
+engine: knitr
+lightbox: true
+
 ---
 
+This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada's  forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included. 
 
-# ALS data coverage in Canada
+Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. 
 
-A curated set of maps and summary statistics on the ALS data accompanying the manuscript:
+This webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date. 
 
-White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)
+*White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)*
 
+
+
+
+# Most recent coverage summary
 
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
+# library(tidyverse);library(magrittr)
+Stats <- readRDS("../5_lidarStatusCanada/data/Stats.rds")
+theTable <-Stats$theTable
 
-D <- readRDS("../5_lidarStatusCanada/ALS_coverage_all_2024.rds")
-DD <- D %>% as_tibble() %>% dplyr::select(-geometry)
-
-# Dissolve
-D1 <- D %>% group_by(Province) %>% summarize()
-ALS_area_dissolved_by_province <- 
-  D1 %>% 
-  mutate(total_area_dissolved = set_units(st_area(.), km^2)) %>% 
-  select(jurisdiction_code=Province, total_ALS_area = total_area_dissolved) %>% 
-  as_tibble() %>% 
-  select(-geometry)
-
-
-
-
-# table 
-
-theTable <- tribble(
-  ~jurisdiction_name, ~jurisdiction_code, ~total_area, ~total_forest_area, ~managed_forest_area,
-
-"British Columbia", "BC",	          925186,	  632864,	500534,
-"Alberta", "AB",	                  642317,	  341261,	250011,
-"Saskatchewan", "SK",	              591670,	  252942,	85897,
-"Manitoba", "MB",	                  553556,	  262938,	115529,
-"Ontario", "ON",	                  917741,	  652763,	334150,
-"Quebec", "QC",	                    1365128,	809223,	380741,
-"New Brunswick", "NB",           	  71450,	  65902 ,	58270,
-"Prince Edward Island", "PE",	      5660,	    2888	,	2493,
-"Nova Scotia", "NS",	              53338,	  47958	,	37708,
-"Newfoundland and Labrador", "NL",	373872,	  197691,	62010,
-"Yukon Territory", "YT",	          474391,	  219441,	39312,
-"Northwest Territories", "NT",	    1183085,	428262,	8686
-) %>%
-  mutate(total_forest_area_perc = round(total_forest_area / total_area * 100,1),
-         managed_forest_area_perc = round(managed_forest_area / total_area * 100,1))
-
-# add
-# total ALS area (dissolved!) by jurisdiction
-
-theTable %<>% 
-  left_join(ALS_area_dissolved_by_province) %>%
-  mutate(total_ALS_area_perc = as.numeric(total_ALS_area / total_area * 100),
-         #cap at 100
-         total_ALS_area_perc = if_else(total_ALS_area_perc>100,100,total_ALS_area_perc))
-
-
-# total ALS area (dissolved!) for managed forests, by jurisdiction
-coverageManagedUnmanaged <- readRDS("../5_lidarStatusCanada/coverageManagedUnmanaged.rds")
-ALS_area_managed <- coverageManagedUnmanaged %>% 
-  filter(forest_type == "managed") %>%
-  mutate(across(starts_with("area"), ~.x / 100)) %>%
-  select(jurisdiction_code=jurisdiction, managed_ALS_area=area_ALS) 
-  
-theTable %<>% left_join(ALS_area_managed) %>%
-  mutate(managed_ALS_area_perc = as.numeric(managed_ALS_area / total_ALS_area * 100),
-         #cap at 100
-         managed_ALS_area_perc = if_else(managed_ALS_area_perc>100,100,managed_ALS_area_perc))
-
-
-theTable <-
-theTable %>% 
-  filter(!is.na(total_ALS_area)) %>%
-  
-  #nicer jurisdiction names (with codes in brackets)
-  mutate(Jurisdiction=paste0(jurisdiction_name," (",jurisdiction_code,")")) %>%
-  relocate(Jurisdiction) %>%
-  select(-jurisdiction_name,-jurisdiction_code) %>%
-  
-  #combine area with proportions in brackets
-  mutate(`Total forest area` = paste0(format(total_forest_area, big.mark=",",scientific=FALSE), " (",total_forest_area_perc,"%)")) %>%
-  select(-total_forest_area_perc,-total_forest_area) %>%
-  
-  mutate(`Managed forest area` = paste0(format(managed_forest_area, big.mark=",",scientific=FALSE), " (",managed_forest_area_perc,"%)")) %>%
-  select(-managed_forest_area_perc,-managed_forest_area) %>%
-  
-  mutate(`ALS area (total)` = paste0(format(round(as.numeric(total_ALS_area)), big.mark=",",scientific=FALSE), " (",round(total_ALS_area_perc,1),"%)")) %>%
-  select(-total_ALS_area_perc, -total_ALS_area) %>%
-  
-  mutate(`ALS area (managed forest)` = paste0(format(round(as.numeric(managed_ALS_area)), big.mark=",",scientific=FALSE), " (",round(managed_ALS_area_perc,1),"%)")) %>%
-  select(-managed_ALS_area_perc, -managed_ALS_area) %>%
-  
-  rename(`Total area`= total_area) 
-
-
-theTable %>% knitr::kable()  
-
-# flextable::flextable()
-
-# total ALS area of multiple acquisitions by jurisdiction?
-
-
+total_ALS_area <- Stats$total_ALS_area
+total_ALS_perc <- Stats$total_ALS_perc
+managed_ALS_perc  <- round(Stats$managed_ALS_perc,1)
 
 ```
 
 
-![](img/map1_ALS_coverage_v2.png)
-
-
-## Point density
-
-![](img/map2_ALS_density_v2.png)
-
-## ALS acquisition year
-
-![](img/map3_ALS_AcquisitionYear_v2.png)
-
-
-# Data
-
-## ALS data used in Enhanced Forest Inventory 
+The total area of ALS coverage in Canada is currently `r format(total_ALS_area, scientific=FALSE, big.mark=",")` km^2^, which corresponds to approximately **`r total_ALS_perc`%** of the total land area of the country. The coverage of managed forests is approximately **`r managed_ALS_perc`%**.
 
 ```{r, echo=F, warning=F, message=F}
-tribble(
-  ~Jurisdiction, ~`Data sharing policy`, ~URL,
-  "BC","LAS files are open data","www.lidar.gov.bc.ca",
-  "AB", "Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry.","",
-  "SK", "LAS files are currently not shared as open data.", "",
-  "ON", "LAS files are open data","https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about ",
-  "QC", "LAS files available for purchase", "http://geoboutique.mern.gouv.qc.ca/ ",
-  "NB", "LAS files are open data", "http://www.snb.ca/geonb1/e/dc/lidar.asp",
-  "PE", "LAS files and derivatives available on request.", "",
-  "NS", "LAS files and derivatives are open data", "https://nsgi.novascotia.ca/datalocator/elevation/ ",
-)%>% knitr::kable()  
+theTable %>%
+  #inlcude only ALS coverage columns
+  # select(Jurisdiction, `ALS area (total)`, `ALS area (managed forest)`) %>%
+  knitr::kable()  
 ```
 
-## Additional ALS datasets in Canada
 
-ALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets can be found 
+# Maps
 
-- https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995
+The map showing the overall ALS coverage is presented below. Additional [Maps](maps.qmd) show **[acquisition year](maps.qmd#maps-year)**, **[point cloud density](maps.qmd#maps-density)**, and **[areas of multiple overlapping acquisitions](maps.qmd#maps-overlap)**. 
+
+![ALS coverage map](img/map1_ALS_coverage.png){.lightbox}
+
+
+
+# Cumulative area of ALS data acquired by jurisdictions
+
+The total area of all ALS acquisitions, including overlapping areas, 
+
+
+```{r, echo=F, warning=F, message=F, fig.cap="P~J~ = percentage of jurisdictional area that is covered by ALS data. P~M~ = percentage of jurisdictional managed forest area that is covered by ALS data." }
+library(ggh4x)
+library(ggtext)
+
+prov_clrs <- tribble(
+  ~Jurisdiction, ~color,
+  "AB", "#1f78b4",
+  "BC", "#33a02c",
+  
+  "NB", "#6a3d9a",
+  
+  "NS", "#ff7f00",
+  
+  "ON", "#666666",
+  "PE", "#800000",
+  "QC", "#b15928",
+  "SK", "#c71585"
+)
+
+clrs <- prov_clrs$color
+names(clrs) <- (prov_clrs$Jurisdiction)
+
+dataForTheFigure <- readRDS("../5_lidarStatusCanada/data/dataForTheFigure.rds")
+DF_area <- dataForTheFigure$DF_area
+DF_area_PE <- dataForTheFigure$DF_area_PE
+DF_area_NB <- dataForTheFigure$DF_area_NB
+DF_area_recent_adj <- dataForTheFigure$DF_area_recent_adj
+
+
+g <- DF_area %>%
+  ggplot(aes(YEAR2, Area_km2_cumulative / 1000, color=Jurisdiction, group=Jurisdiction)) + 
+  geom_pointpath(mult=0.25, shape=21, size=2)+
+  
+  
+  geom_curve(aes(x = x, y = y, xend = YEAR2, yend = Area_km2_cumulative / 1000), 
+             data = DF_area_recent_adj %>% filter(Jurisdiction %in% c("NB", "PE")), 
+             curvature = -0.2,
+             arrow = arrow(length = unit(0.1, "inches"), angle = 20, type = "closed")
+  )             +
+  
+  geom_richtext(data=DF_area_recent_adj, 
+                aes(x=x, y=y, label=label_all),
+                hjust=0,
+                show.legend  = FALSE, 
+                size=3, 
+                family=thefont
+                # alpha=0.5
+  )+
+  
+  geom_point(data=DF_area_PE, shape=21, fill="white") + 
+  geom_point(data=DF_area_NB, shape=21, fill="white", size=2) + 
+  geom_point(data=DF_area_recent_adj, size=2) + 
+  xlab("Acquisition year")+ylab(expression(paste("Area [thousands of km"^2*"]")))+
+  scale_color_manual(values = clrs) +
+  
+  guides(color=guide_legend(position = "inside"))+
+  # theme(legend.position.inside = c(0.1, 0.7))+
+  theme(legend.position="none")+
+  # xlim(2004, 2025)+
+  ylim(0, max(DF_area$Area_km2_cumulative/1000 * 1.1))+
+  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2025))
+
+g
+```
+
+

@@ -2,16 +2,37 @@ project:
   type: website
 
 website:
-  title: "CanadaForestryLidar"
+  title: "ALS data coverage in Canada"
+  # site-url: https://jadeyryan.com
+  repo-url: https://github.com/ptompalski/CanadaForestryLidar
+  repo-actions:
+    - source
+    - issue
   navbar:
+    pinned: true
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: maps.qmd
+        text: Maps
+      - href: data.qmd
+        text: Data
+      - href: contact.qmd
+        text: Contact
+    right: 
+      - icon: github
+        aria-label: Github
+        href: https://github.com/ptompalski/CanadaForestryLidar
+        
+  # page-footer: 
+  #   border: true
+  #   center: 
+  #     - text: 
+        
 
 format:
   html:
-    theme: cosmo
+    theme: flatly
     css: styles.css
     toc: true
 

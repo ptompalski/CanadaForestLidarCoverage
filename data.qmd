@@ -1,0 +1,117 @@
+---
+title: "Data"
+format: html
+engine: knitr
+---
+
+```{r, echo=F, warning=F, message=F}
+source("R/0000_setup.R")
+
+# find the most recent shapefile in each provincial folder
+
+getNewestFileDate <- function(dir) {
+  
+  PATH <- glue::glue("../5_lidarStatusCanada/layers/{dir}/")
+  
+  flist <- fs::dir_ls(PATH , recurse = T, glob = "*.shp$") %>% lapply(file.info) %>% bind_rows() %>% arrange(desc(ctime))
+  return(as_date(flist[1,]$ctime))
+  
+}
+
+tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE","NS")) %>%
+  mutate(`Last update` = map(Jurisdiction, getNewestFileDate)) %>%
+  unnest(`Last update`) 
+```
+
+
+
+## Data sources
+
+The data used in this compilation was obtained from
+
+```{r, echo=F, warning=F, message=F}
+#| tbl-colwidths: [10, 15, 75]
+
+tribble(
+  ~Jurisdiction, ~`Data source`,
+  
+  "BC",
+  "BC Ministry of Forests and https://lidar.gov.bc.ca/",
+  
+  "AB",
+  "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)",
+  
+  "SK",
+  "",
+  
+  "ON",
+  "Ministry of Natural Resources",
+  
+  "QC",
+  "",
+  
+  "NB",
+  "",
+  
+  "PE",
+  "PEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division", #https://www.gov.pe.ca/gis/index.php3?number=1011267&lang=E
+  
+  "NS",
+  "https://nsgi.novascotia.ca/datalocator/elevation/ and Department of Natural Resources and Renewables"
+  
+  
+) %>% left_join(tbl_updates) %>%
+  relocate(`Data source`,.after = last_col()) %>%
+  kable()
+```
+
+
+
+
+
+## Data availability
+
+```{r, echo=F, warning=F, message=F}
+
+#| tbl-colwidths: [15, 85]
+
+tribble(
+  ~Jurisdiction, ~`Data sharing policy`,
+  
+  "BC",
+  "ALS - open data.<br>DEM and CHM from systematic provincial acquisition will be shared. <br>[www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
+  
+  "AB", 
+  "GoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry. <br>Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. <br>ABMI acquisitions [will be made freely available](https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&scroll).",
+
+  
+  "SK", 
+  "ALS point clouds currently not shared as open data.<br>Derivatives (DEM) are shared openly (not all derived from lidar): [environment-saskatchewan.hub.arcgis.com](https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory)", 
+  "ON", 
+  "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at  [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about)",
+  
+  "QC", 
+  "ALS data available for purchase ([geoboutique.mern.gouv.qc.ca](http://geoboutique.mern.gouv.qc.ca/)).<br>Derivatives (DEM, CHM, hillshade, slope) available as open data: [https://www.donneesquebec.ca/](https://www.donneesquebec.ca/)",
+  
+  "NB",
+  "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp).<br>Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
+  
+  "PE", 
+  "ALS data and derivatives available on request.<br>DEM available as open data (via HRDEM): [](https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995).",
+  # "https://ftp.maps.canada.ca/pub/elevation/dem_mne/highresolution_hauteresolution/dtm_mnt/1m/PEI/Prince_Edward_Island_2020/",
+  
+  "NS", 
+  "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
+  
+) |>  
+  
+  knitr::kable(escape=F)  
+```
+
+
+## Additional ALS datasets in Canada
+
+ALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets include:
+
+-   <https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995>
+- Petawawa Research Forest - <https://opendata.nfis.org/mapserver/PRF.html>

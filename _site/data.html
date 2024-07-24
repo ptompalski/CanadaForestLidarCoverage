@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ALS data coverage in Canada</title>
+<title>Data – ALS data coverage in Canada</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -38,9 +38,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
-<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -91,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -99,7 +96,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Maps</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data.html"> 
+    <a class="nav-link active" href="./data.html" aria-current="page"> 
 <span class="menu-text">Data</span></a>
   </li>  
   <li class="nav-item">
@@ -129,18 +126,18 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#most-recent-coverage-summary" id="toc-most-recent-coverage-summary" class="nav-link active" data-scroll-target="#most-recent-coverage-summary">Most recent coverage summary</a></li>
-  <li><a href="#maps" id="toc-maps" class="nav-link" data-scroll-target="#maps">Maps</a></li>
-  <li><a href="#cumulative-area-of-als-data-acquired-by-jurisdictions" id="toc-cumulative-area-of-als-data-acquired-by-jurisdictions" class="nav-link" data-scroll-target="#cumulative-area-of-als-data-acquired-by-jurisdictions">Cumulative area of ALS data acquired by jurisdictions</a></li>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link active" data-scroll-target="#data-sources">Data sources</a></li>
+  <li><a href="#data-availability" id="toc-data-availability" class="nav-link" data-scroll-target="#data-availability">Data availability</a></li>
+  <li><a href="#additional-als-datasets-in-canada" id="toc-additional-als-datasets-in-canada" class="nav-link" data-scroll-target="#additional-als-datasets-in-canada">Additional ALS datasets in Canada</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/data.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">ALS data coverage in Canada</h1>
+<h1 class="title">Data</h1>
 </div>
 
 
@@ -157,97 +154,126 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada’s forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g.&nbsp;cities, or data acquired for research projects are not included.</p>
-<p>Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage.</p>
-<p>This webpage accompanies the publication by White et al.&nbsp;2024, and is designed to keep the statistics and maps presented in the paper up to date.</p>
-<p><em>White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)</em></p>
-<section id="most-recent-coverage-summary" class="level1">
-<h1>Most recent coverage summary</h1>
-<p>The total area of ALS coverage in Canada is currently 1,725,747 km<sup>2</sup>, which corresponds to approximately <strong>19%</strong> of the total land area of the country. The coverage of managed forests is approximately <strong>61.3%</strong>.</p>
-<div class="cell">
+<section id="data-sources" class="level2">
+<h2 class="anchored" data-anchor-id="data-sources">Data sources</h2>
+<p>The data used in this compilation was obtained from a number of different sources.</p>
+<div class="cell" data-tbl-colwidths="[10,15,75]">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 24%">
-<col style="width: 42%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 75%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Jurisdiction</th>
-<th style="text-align: left;">Total ALS coverage</th>
-<th style="text-align: left;">ALS coverage over managed forest</th>
+<th style="text-align: left;">Last update</th>
+<th style="text-align: left;">Data source</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">British Columbia (BC)</td>
-<td style="text-align: left;">206,335 (22.3%)</td>
-<td style="text-align: left;">122,942 (24.6%)</td>
+<td style="text-align: left;">BC</td>
+<td style="text-align: left;">2024-04-16</td>
+<td style="text-align: left;">BC Ministry of Forests and https://lidar.gov.bc.ca/</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Alberta (AB)</td>
-<td style="text-align: left;">386,888 (60.2%)</td>
-<td style="text-align: left;">233,081 (93.2%)</td>
+<td style="text-align: left;">AB</td>
+<td style="text-align: left;">2024-06-25</td>
+<td style="text-align: left;">AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Saskatchewan (SK)</td>
-<td style="text-align: left;">53,958 (9.1%)</td>
-<td style="text-align: left;">35,438 (41.3%)</td>
+<td style="text-align: left;">SK</td>
+<td style="text-align: left;">2023-11-21</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Ontario (ON)</td>
-<td style="text-align: left;">380,393 (41.4%)</td>
-<td style="text-align: left;">284,444 (84.9%)</td>
+<td style="text-align: left;">ON</td>
+<td style="text-align: left;">2024-04-16</td>
+<td style="text-align: left;">Ministry of Natural Resources</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Quebec (QC)</td>
-<td style="text-align: left;">546,938 (40.1%)</td>
-<td style="text-align: left;">373,770 (98.2%)</td>
+<td style="text-align: left;">QC</td>
+<td style="text-align: left;">2024-04-09</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">New Brunswick (NB)</td>
-<td style="text-align: left;">78,520 (100%)</td>
-<td style="text-align: left;">58,479 (100%)</td>
+<td style="text-align: left;">NB</td>
+<td style="text-align: left;">2024-01-24</td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Prince Edward Island (PE)</td>
-<td style="text-align: left;">6,762 (100%)</td>
-<td style="text-align: left;">2,497 (100%)</td>
+<td style="text-align: left;">PE</td>
+<td style="text-align: left;">2024-07-18</td>
+<td style="text-align: left;">PEI Dept of Environment, Energy &amp; Forestry, Forests, Fish &amp; Wildlife Division</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Nova Scotia (NS)</td>
-<td style="text-align: left;">65,953 (100%)</td>
-<td style="text-align: left;">37,802 (100%)</td>
+<td style="text-align: left;">NS</td>
+<td style="text-align: left;">2023-11-23</td>
+<td style="text-align: left;">https://nsgi.novascotia.ca/datalocator/elevation/ and Department of Natural Resources and Renewables</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="maps" class="level1">
-<h1>Maps</h1>
-<p>The map showing the overall ALS coverage is presented below. Additional <a href="./maps.html">Maps</a> show <strong><a href="./maps.html#maps-year">acquisition year</a></strong>, <strong><a href="./maps.html#maps-density">point cloud density</a></strong>, and <strong><a href="./maps.html#maps-overlap">areas of multiple overlapping acquisitions</a></strong>.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="img/map1_ALS_coverage.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="ALS coverage map"><img src="img/map1_ALS_coverage.png" class="img-fluid figure-img" alt="ALS coverage map"></a></p>
-<figcaption>ALS coverage map</figcaption>
-</figure>
-</div>
-</section>
-<section id="cumulative-area-of-als-data-acquired-by-jurisdictions" class="level1">
-<h1>Cumulative area of ALS data acquired by jurisdictions</h1>
-<p>The total area of all ALS acquisitions, including overlapping areas,</p>
+<section id="data-availability" class="level2">
+<h2 class="anchored" data-anchor-id="data-availability">Data availability</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="index_files/figure-html/unnamed-chunk-3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="PJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672" alt="PJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."></a></p>
-<figcaption>P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.</figcaption>
-</figure>
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Jurisdiction</th>
+<th style="text-align: left;">Data sharing policy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BC</td>
+<td style="text-align: left;">ALS - open data.<br>DEM and CHM from systematic provincial acquisition will be shared. <br><a href="https://www.lidar.gov.bc.ca">www.lidar.gov.bc.ca</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AB</td>
+<td style="text-align: left;">GoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g.&nbsp;academia) for collaborative projects and forest industry. <br>Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. <br>ABMI acquisitions <a href="https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&amp;scroll">will be made freely available</a>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SK</td>
+<td style="text-align: left;">ALS point clouds currently not shared as open data.<br>Derivatives (DEM) are shared openly (not all derived from lidar): <a href="https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory">environment-saskatchewan.hub.arcgis.com</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ON</td>
+<td style="text-align: left;">ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at <a href="https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about">geohub.lio.gov.on.ca</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">QC</td>
+<td style="text-align: left;">ALS data available for purchase (<a href="http://geoboutique.mern.gouv.qc.ca/">geoboutique.mern.gouv.qc.ca</a>).<br>Derivatives (DEM, CHM, hillshade, slope) available as open data: <a href="https://www.donneesquebec.ca/">https://www.donneesquebec.ca/</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NB</td>
+<td style="text-align: left;">ALS data are open and available for download: <a href="http://www.snb.ca/geonb1/e/dc/lidar.asp">www.snb.ca/geonb1/e/dc/lidar.asp</a>.<br>Derivatives (i.e.&nbsp;DEM, CHM, hillshade, slope) are open and are available as <a href="https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12">WMS/WCS service</a>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PE</td>
+<td style="text-align: left;">ALS data and derivatives available on request.<br>DEM available as open data (via HRDEM): <a href="https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995"></a>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NS</td>
+<td style="text-align: left;">ALS files and derivatives are open data (<a href="https://nsgi.novascotia.ca/datalocator/elevation/">nsgi.novascotia.ca/datalocator/elevation/</a>).</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-</div>
+</section>
+<section id="additional-als-datasets-in-canada" class="level2">
+<h2 class="anchored" data-anchor-id="additional-als-datasets-in-canada">Additional ALS datasets in Canada</h2>
+<p>ALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets include:</p>
+<ul>
+<li><a href="https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995" class="uri">https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995</a></li>
+<li>Petawawa Research Forest - <a href="https://opendata.nfis.org/mapserver/PRF.html" class="uri">https://opendata.nfis.org/mapserver/PRF.html</a></li>
+</ul>
 
 
 </section>
@@ -674,40 +700,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
-(function() {
-  let previousOnload = window.onload;
-  window.onload = () => {
-    if (previousOnload) {
-      previousOnload();
-    }
-    lightboxQuarto.on('slide_before_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      const href = trigger.getAttribute('href');
-      if (href !== null) {
-        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-        if (imgEl !== null) {
-          const srcAttr = imgEl.getAttribute("src");
-          if (srcAttr && srcAttr.startsWith("data:")) {
-            slideConfig.href = srcAttr;
-          }
-        }
-      } 
-    });
-  
-    lightboxQuarto.on('slide_after_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(slideNode);
-      }
-    });
-  
-  };
-  
-})();
-          </script>
 
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptompalski/CanadaForestryLidar/blob/main/data.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestryLidar/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
