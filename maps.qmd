@@ -3,6 +3,7 @@ title: "Maps"
 format: html
 engine: knitr
 lightbox: true
+date: today
 ---
 
 # Overview maps {#maps}

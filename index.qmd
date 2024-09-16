@@ -3,7 +3,7 @@ title: "ALS data coverage in Canada"
 format: html
 engine: knitr
 lightbox: true
-
+date: today
 ---
 
 This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada's  forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included. 
@@ -28,11 +28,50 @@ theTable <-Stats$theTable
 total_ALS_area <- Stats$total_ALS_area
 total_ALS_perc <- Stats$total_ALS_perc
 managed_ALS_perc  <- round(Stats$managed_ALS_perc,1)
+forested_ALS_perc <- round(Stats$forested_ALS_perc,1)
+
+```
+```{r, echo=F, warning=F, message=F}
+library(htmltools)
+library(bslib)
+library(bsicons)
+
+
+vbs <- list(
+  value_box(
+    title = "Total ALS Coverage",
+    value = paste0(format(round(total_ALS_area / 1000000, 2), big.mark=",", nsmall = 0),"M km²"),
+    # value = paste0(format(total_ALS_area, big.mark=",", nsmall = 0)," km²"),
+    # showcase = bs_icon("graph-up"),
+    theme = "primary",
+    p(paste0(format(total_ALS_perc, nsmall = 1),"% of total land area of Canada."))
+    # p("hit me", bs_icon("suit-spade"))
+  ),
+  
+  
+  value_box(
+    title = "Coverage of forested ecozones",
+    value = paste0(format(forested_ALS_perc, nsmall = 1),"%"),
+    theme = "secondary",
+    # showcase = bs_icon("graph-up")
+  ),
+  
+  value_box(
+    title = "Coverage of managed forests",
+    value = paste0(format(managed_ALS_perc, nsmall = 1),"%"),
+    # showcase = bs_icon("tree-fill")
+    theme = "success",
+  )
+)
+layout_column_wrap(
+  width = "200px",
+  !!!vbs
+)
 
 ```
 
 
-The total area of ALS coverage in Canada is currently `r format(total_ALS_area, scientific=FALSE, big.mark=",")` km^2^, which corresponds to approximately **`r total_ALS_perc`%** of the total land area of the country. The coverage of managed forests is approximately **`r managed_ALS_perc`%**.
+The total area of ALS coverage in Canada is currently `r format(total_ALS_area, scientific=FALSE, big.mark=",")` km^2^, which corresponds to approximately **`r total_ALS_perc`%** of the total land area of the country. The coverage of all forested ecozones is approximately **`r forested_ALS_perc`%**, while the coverage of managed forests is approximately **`r managed_ALS_perc`%**.
 
 ```{r, echo=F, warning=F, message=F}
 theTable %>%

@@ -1,10 +1,11 @@
 ---
 title: "Contact"
+date: today
 ---
 
 # We welcome your feedback! 
 
-If you find errors or know of data that should be added to the maps please let us know. You can submit an issue at xxxxx or contact us directly at
+If you find errors or know of data that should be added to the maps please let us know. You can [submit an issue](https://github.com/ptompalski/CanadaForestryLidar/issues/new) or contact us directly at
 
 Piotr Tompalski: piotr.tompalski\@nrcan-rncan.gc.ca
 

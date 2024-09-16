@@ -2,10 +2,12 @@
 title: "Data"
 format: html
 engine: knitr
+date: today
 ---
 
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
+library(kableExtra)
 
 # find the most recent shapefile in each provincial folder
 
@@ -25,51 +27,58 @@ tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE",
 
 
 
-## Data sources
+## ALS coverage data sources
 
-The data used in this compilation was obtained from
+The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared. 
+
+The table below lists the sources of coverage data by jurisdiction. Note that "Last update" corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.
 
 ```{r, echo=F, warning=F, message=F}
 #| tbl-colwidths: [10, 15, 75]
+
+theFootnote <- "\"Last update\" corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most ALS acquisition."
 
 tribble(
   ~Jurisdiction, ~`Data source`,
   
   "BC",
-  "BC Ministry of Forests and https://lidar.gov.bc.ca/",
+  "BC Ministry of Forests and [lidar.gov.bc.ca](https://lidar.gov.bc.ca/). ",
   
   "AB",
   "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)",
   
   "SK",
-  "",
+  "SK Ministry of Environment",
   
   "ON",
   "Ministry of Natural Resources",
   
   "QC",
-  "",
+  "Ministère des Ressources naturelles et des Forêts",
   
   "NB",
-  "",
+  "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp)",
   
   "PE",
   "PEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division", #https://www.gov.pe.ca/gis/index.php3?number=1011267&lang=E
   
   "NS",
-  "https://nsgi.novascotia.ca/datalocator/elevation/ and Department of Natural Resources and Renewables"
+  "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables"
   
   
 ) %>% left_join(tbl_updates) %>%
   relocate(`Data source`,.after = last_col()) %>%
-  kable()
+  kable() 
+ 
+  # kableExtra::footnote(general = theFootnote) %>%
+  # kable_classic() %>% 
 ```
 
 
 
 
 
-## Data availability
+## ALS data availability
 
 ```{r, echo=F, warning=F, message=F}
 

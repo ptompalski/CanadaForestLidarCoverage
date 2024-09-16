@@ -3,7 +3,6 @@ project:
 
 website:
   title: "ALS data coverage in Canada"
-  # site-url: https://jadeyryan.com
   repo-url: https://github.com/ptompalski/CanadaForestryLidar
   repo-actions:
     - source
