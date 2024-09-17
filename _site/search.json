@@ -1,5 +1,54 @@
 [
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ALS data coverage in Canada",
+    "section": "",
+    "text": "This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada’s forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included.\nInformation on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage.\nThis webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date.\nWhite, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)\n\nMost recent coverage summary\n\n\n\n\n\n\n\nTotal ALS Coverage\n1.85M km²\n20.4% of total land area of Canada.\n\n\n\n\n\n\n\n\n\nCoverage of forested ecozones\n26.9%\n\n\n\n\n\n\n\n\n\nCoverage of managed forests\n65.6%\n\n\n\n\n\n\n\n\nThe total area of ALS coverage in Canada is currently 1,853,672 km2, which corresponds to approximately 20.4% of the total land area of the country. The coverage of all forested ecozones is approximately 26.9%, while the coverage of managed forests is approximately 65.6%.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nTotal ALS coverage\nALS coverage over managed forest\n\n\n\n\nBritish Columbia (BC)\n286,645 (31%)\n172,987 (34.6%)\n\n\nAlberta (AB)\n387,662 (60.4%)\n233,323 (93.3%)\n\n\nSaskatchewan (SK)\n100,799 (17%)\n65,259 (76%)\n\n\nOntario (ON)\n380,393 (41.4%)\n284,444 (84.9%)\n\n\nQuebec (QC)\n546,938 (40.1%)\n373,770 (98.2%)\n\n\nNew Brunswick (NB)\n78,520 (100%)\n58,479 (100%)\n\n\nPrince Edward Island (PE)\n6,762 (100%)\n2,497 (100%)\n\n\nNova Scotia (NS)\n65,953 (100%)\n37,802 (100%)\n\n\n\n\n\n\n\nMaps\nThe map showing the overall ALS coverage is presented below. Additional Maps show acquisition year, point cloud density, and areas of multiple overlapping acquisitions.\n\n\n\nALS coverage map\n\n\n\n\nCumulative area of ALS data acquired by jurisdictions\nThe total area of all ALS acquisitions, including overlapping areas,\n\n\n\n\n\nPJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."
+  },
+  {
+    "objectID": "contact.html",
+    "href": "contact.html",
+    "title": "Contact",
+    "section": "",
+    "text": "We welcome your feedback!\nIf you find errors or know of data that should be added to the maps please let us know. You can submit an issue or contact us directly at\nPiotr Tompalski: piotr.tompalski@nrcan-rncan.gc.ca\nJoanne White: joanne.white@nrcan-rncan.gc.ca"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data",
+    "section": "",
+    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2024-09-16\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2024-07-26\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2024-09-11\nSK Ministry of Environment\n\n\nON\n2024-04-16\nMinistry of Natural Resources\n\n\nQC\n2024-04-09\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-01-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-07-18\nPEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division\n\n\nNS\n2023-11-23\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
+  },
+  {
+    "objectID": "data.html#als-coverage-data-sources",
+    "href": "data.html#als-coverage-data-sources",
+    "title": "Data",
+    "section": "",
+    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2024-09-16\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2024-07-26\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2024-09-11\nSK Ministry of Environment\n\n\nON\n2024-04-16\nMinistry of Natural Resources\n\n\nQC\n2024-04-09\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-01-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-07-18\nPEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division\n\n\nNS\n2023-11-23\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
+  },
+  {
+    "objectID": "data.html#als-data-availability",
+    "href": "data.html#als-data-availability",
+    "title": "Data",
+    "section": "ALS data availability",
+    "text": "ALS data availability\n\n\n\n\n\nJurisdiction\nData sharing policy\n\n\n\n\nBC\nALS - open data.DEM and CHM from systematic provincial acquisition will be shared. www.lidar.gov.bc.ca\n\n\nAB\nGoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry. Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. ABMI acquisitions will be made freely available.\n\n\nSK\nALS point clouds currently not shared as open data.Derivatives (DEM) are shared openly (not all derived from lidar): environment-saskatchewan.hub.arcgis.com\n\n\nON\nALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at geohub.lio.gov.on.ca\n\n\nQC\nALS data available for purchase (geoboutique.mern.gouv.qc.ca).Derivatives (DEM, CHM, hillshade, slope) available as open data: https://www.donneesquebec.ca/\n\n\nNB\nALS data are open and available for download: www.snb.ca/geonb1/e/dc/lidar.asp.Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as WMS/WCS service.\n\n\nPE\nALS data and derivatives available on request.DEM available as open data (via HRDEM): .\n\n\nNS\nALS files and derivatives are open data (nsgi.novascotia.ca/datalocator/elevation/)."
+  },
+  {
+    "objectID": "data.html#additional-als-datasets-in-canada",
+    "href": "data.html#additional-als-datasets-in-canada",
+    "title": "Data",
+    "section": "Additional ALS datasets in Canada",
+    "text": "Additional ALS datasets in Canada\nALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets include:\n\nhttps://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995\nPetawawa Research Forest - https://opendata.nfis.org/mapserver/PRF.html"
+  },
+  {
     "objectID": "maps.html#als-coverage",
     "href": "maps.html#als-coverage",
     "title": "Maps",
@@ -54,61 +103,5 @@
     "title": "Maps",
     "section": "Areas of multiple acquisitions",
     "text": "Areas of multiple acquisitions"
-  },
-  {
-    "objectID": "data.html",
-    "href": "data.html",
-    "title": "Data",
-    "section": "",
-    "text": "The data used in this compilation was obtained from a number of different sources.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2024-04-16\nBC Ministry of Forests and https://lidar.gov.bc.ca/\n\n\nAB\n2024-06-25\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2023-11-21\n\n\n\nON\n2024-04-16\nMinistry of Natural Resources\n\n\nQC\n2024-04-09\n\n\n\nNB\n2024-01-24\n\n\n\nPE\n2024-07-18\nPEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division\n\n\nNS\n2023-11-23\nhttps://nsgi.novascotia.ca/datalocator/elevation/ and Department of Natural Resources and Renewables"
-  },
-  {
-    "objectID": "data.html#data-sources",
-    "href": "data.html#data-sources",
-    "title": "Data",
-    "section": "",
-    "text": "The data used in this compilation was obtained from a number of different sources.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2024-04-16\nBC Ministry of Forests and https://lidar.gov.bc.ca/\n\n\nAB\n2024-06-25\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2023-11-21\n\n\n\nON\n2024-04-16\nMinistry of Natural Resources\n\n\nQC\n2024-04-09\n\n\n\nNB\n2024-01-24\n\n\n\nPE\n2024-07-18\nPEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division\n\n\nNS\n2023-11-23\nhttps://nsgi.novascotia.ca/datalocator/elevation/ and Department of Natural Resources and Renewables"
-  },
-  {
-    "objectID": "data.html#als-data-used-in-enhanced-forest-inventory",
-    "href": "data.html#als-data-used-in-enhanced-forest-inventory",
-    "title": "Data",
-    "section": "ALS data used in Enhanced Forest Inventory",
-    "text": "ALS data used in Enhanced Forest Inventory\n\n\n\n\n\nJurisdiction\nPoint cloud data\nDerivatives\nData sharing policy\nURL\n\n\n\n\nBC\nOpen data\nNA\nLAS files are open data\nwww.lidar.gov.bc.ca\n\n\nAB\nNot shared\nNA\nSharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry.\n\n\n\nSK\nNot shared\nNA\nLAS files are currently not shared as open data.\n\n\n\nON\nOpen data\nNA\nLAS files are open data\nhttps://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about\n\n\nQC\nLAS files available for purchase\nOpen data\n\nhttp://geoboutique.mern.gouv.qc.ca/\n\n\nNB\nOpen data\nNA\nLAS files are open data\nhttp://www.snb.ca/geonb1/e/dc/lidar.asp\n\n\nPE\nUpon request\nUpon request\nLAS files and derivatives available on request.\nhttps://ftp.maps.canada.ca/pub/elevation/dem_mne/highresolution_hauteresolution/dtm_mnt/1m/PEI/Prince_Edward_Island_2020/\n\n\nNS\nOpen data\nOpen data\nLAS files and derivatives are open data\nhttps://nsgi.novascotia.ca/datalocator/elevation/"
-  },
-  {
-    "objectID": "data.html#additional-als-datasets-in-canada",
-    "href": "data.html#additional-als-datasets-in-canada",
-    "title": "Data",
-    "section": "Additional ALS datasets in Canada",
-    "text": "Additional ALS datasets in Canada\nALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets include:\n\nhttps://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995\nPetawawa Research Forest - https://opendata.nfis.org/mapserver/PRF.html"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
-  },
-  {
-    "objectID": "contact.html",
-    "href": "contact.html",
-    "title": "Contact",
-    "section": "",
-    "text": "We welcome your feedback!\nIf you find errors or know of data that should be added to the maps please let us know. You can submit an issue at xxxxx or contact us directly at\nPiotr Tompalski: piotr.tompalski@nrcan-rncan.gc.ca\nJoanne White: joanne.white@nrcan-rncan.gc.ca"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ALS data coverage in Canada",
-    "section": "",
-    "text": "This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada’s forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included.\nInformation on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage.\nThis webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date.\nWhite, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)\n\nMost recent coverage summary\nThe total area of ALS coverage in Canada is currently 1,725,747 km2, which corresponds to approximately 19% of the total land area of the country. The coverage of managed forests is approximately 61.3%.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nTotal ALS coverage\nALS coverage over managed forest\n\n\n\n\nBritish Columbia (BC)\n206,335 (22.3%)\n122,942 (24.6%)\n\n\nAlberta (AB)\n386,888 (60.2%)\n233,081 (93.2%)\n\n\nSaskatchewan (SK)\n53,958 (9.1%)\n35,438 (41.3%)\n\n\nOntario (ON)\n380,393 (41.4%)\n284,444 (84.9%)\n\n\nQuebec (QC)\n546,938 (40.1%)\n373,770 (98.2%)\n\n\nNew Brunswick (NB)\n78,520 (100%)\n58,479 (100%)\n\n\nPrince Edward Island (PE)\n6,762 (100%)\n2,497 (100%)\n\n\nNova Scotia (NS)\n65,953 (100%)\n37,802 (100%)\n\n\n\n\n\n\n\nMaps\nThe map showing the overall ALS coverage is presented below. Additional Maps show acquisition year, point cloud density, and areas of multiple overlapping acquisitions.\n\n\n\nALS coverage map\n\n\n\n\nCumulative area of ALS data acquired by jurisdictions\nThe total area of all ALS acquisitions, including overlapping areas,\n\n\n\n\n\nPJ = percentage of jurisdictional area that is covered by ALS data. PM = percentage of jurisdictional managed forest area that is covered by ALS data."
-  },
-  {
-    "objectID": "data.html#data-availability",
-    "href": "data.html#data-availability",
-    "title": "Data",
-    "section": "Data availability",
-    "text": "Data availability\n\n\n\n\n\nJurisdiction\nData sharing policy\n\n\n\n\nBC\nALS - open data.DEM and CHM from systematic provincial acquisition will be shared. www.lidar.gov.bc.ca\n\n\nAB\nGoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry. Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. ABMI acquisitions will be made freely available.\n\n\nSK\nALS point clouds currently not shared as open data.Derivatives (DEM) are shared openly (not all derived from lidar): environment-saskatchewan.hub.arcgis.com\n\n\nON\nALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at geohub.lio.gov.on.ca\n\n\nQC\nALS data available for purchase (geoboutique.mern.gouv.qc.ca).Derivatives (DEM, CHM, hillshade, slope) available as open data: https://www.donneesquebec.ca/\n\n\nNB\nALS data are open and available for download: www.snb.ca/geonb1/e/dc/lidar.asp.Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as WMS/WCS service.\n\n\nPE\nALS data and derivatives available on request.DEM available as open data (via HRDEM): .\n\n\nNS\nALS files and derivatives are open data (nsgi.novascotia.ca/datalocator/elevation/)."
   }
 ]

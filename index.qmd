@@ -31,6 +31,7 @@ managed_ALS_perc  <- round(Stats$managed_ALS_perc,1)
 forested_ALS_perc <- round(Stats$forested_ALS_perc,1)
 
 ```
+
 ```{r, echo=F, warning=F, message=F}
 library(htmltools)
 library(bslib)
