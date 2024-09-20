@@ -2,8 +2,8 @@ project:
   type: website
 
 website:
-  title: "ALS data coverage in Canada"
-  repo-url: https://github.com/ptompalski/CanadaForestryLidar
+  title: "ALS data coverage in Canadian forests"
+  repo-url: https://github.com/ptompalski/CanadaForestLidarCoverage
   repo-actions:
     - source
     - issue
@@ -12,8 +12,14 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: maps.qmd
-        text: Maps
+      - text: Maps
+        menu: 
+          - href: maps.qmd
+            text: Maps
+          - href: maps-west.qmd
+            text: Detailed maps - western Canada
+          - href: maps-east.qmd
+            text: Detailed maps - eastern Canada
       - href: data.qmd
         text: Data
       - href: contact.qmd
@@ -21,7 +27,7 @@ website:
     right: 
       - icon: github
         aria-label: Github
-        href: https://github.com/ptompalski/CanadaForestryLidar
+        href: https://github.com/ptompalski/CanadaForestLidarCoverage
         
   # page-footer: 
   #   border: true
@@ -35,5 +41,5 @@ format:
     css: styles.css
     toc: true
 
-editor: visual
+editor: source
 

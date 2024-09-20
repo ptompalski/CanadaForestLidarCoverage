@@ -1,5 +1,5 @@
 ---
-title: "ALS data coverage in Canada"
+title: "ALS data coverage in Canadian forests"
 format: html
 engine: knitr
 lightbox: true
@@ -7,15 +7,13 @@ date: 09/17/2024
 date-modified: today
 ---
 
-This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada's  forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included. 
+This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across **Canada's forested landscapes**. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions outside Canada's forested ecozones, over e.g. cities, or data acquired for research projects are not included.
 
-Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. 
-
-This webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date. 
+This webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date.
 
 *White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)*
 
-
+Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. See [ALS coverage data sources](data.qmd) to find the date the coverage was updated for each jurisdiction.
 
 
 # Most recent coverage summary
@@ -72,7 +70,6 @@ layout_column_wrap(
 
 ```
 
-
 The total area of ALS coverage in Canada is currently `r format(total_ALS_area, scientific=FALSE, big.mark=",")` km^2^, which corresponds to approximately **`r total_ALS_perc`%** of the total land area of the country. The coverage of all forested ecozones is approximately **`r forested_ALS_perc`%**, while the coverage of managed forests is approximately **`r managed_ALS_perc`%**.
 
 ```{r, echo=F, warning=F, message=F}
@@ -82,21 +79,16 @@ theTable %>%
   knitr::kable()  
 ```
 
-
 # Maps
 
-The map showing the overall ALS coverage is presented below. Additional [Maps](maps.qmd) show **[acquisition year](maps.qmd#maps-year)**, **[point cloud density](maps.qmd#maps-density)**, and **[areas of multiple overlapping acquisitions](maps.qmd#maps-overlap)**. 
+The map showing the overall ALS coverage is presented below. Additional [Maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](maps.qmd#maps-overlap). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) part of the country.
 
 ![ALS coverage map](img/map1_ALS_coverage.png){.lightbox}
 
 
+# Acquisitions over time
 
-# Cumulative area of ALS data acquired by jurisdictions
-
-The total area of all ALS acquisitions, including overlapping areas, 
-
-
-```{r, echo=F, warning=F, message=F, fig.cap="P~J~ = percentage of jurisdictional area that is covered by ALS data. P~M~ = percentage of jurisdictional managed forest area that is covered by ALS data." }
+```{r, echo=F, warning=F, message=F, fig.cap="P~J~ = percentage of jurisdictional area that is covered by ALS data. P~M~ = percentage of jurisdictional managed forest area that is covered by ALS data.", fig.height=5, fig.width=8}
 library(ggh4x)
 library(ggtext)
 
@@ -156,9 +148,7 @@ g <- DF_area %>%
   theme(legend.position="none")+
   # xlim(2004, 2025)+
   ylim(0, max(DF_area$Area_km2_cumulative/1000 * 1.1))+
-  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2025))
+  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2026))
 
 g
 ```
-
-

@@ -1,0 +1,25 @@
+---
+title: "Detailed maps - western Canada"
+format: html
+engine: knitr
+lightbox: true
+date: 09/17/2024
+date-modified: today
+---
+
+
+## ALS coverage
+
+![](img/map1_ALS_coverage_focused1.png){group="maps1"}
+
+## Point density
+
+![](img/map2_ALS_density_focused1.png){group="maps1"}
+
+## ALS acquisition year
+
+![](img/map3_ALS_AcquisitionYear_focused1.png){group="maps1"}
+
+## Areas of multiple acquisitions
+
+![](img/map4_ALS_overlap_focus1.png){group="maps1"}

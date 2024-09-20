@@ -1,5 +1,5 @@
 ---
-title: "Maps"
+title: "Coverage maps"
 format: html
 engine: knitr
 lightbox: true
@@ -7,9 +7,8 @@ date: 09/17/2024
 date-modified: today
 ---
 
-# Overview maps {#maps}
-
 ## ALS coverage {#maps-coverage}
+
 ![](img/map1_ALS_coverage.png){group="maps"}
 
 ## Point density {#maps-density}
@@ -25,30 +24,4 @@ date-modified: today
 ![](img/map4_ALS_overlap.png){group="maps"}
 
 
-# Detailed maps - western Canada {#maps-detailed-west}
 
-## ALS coverage
-![](img/map1_ALS_coverage_focused1.png){group="maps1"}
-
-## Point density
-![](img/map2_ALS_density_focused1.png){group="maps1"}
-
-## ALS acquisition year
-![](img/map3_ALS_AcquisitionYear_focused1.png){group="maps1"}
-
-## Areas of multiple acquisitions
-![](img/map4_ALS_overlap_focus1.png){group="maps1"}
-
-# Detailed maps - eastern Canada {#maps-detailed-east}
-
-## ALS coverage
-![](img/map1_ALS_coverage_focused2.png){group="maps2"}
-
-## Point density
-![](img/map2_ALS_density_focused2.png){group="maps2"}
-
-## ALS acquisition year
-![](img/map3_ALS_AcquisitionYear_focused2.png){group="maps2"}
-
-## Areas of multiple acquisitions
-![](img/map4_ALS_overlap_focus2.png){group="maps2"}

@@ -1,0 +1,24 @@
+---
+title: "Detailed maps - eastern Canada"
+format: html
+engine: knitr
+lightbox: true
+date: 09/17/2024
+date-modified: today
+---
+
+## ALS coverage
+
+![](img/map1_ALS_coverage_focused2.png){group="maps2"}
+
+## Point density
+
+![](img/map2_ALS_density_focused2.png){group="maps2"}
+
+## ALS acquisition year
+
+![](img/map3_ALS_AcquisitionYear_focused2.png){group="maps2"}
+
+## Areas of multiple acquisitions
+
+![](img/map4_ALS_overlap_focus2.png){group="maps2"}
