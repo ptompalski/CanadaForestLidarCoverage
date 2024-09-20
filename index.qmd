@@ -3,7 +3,8 @@ title: "ALS data coverage in Canada"
 format: html
 engine: knitr
 lightbox: true
-date: today
+date: 09/17/2024
+date-modified: today
 ---
 
 This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across Canada's  forested landscapes. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions over e.g. cities, or data acquired for research projects are not included. 
