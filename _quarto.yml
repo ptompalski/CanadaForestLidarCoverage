@@ -1,5 +1,6 @@
 project:
   type: website
+  output-dir: docs
 
 website:
   title: "ALS data coverage in Canadian forests"
@@ -15,7 +16,7 @@ website:
       - text: Maps
         menu: 
           - href: maps.qmd
-            text: Maps
+            text: National maps
           - href: maps-west.qmd
             text: Detailed maps - western Canada
           - href: maps-east.qmd

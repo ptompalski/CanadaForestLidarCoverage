@@ -7,11 +7,11 @@ date: 09/17/2024
 date-modified: today
 ---
 
-This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across **Canada's forested landscapes**. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. Acquisitions outside Canada's forested ecozones, over e.g. cities, or data acquired for research projects are not included.
+This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across **Canada's forested landscapes**. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. ALS acquisitions outside Canada's forested ecozones (e.g. in urban areas)  or data acquired for research projects are not included.
 
-This webpage accompanies the publication by White et al. 2024, and is designed to keep the statistics and maps presented in the paper up to date.
+This webpage accompanies the publication by White et al. 2025, and is designed to keep the statistics and maps presented in the paper up to date.
 
-*White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2024). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)*
+*White, J.C., Tompalski, P., Bater C., Wulder, M.A., xxx, (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research (in preparation)*
 
 Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. See [ALS coverage data sources](data.qmd) to find the date the coverage was updated for each jurisdiction.
 
@@ -81,14 +81,16 @@ theTable %>%
 
 # Maps
 
-The map showing the overall ALS coverage is presented below. Additional [Maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](maps.qmd#maps-overlap). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) part of the country.
+The map showing the overall ALS coverage is presented below. Additional [maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](maps.qmd#maps-overlap). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) parts of the country.
 
-![ALS coverage map](img/map1_ALS_coverage.png){.lightbox}
+![](img/map1_ALS_coverage.png){.lightbox}
 
 
 # Acquisitions over time
 
-```{r, echo=F, warning=F, message=F, fig.cap="P~J~ = percentage of jurisdictional area that is covered by ALS data. P~M~ = percentage of jurisdictional managed forest area that is covered by ALS data.", fig.height=5, fig.width=8}
+Cumulative area of ALS data acquired by jurisdictions, by year, including overlapping acquisitions. P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.  
+
+```{r, echo=F, warning=F, message=F, fig.height=5, fig.width=8}
 library(ggh4x)
 library(ggtext)
 

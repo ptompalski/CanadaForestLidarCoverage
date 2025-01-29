@@ -61,7 +61,7 @@ tribble(
   "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp)",
   
   "PE",
-  "PEI Dept of Environment, Energy & Forestry, Forests, Fish & Wildlife Division", #https://www.gov.pe.ca/gis/index.php3?number=1011267&lang=E
+  "Prince Edward Island Department of Environment, Energy and Climate Action", #https://www.gov.pe.ca/gis/index.php3?number=1011267&lang=E
   
   "NS",
   "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables"
@@ -121,7 +121,7 @@ tribble(
 
 ## Additional ALS datasets in Canada
 
-ALS data acquired over cities or for research are not included in the maps and summaries above. Some of those datasets include:
+ALS data acquired outside of forest ecosystems (e.g.,  in urban areas or for flood mapping purposes)  or for research purposes are not included in the maps and summaries above. Some of those datasets include:
 
--   <https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995>
-- Petawawa Research Forest - <https://opendata.nfis.org/mapserver/PRF.html>
+- [High Resolution Digital Elevation Model (HRDEM) - CanElevation Series](https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995)
+- [Petawawa Research Forest](https://opendata.nfis.org/mapserver/PRF.html)
