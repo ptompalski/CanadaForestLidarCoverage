@@ -7,15 +7,13 @@ date: 09/17/2024
 date-modified: today
 ---
 
-This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across **Canada's forested landscapes**. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. ALS acquisitions outside Canada's forested ecozones (e.g. in urban areas)  or data acquired for research projects are not included.
+This webpage is designed to present the current status of airborne laser scanning (ALS) data coverage across **Canada's forested landscapes**. We present a collection of maps and descriptive statistics that illustrate the current status and availability of ALS data, specifically focusing on its applications within forestry. ALS acquisitions outside Canada's forested ecozones (e.g. in urban areas) or data acquired for research projects are not included.
 
-This webpage accompanies the publication by White et al. 2025, and is designed to keep the statistics and maps presented in the paper up to date.
+This webpage accompanies the publication by [White et al. 2025](https://doi.org/10.1139/cjfr-2024-0255), and is designed to keep the statistics and maps presented in the paper up to date.
 
-*White, J.C., Tompalski, P., Bater C.W., Wulder, M.A., Fortin, M., Hennigar C., Robere-McGugan, G., Sinclair, I., White, R., (2025). Enhanced forest inventories in Canada: implementation,
-status, and research needs. Canadian Journal of Forest Research. http://dx.doi.org/10.1139/cjfr-2024-0255 *
+*White, J.C., Tompalski, P., Bater C.W., Wulder, M.A., Fortin, M., Hennigar C., Robere-McGugan, G., Sinclair, I., White, R., (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research,  [doi.org/10.1139/cjfr-2024-0255](https://doi.org/10.1139/cjfr-2024-0255). *
 
 Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. See [ALS coverage data sources](data.qmd) to find the date the coverage was updated for each jurisdiction.
-
 
 # Most recent coverage summary
 
@@ -86,10 +84,9 @@ The map showing the overall ALS coverage is presented below. Additional [maps](m
 
 ![](img/map1_ALS_coverage.png){.lightbox}
 
-
 # Acquisitions over time
 
-Cumulative area of ALS data acquired by jurisdictions, by year, including overlapping acquisitions. P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.  
+Cumulative area of ALS data acquired by jurisdictions, by year, including overlapping acquisitions. P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.
 
 ```{r, echo=F, warning=F, message=F, fig.height=5, fig.width=8}
 library(ggh4x)
