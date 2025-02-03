@@ -117,6 +117,9 @@ DF_area_NB <- dataForTheFigure$DF_area_NB
 DF_area_recent_adj <- dataForTheFigure$DF_area_recent_adj
 
 
+credits_text2 <- glue("Source: ptompalski.github.io/CanadaForestLidarCoverage\n Figure generated on {today()}. \nNote that figure may not be exhaustive.")
+
+
 g <- DF_area %>%
   ggplot(aes(YEAR2, Area_km2_cumulative / 1000, color=Jurisdiction, group=Jurisdiction)) + 
   geom_pointpath(mult=0.25, shape=21, size=2)+
@@ -148,7 +151,8 @@ g <- DF_area %>%
   theme(legend.position="none")+
   # xlim(2004, 2025)+
   ylim(0, max(DF_area$Area_km2_cumulative/1000 * 1.1))+
-  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2026))
+  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2026))+
+  labs(caption = credits_text2)
 
 g
 ```
