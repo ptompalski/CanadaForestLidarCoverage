@@ -1,7 +1,8 @@
 ---
 title: "Contact"
-date: 09/17/2024
-date-modified: today
+date: today
+language: 
+  title-block-published: "Last modified"
 ---
 
 # We welcome your feedback! 

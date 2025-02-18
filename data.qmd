@@ -2,8 +2,9 @@
 title: "Data"
 format: html
 engine: knitr
-date: 09/17/2024
-date-modified: today
+date: today
+language: 
+  title-block-published: "Last modified"
 ---
 
 ```{r, echo=F, warning=F, message=F}
@@ -107,8 +108,7 @@ tribble(
   "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp).<br>Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
   
   "PE", 
-  "ALS data and derivatives available on request.<br>DEM available as open data (via HRDEM): [](https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995).",
-  # "https://ftp.maps.canada.ca/pub/elevation/dem_mne/highresolution_hauteresolution/dtm_mnt/1m/PEI/Prince_Edward_Island_2020/",
+  "ALS data available for download:  [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/)",
   
   "NS", 
   "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
@@ -124,4 +124,11 @@ tribble(
 ALS data acquired outside of forest ecosystems (e.g.,  in urban areas or for flood mapping purposes)  or for research purposes are not included in the maps and summaries above. Some of those datasets include:
 
 - [High Resolution Digital Elevation Model (HRDEM) - CanElevation Series](https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995)
+
+- [High Resolution Digital Elevation Model Mosaic (HRDEM Mosaic) CanElevation Series](https://open.canada.ca/data/en/dataset/0fe65119-e96e-4a57-8bfe-9d9245fba06b)
+
+- [National Elevation Data Strategy](https://natural-resources.canada.ca/maps-tools-publications/satellite-elevation-air-photos/national-elevation-data-strategy)
+
+- [LiDAR Point Clouds - CanElevation Series](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947)
+
 - [Petawawa Research Forest](https://opendata.nfis.org/mapserver/PRF.html)
