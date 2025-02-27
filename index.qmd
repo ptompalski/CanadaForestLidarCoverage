@@ -12,7 +12,10 @@ This webpage is designed to present the current status of airborne laser scannin
 
 This webpage accompanies the publication by [White et al. 2025](https://doi.org/10.1139/cjfr-2024-0255), and is designed to keep the statistics and maps presented in the paper up to date.
 
-*White, J.C., Tompalski, P., Bater C.W., Wulder, M.A., Fortin, M., Hennigar C., Robere-McGugan, G., Sinclair, I., White, R., (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research,  [doi.org/10.1139/cjfr-2024-0255](https://doi.org/10.1139/cjfr-2024-0255). *
+::: {.callout-note appearance="minimal"}
+
+*White, J.C., Tompalski, P., Bater C.W., Wulder, M.A., Fortin, M., Hennigar C., Robere-McGugan, G., Sinclair, I., White, R., (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research, 55: 1-37. [doi.org/10.1139/cjfr-2024-0255](https://doi.org/10.1139/cjfr-2024-0255). *
+:::
 
 Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. See [ALS coverage data sources](data.qmd) to find the date the coverage was updated for each jurisdiction.
 
