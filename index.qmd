@@ -86,7 +86,7 @@ theTable %>%
 
 The map showing the overall ALS coverage is presented below. Additional [maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](maps.qmd#maps-overlap). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) parts of the country.
 
-![](img/map1_ALS_coverage.png){.lightbox}
+![](img/map0_overview.png){.lightbox}
 
 # Acquisitions over time
 
