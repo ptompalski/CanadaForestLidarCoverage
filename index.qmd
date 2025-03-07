@@ -160,3 +160,5 @@ g <- DF_area %>%
 
 g
 ```
+
+![](img/animation_ALS_over_time.gif){.lightbox}
