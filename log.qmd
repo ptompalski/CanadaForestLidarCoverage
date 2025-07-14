@@ -1,0 +1,41 @@
+---
+title: "Update Log"
+format: html
+engine: knitr
+lightbox: true
+date: today
+language: 
+  title-block-published: "Last modified"
+---
+
+```{r, echo=F, message=F}
+library(tidyverse)
+library(lubridate)
+
+# Set the folder path where your images are
+img_folder <- "img/UpdateLog"
+
+# List image files
+img_files <- list.files(path = img_folder, pattern = "\\.png$", full.names = TRUE)
+
+# Extract date from filename (e.g., "ALS_2024-06-01.jpg")
+img_info <- tibble(file = img_files) %>%
+  mutate(
+    filename = basename(file),
+    date_str = str_extract(filename, "\\d{4}-\\d{2}-\\d{2}"),
+    date = ymd(date_str)
+  ) %>%
+  arrange(desc(date))
+
+# Create formatted markdown strings
+output <- map2_chr(
+  img_info$file,
+  img_info$date,
+  ~ glue::glue("**ALS coverage added on {format(.y, '%B %d, %Y')}**  \n![]({.x}){{width=100%}}\n")
+)
+
+# Output as raw markdown
+knitr::asis_output(paste(output, collapse = "\n"))
+
+```
+

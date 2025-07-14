@@ -124,26 +124,104 @@ DF_area_recent_adj <- dataForTheFigure$DF_area_recent_adj
 credits_text2 <- glue("Source: ptompalski.github.io/CanadaForestLidarCoverage\n Figure generated on {today()}. \nNote that figure may not be exhaustive.")
 
 
+detect_label_overlaps <- function(x, y, x_size, y_size) {
+  n <- length(x)
+  if (!all(length(y) == n)) stop("x and y must be the same length.")
+  
+  if (length(x_size) == 1) x_size <- rep(x_size, n)
+  if (length(y_size) == 1) y_size <- rep(y_size, n)
+  
+  if (!all(lengths(list(x, y, x_size, y_size)) == n)) {
+    stop("All input vectors must be the same length after recycling.")
+  }
+  
+  overlaps <- matrix(FALSE, nrow = n, ncol = n)
+  
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      if (anyNA(c(x[i], x[j], y[i], y[j], x_size[i], x_size[j], y_size[i], y_size[j]))) {
+        next  # skip this pair
+      }
+      
+      x_overlap <- abs(x[i] - x[j]) < (x_size[i] + x_size[j]) / 2
+      y_overlap <- abs(y[i] - y[j]) < (y_size[i] + y_size[j]) / 2
+      
+      if (x_overlap && y_overlap) {
+        overlaps[i, j] <- TRUE
+        overlaps[j, i] <- TRUE
+      }
+    }
+  }
+  
+  return(overlaps)
+}
+
+
+
+
+repel_y_by_pairs <- function(y, overlap_pairs, buffer = 40) {
+  y_new <- y
+  
+  for (k in seq_len(nrow(overlap_pairs))) {
+    i <- overlap_pairs[k, 1]
+    j <- overlap_pairs[k, 2]
+    
+    # Skip if either is NA
+    if (is.na(y_new[i]) || is.na(y_new[j])) next
+    
+    # Compute vertical distance and target shift
+    dist_y <- abs(y_new[i] - y_new[j])
+    shift <- (buffer + (0.5 * dist_y))
+    
+    # Determine direction based on current ordering
+    if (y_new[i] < y_new[j]) {
+      y_new[i] <- y_new[i] - shift
+      y_new[j] <- y_new[j] + shift
+    } else {
+      y_new[i] <- y_new[i] + shift
+      y_new[j] <- y_new[j] - shift
+    }
+  }
+  
+  return(y_new)
+}
+
+
+x <- DF_area_recent_adj$x
+y <- DF_area_recent_adj$y
+
+overlap_matrix <- detect_label_overlaps(x = x, y = y, x_size = 2, y_size = 100)
+
+overlap_pairs <- which(overlap_matrix, arr.ind = TRUE)
+overlap_pairs <- overlap_pairs[overlap_pairs[, 1] < overlap_pairs[, 2], , drop = FALSE]
+
+y_new <- repel_y_by_pairs(y = y, overlap_pairs = overlap_pairs, buffer = 50)
+
+DF_area_recent_adj$.adjusted_y <- y_new
+
+
+
 g <- DF_area %>%
   ggplot(aes(YEAR2, Area_km2_cumulative / 1000, color=Jurisdiction, group=Jurisdiction)) + 
   geom_pointpath(mult=0.25, shape=21, size=2)+
-  
-  
-  geom_curve(aes(x = x, y = y, xend = YEAR2, yend = Area_km2_cumulative / 1000), 
-             data = DF_area_recent_adj %>% filter(Jurisdiction %in% c("NB", "PE")), 
+
+  geom_curve(aes(x = x, y = .adjusted_y, xend = YEAR2, yend = Area_km2_cumulative / 1000),
+             data = DF_area_recent_adj, #%>% filter(Jurisdiction %in% c("NB", "PE")),
              curvature = -0.2,
              arrow = arrow(length = unit(0.1, "inches"), angle = 20, type = "closed")
   )             +
+
   
-  geom_richtext(data=DF_area_recent_adj, 
-                aes(x=x, y=y, label=label_all),
+  
+  geom_richtext(data=DF_area_recent_adj,
+                aes(x=x, y=.adjusted_y , label=label_all),
                 hjust=0,
-                show.legend  = FALSE, 
-                size=3, 
+                show.legend  = FALSE,
+                size=3,
                 family=thefont
                 # alpha=0.5
   )+
-  
+
   geom_point(data=DF_area_PE, shape=21, fill="white") + 
   geom_point(data=DF_area_NB, shape=21, fill="white", size=2) + 
   geom_point(data=DF_area_recent_adj, size=2) + 
@@ -155,8 +233,10 @@ g <- DF_area %>%
   theme(legend.position="none")+
   # xlim(2004, 2025)+
   ylim(0, max(DF_area$Area_km2_cumulative/1000 * 1.1))+
-  scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2024), limits = c(2004, 2026))+
+  # scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2025), limits = c(2004, 2027))+
+  scale_x_continuous(expand = expansion(mult = c(0, 0.1)))+
   labs(caption = credits_text2)
+
 
 g
 ```

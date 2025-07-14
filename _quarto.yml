@@ -23,6 +23,8 @@ website:
             text: Detailed maps - eastern Canada
       - href: data.qmd
         text: Data
+      - href: log.qmd
+        text: Update log
       - href: contact.qmd
         text: Contact
     right: 
