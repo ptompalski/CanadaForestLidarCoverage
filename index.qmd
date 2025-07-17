@@ -24,7 +24,7 @@ Information on this website is periodically updated to ensure the most current a
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
 # library(tidyverse);library(magrittr)
-Stats <- readRDS("../5_lidarStatusCanada/data/Stats.rds")
+Stats <- readRDS("layers/Stats.rds")
 theTable <-Stats$theTable
 
 total_ALS_area <- Stats$total_ALS_area
@@ -114,7 +114,7 @@ prov_clrs <- tribble(
 clrs <- prov_clrs$color
 names(clrs) <- (prov_clrs$Jurisdiction)
 
-dataForTheFigure <- readRDS("../5_lidarStatusCanada/data/dataForTheFigure.rds")
+dataForTheFigure <- readRDS("layers/dataForTheFigure.rds")
 DF_area <- dataForTheFigure$DF_area
 DF_area_PE <- dataForTheFigure$DF_area_PE
 DF_area_NB <- dataForTheFigure$DF_area_NB
