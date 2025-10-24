@@ -90,10 +90,9 @@ The map showing the overall ALS coverage is presented below. Additional [maps](m
 
 # Acquisitions over time
 
-Cumulative area of ALS data acquired by jurisdictions, by year, including overlapping acquisitions. P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data. P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.
 
-```{r, echo=F, warning=F, message=F, fig.height=5, fig.width=8}
-library(ggh4x)
+```{r, echo=F, warning=F, message=F}
+library(ggiraph)
 library(ggtext)
 
 prov_clrs <- tribble(
@@ -114,131 +113,79 @@ prov_clrs <- tribble(
 clrs <- prov_clrs$color
 names(clrs) <- (prov_clrs$Jurisdiction)
 
-dataForTheFigure <- readRDS("layers/dataForTheFigure.rds")
-DF_area <- dataForTheFigure$DF_area
-DF_area_PE <- dataForTheFigure$DF_area_PE
-DF_area_NB <- dataForTheFigure$DF_area_NB
-DF_area_recent_adj <- dataForTheFigure$DF_area_recent_adj
+D <- readRDS("layers/dataForTheFigure_v2.rds")
+g <- D %>%
+  ggplot(aes(
+    year,
+    Total_ALS_acquisitions_area_cumulative / 1000,
+    color = jurisdiction_code,
+    group = jurisdiction_code,
+    # here we add iteractive aesthetics
+    tooltip = tip,
+    data_id = jurisdiction_code
+  )) +
+  # geom_pointpath(mult=0.25, shape=21, size=2)+
+  geom_line_interactive(
+    aes(tooltip = NULL)
+    # hover_css = "stroke:#ff7f0e; stroke-width:3px; fill:none; fill-opacity:0;",
+    # selected_css = "stroke:#2E86DE; stroke-width:3.5px; fill:none; fill-opacity:0;"
+  ) +
+  geom_point_interactive(
+    hover_nearest = F,
+    size = 6 / .pt,
+    hover_css = "r:3px;", selected_css = "r:1px;"
+    # hover_css = "r:6px; fill:#ff7f0e; stroke:black; stroke-width:1.5px;",
+    # selected_css = "r:7px; fill:#2E86DE; stroke:black; stroke-width:2px;"
+  ) +
+
+  # geom_point(data=DF_area_recent_adj, size=2) +
+  xlab("Acquisition year") +
+  ylab(expression(paste("Area [thousands of km"^2 * "]"))) +
+  scale_color_manual(values = clrs, name = "")+
+  labs(
+    title = "Cumulative area of ALS acquisitions", 
+    subtitle = "(Overlapping ALS areas are included in totals.)",
+    caption = "P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data.<br>
+    P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.") +
+        theme(
+    plot.caption = element_markdown(size = 10, colour = "#888888"),
+    plot.subtitle = element_markdown(),
+    plot.title = element_markdown()
+  )
 
 
-credits_text2 <- glue("Source: ptompalski.github.io/CanadaForestLidarCoverage\n Figure generated on {today()}. \nNote that figure may not be exhaustive.")
+g <- girafe(ggobj = g)
 
+g <- girafe_options(
+  g,
+  opts_hover(css = "opacity:1;"),            # hovered = full opacity (same color)
+  opts_hover_inv(css = "opacity:0.2;"),      # everything else = faded
+  opts_selection(css = "opacity:1;"),        # when selected, same color
+  opts_selection_inv(css = "opacity:0.2;") ,  # non-selected = faded
 
-detect_label_overlaps <- function(x, y, x_size, y_size) {
-  n <- length(x)
-  if (!all(length(y) == n)) stop("x and y must be the same length.")
-  
-  if (length(x_size) == 1) x_size <- rep(x_size, n)
-  if (length(y_size) == 1) y_size <- rep(y_size, n)
-  
-  if (!all(lengths(list(x, y, x_size, y_size)) == n)) {
-    stop("All input vectors must be the same length after recycling.")
-  }
-  
-  overlaps <- matrix(FALSE, nrow = n, ncol = n)
-  
-  for (i in 1:(n - 1)) {
-    for (j in (i + 1):n) {
-      if (anyNA(c(x[i], x[j], y[i], y[j], x_size[i], x_size[j], y_size[i], y_size[j]))) {
-        next  # skip this pair
-      }
-      
-      x_overlap <- abs(x[i] - x[j]) < (x_size[i] + x_size[j]) / 2
-      y_overlap <- abs(y[i] - y[j]) < (y_size[i] + y_size[j]) / 2
-      
-      if (x_overlap && y_overlap) {
-        overlaps[i, j] <- TRUE
-        overlaps[j, i] <- TRUE
-      }
-    }
-  }
-  
-  return(overlaps)
-}
-
-
-
-
-repel_y_by_pairs <- function(y, overlap_pairs, buffer = 40) {
-  y_new <- y
-  
-  for (k in seq_len(nrow(overlap_pairs))) {
-    i <- overlap_pairs[k, 1]
-    j <- overlap_pairs[k, 2]
-    
-    # Skip if either is NA
-    if (is.na(y_new[i]) || is.na(y_new[j])) next
-    
-    # Compute vertical distance and target shift
-    dist_y <- abs(y_new[i] - y_new[j])
-    shift <- (buffer + (0.5 * dist_y))
-    
-    # Determine direction based on current ordering
-    if (y_new[i] < y_new[j]) {
-      y_new[i] <- y_new[i] - shift
-      y_new[j] <- y_new[j] + shift
-    } else {
-      y_new[i] <- y_new[i] + shift
-      y_new[j] <- y_new[j] - shift
-    }
-  }
-  
-  return(y_new)
-}
-
-
-x <- DF_area_recent_adj$x
-y <- DF_area_recent_adj$y
-
-overlap_matrix <- detect_label_overlaps(x = x, y = y, x_size = 2, y_size = 100)
-
-overlap_pairs <- which(overlap_matrix, arr.ind = TRUE)
-overlap_pairs <- overlap_pairs[overlap_pairs[, 1] < overlap_pairs[, 2], , drop = FALSE]
-
-y_new <- repel_y_by_pairs(y = y, overlap_pairs = overlap_pairs, buffer = 50)
-
-DF_area_recent_adj$.adjusted_y <- y_new
-
-
-
-g <- DF_area %>%
-  ggplot(aes(YEAR2, Area_km2_cumulative / 1000, color=Jurisdiction, group=Jurisdiction)) + 
-  geom_pointpath(mult=0.25, shape=21, size=2)+
-
-  geom_curve(aes(x = x, y = .adjusted_y, xend = YEAR2, yend = Area_km2_cumulative / 1000),
-             data = DF_area_recent_adj, #%>% filter(Jurisdiction %in% c("NB", "PE")),
-             curvature = -0.2,
-             arrow = arrow(length = unit(0.1, "inches"), angle = 20, type = "closed")
-  )             +
-
-  
-  
-  geom_richtext(data=DF_area_recent_adj,
-                aes(x=x, y=.adjusted_y , label=label_all),
-                hjust=0,
-                show.legend  = FALSE,
-                size=3,
-                family=thefont
-                # alpha=0.5
-  )+
-
-  geom_point(data=DF_area_PE, shape=21, fill="white") + 
-  geom_point(data=DF_area_NB, shape=21, fill="white", size=2) + 
-  geom_point(data=DF_area_recent_adj, size=2) + 
-  xlab("Acquisition year")+ylab(expression(paste("Area [thousands of km"^2*"]")))+
-  scale_color_manual(values = clrs) +
-  
-  guides(color=guide_legend(position = "inside"))+
-  # theme(legend.position.inside = c(0.1, 0.7))+
-  theme(legend.position="none")+
-  # xlim(2004, 2025)+
-  ylim(0, max(DF_area$Area_km2_cumulative/1000 * 1.1))+
-  # scale_x_continuous(breaks = c(2005, 2010, 2015, 2020, 2025), limits = c(2004, 2027))+
-  scale_x_continuous(expand = expansion(mult = c(0, 0.1)))+
-  labs(caption = credits_text2)
-
+  # opts_hover(css = "opacity:1;"), # keep hovered fully visible
+  # opts_hover_inv(css = "opacity:0.15;"), # dim everything else
+  # opts_selection(
+    # type = "single",
+    # css = "r:7px; fill:#2E86DE; stroke:black; stroke-width:2.5px;"
+  # ),
+  opts_tooltip(
+    css = "background-color: #333333; 
+           color: #ffffff; 
+           font-family: 'Roboto';
+           font-size: 14px;
+           border-radius: 6px;
+           padding: 5px 10px;
+           border: 1px solid #999999;"
+  )
+)
 
 g
+
+
 ```
 
+<br>
+
 ![](img/animation_ALS_over_time.gif){.lightbox}
+
