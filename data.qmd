@@ -15,7 +15,8 @@ library(kableExtra)
 
 getNewestFileDate <- function(dir) {
   
-  PATH <- glue::glue("../5_lidarStatusCanada/layers/{dir}/")
+  PATH <- glue::glue("layers/source_layers/{dir}/")
+  # PATH <- glue::glue("../5_lidarStatusCanada/layers/{dir}/")
   
   flist <- fs::dir_ls(PATH , recurse = T, glob = "*.shp$") %>% lapply(file.info) %>% bind_rows() %>% arrange(desc(ctime))
   return(as_date(flist[1,]$ctime))

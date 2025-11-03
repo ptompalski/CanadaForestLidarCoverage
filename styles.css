@@ -1,1 +1,4 @@
 /* css styles */
+.callout.callout-style-simple .callout-body {
+    font-size: 1rem !important
+}
