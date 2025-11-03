@@ -13,20 +13,24 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - text: Maps
-        menu: 
+      - text: Coverage maps
+        menu:
           - href: maps.qmd
-            text: National maps
+            text: National overview
           - href: maps-west.qmd
-            text: Detailed maps - western Canada
+            text: Western Canada
           - href: maps-east.qmd
-            text: Detailed maps - eastern Canada
-      - href: data.qmd
-        text: Data
-      - href: log.qmd
-        text: Update log
-      - href: contact.qmd
-        text: Contact
+            text: Eastern Canada
+          - href: multitemporal.qmd
+            text: Multitemporal data
+      - text: Resources
+        menu:
+          - href: data.qmd
+            text: Data access
+          - href: log.qmd
+            text: Update log
+          - href: contact.qmd
+            text: Contact
     right: 
       - icon: github
         aria-label: Github

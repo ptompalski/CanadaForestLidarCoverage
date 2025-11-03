@@ -1,0 +1,62 @@
+---
+title: "Multitemporal data"
+format: html
+engine: knitr
+date: today
+language: 
+  title-block-published: "Last modified"
+---
+
+```{r, echo=F, warning=F, message=F}
+source("R/0000_setup.R")
+
+#stats for the multitemporal data
+summary_multitemporal_list <- readRDS("layers/summary_multitemporal_list.rds")
+summary_multitemporal_Canada <- summary_multitemporal_list$summary_multitemporal_Canada
+summary_multitemporal_managed <- summary_multitemporal_list$summary_multitemporal_managed
+
+```
+
+An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada’s land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+
+
+```{r, echo=F, warning=F, message=F}
+summary_multitemporal_list$summary_multitemporal_byProvince %>%
+    mutate(Jurisdiction = paste0(jurisdiction_name, " (", jurisdiction_code, ")")  ) %>%
+  relocate(Jurisdiction)%>%
+  select(-jurisdiction_name,-jurisdiction_code) %>%
+    mutate(
+    `Multitemporal ALS coverage` = paste0(
+      format(
+        round(as.numeric(multitemporal_ALS_area )),
+        big.mark = ",",
+        scientific = FALSE
+      ),
+      " (",
+      round(multitemporal_ALS_area_prop, 1),
+      "%)"
+    )
+  ) %>%
+    select(
+        -multitemporal_ALS_area, 
+        -multitemporal_ALS_area_prop,
+        -managed_multitemporal_ALS_area,
+        - managed_multitemporal_ALS_area_prop) %>%
+      knitr::kable()  
+#   glimpse()
+    
+
+```
+
+<br>
+
+## Areas of multiple acquisitions {#maps-overlap}
+
+### National extent
+![](img/map4_ALS_overlap.png){group="maps"}
+
+### Western regional extent
+![](img/map4_ALS_overlap_focus1.png){group="maps"}
+
+### Eastern regional extent
+![](img/map4_ALS_overlap_focus2.png){group="maps"}

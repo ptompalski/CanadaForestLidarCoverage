@@ -14,7 +14,17 @@ This webpage accompanies the publication by [White et al. 2025](https://doi.org/
 
 ::: {.callout-note appearance="minimal"}
 
-*White, J.C., Tompalski, P., Bater C.W., Wulder, M.A., Fortin, M., Hennigar C., Robere-McGugan, G., Sinclair, I., White, R., (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research, 55: 1-37. [doi.org/10.1139/cjfr-2024-0255](https://doi.org/10.1139/cjfr-2024-0255). *
+:::: {.columns}
+::: {.column width="70%"}
+*White, J.C., Tompalski, P., Bater, C.W., Wulder, M.A., Fortin, M., Hennigar, C., Robere-McGugan, G., Sinclair, I., White, R. (2025). **Enhanced forest inventories in Canada: implementation, status, and research needs.** Canadian Journal of Forest Research, 55: 1–37. [doi.org/10.1139/cjfr-2024-0255](https://doi.org/10.1139/cjfr-2024-0255).*
+:::
+
+::: {.column width="30%"}
+![](img/paper.png){style="max-height:100px; object-fit:contain; display:block; margin:auto;"}
+
+:::
+::::
+
 :::
 
 Information on this website is periodically updated to ensure the most current and accurate representation of ALS data coverage. See [ALS coverage data sources](data.qmd) to find the date the coverage was updated for each jurisdiction.
@@ -31,6 +41,11 @@ total_ALS_area <- Stats$total_ALS_area
 total_ALS_perc <- Stats$total_ALS_perc
 managed_ALS_perc  <- round(Stats$managed_ALS_perc,1)
 forested_ALS_perc <- round(Stats$forested_ALS_perc,1)
+
+#stats for the multitemporal data
+summary_multitemporal_list <- readRDS("layers/summary_multitemporal_list.rds")
+summary_multitemporal_Canada <- summary_multitemporal_list$summary_multitemporal_Canada
+summary_multitemporal_managed <- summary_multitemporal_list$summary_multitemporal_managed
 
 ```
 
@@ -82,9 +97,13 @@ theTable %>%
   knitr::kable()  
 ```
 
+An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada’s land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+
+
+
 # Maps
 
-The map showing the overall ALS coverage is presented below. Additional [maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](maps.qmd#maps-overlap). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) parts of the country.
+The map showing the overall ALS coverage is presented below. Additional [maps](maps.qmd) show [**acquisition year**](maps.qmd#maps-year), [**point cloud density**](maps.qmd#maps-density), and [**areas of multiple overlapping acquisitions**](multitemporal.qmd). More detailed maps are available for [western](maps-west.qmd) and [eastern](maps-east.qmd) parts of the country.
 
 ![](img/map0_overview.png){.lightbox}
 
@@ -92,6 +111,7 @@ The map showing the overall ALS coverage is presented below. Additional [maps](m
 
 
 ```{r, echo=F, warning=F, message=F}
+
 library(ggiraph)
 library(ggtext)
 
@@ -99,11 +119,8 @@ prov_clrs <- tribble(
   ~Jurisdiction, ~color,
   "AB", "#1f78b4",
   "BC", "#33a02c",
-  
   "NB", "#6a3d9a",
-  
   "NS", "#ff7f00",
-  
   "ON", "#666666",
   "PE", "#800000",
   "QC", "#b15928",
@@ -113,11 +130,11 @@ prov_clrs <- tribble(
 clrs <- prov_clrs$color
 names(clrs) <- (prov_clrs$Jurisdiction)
 
-D <- readRDS("layers/dataForTheFigure_v2.rds")
+D <- readRDS("layers/dataForTheFigure_v4.rds")
 g <- D %>%
   ggplot(aes(
     year,
-    Total_ALS_acquisitions_area_cumulative / 1000,
+    cumulative_total_ALS_acquisition_area,
     color = jurisdiction_code,
     group = jurisdiction_code,
     # here we add iteractive aesthetics
@@ -144,7 +161,7 @@ g <- D %>%
   scale_color_manual(values = clrs, name = "")+
   labs(
     title = "Cumulative area of ALS acquisitions", 
-    subtitle = "(Overlapping ALS areas are included in totals.)",
+    subtitle = "(Overlapping ALS areas are included in totals)",
     caption = "P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data.<br>
     P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data.") +
         theme(
@@ -154,7 +171,7 @@ g <- D %>%
   )
 
 
-g <- girafe(ggobj = g)
+g <- girafe(ggobj = g, width_svg = 7, height_svg = 6)
 
 g <- girafe_options(
   g,
