@@ -46,14 +46,14 @@
     "href": "data.html",
     "title": "Data",
     "section": "",
-    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2025-10-07\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2025-10-14\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2025-07-17\nSK Ministry of Environment\n\n\nON\n2025-10-07\nMinistry of Natural Resources\n\n\nQC\n2025-10-07\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-10-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-10-24\nPrince Edward Island Department of Environment, Energy and Climate Action\n\n\nNS\n2024-10-24\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
+    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2025-11-26\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2025-10-14\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2025-07-17\nSK Ministry of Environment\n\n\nON\n2025-10-07\nMinistry of Natural Resources\n\n\nQC\n2025-10-07\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-10-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-10-24\nPrince Edward Island Department of Environment, Energy and Climate Action\n\n\nNS\n2024-10-24\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
   },
   {
     "objectID": "data.html#als-coverage-data-sources",
     "href": "data.html#als-coverage-data-sources",
     "title": "Data",
     "section": "",
-    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2025-10-07\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2025-10-14\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2025-07-17\nSK Ministry of Environment\n\n\nON\n2025-10-07\nMinistry of Natural Resources\n\n\nQC\n2025-10-07\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-10-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-10-24\nPrince Edward Island Department of Environment, Energy and Climate Action\n\n\nNS\n2024-10-24\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
+    "text": "The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared.\nThe table below lists the sources of coverage data by jurisdiction. Note that “Last update” corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nLast update\nData source\n\n\n\n\nBC\n2025-11-26\nBC Ministry of Forests and lidar.gov.bc.ca.\n\n\nAB\n2025-10-14\nAB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)\n\n\nSK\n2025-07-17\nSK Ministry of Environment\n\n\nON\n2025-10-07\nMinistry of Natural Resources\n\n\nQC\n2025-10-07\nMinistère des Ressources naturelles et des Forêts\n\n\nNB\n2024-10-24\nNB Natural Resources and Energy Development, and www.snb.ca/geonb1\n\n\nPE\n2024-10-24\nPrince Edward Island Department of Environment, Energy and Climate Action\n\n\nNS\n2024-10-24\nnsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables"
   },
   {
     "objectID": "data.html#als-data-availability",
@@ -109,7 +109,7 @@
     "href": "log.html",
     "title": "Update Log",
     "section": "",
-    "text": "ALS coverage added on October 30, 2025\n ALS coverage added on October 20, 2025\n ALS coverage added on July 17, 2025\n ALS coverage added on July 12, 2025"
+    "text": "ALS coverage added on November 26, 2025\n ALS coverage added on October 30, 2025\n ALS coverage added on October 20, 2025\n ALS coverage added on July 17, 2025\n ALS coverage added on July 12, 2025"
   },
   {
     "objectID": "multitemporal.html",
@@ -124,5 +124,12 @@
     "title": "Multitemporal data",
     "section": "Areas of multiple acquisitions",
     "text": "Areas of multiple acquisitions\n\nNational extent\n\n\n\nWestern regional extent\n\n\n\nEastern regional extent"
+  },
+  {
+    "objectID": "test.html",
+    "href": "test.html",
+    "title": "testing",
+    "section": "",
+    "text": "Reading layer `ALS_coverage_all_20251103_generalized_v2' from data source \n  `K:\\OneDrive - NRCan RNCan\\_WORK\\CanadaForestLidarCoverage\\layers\\ALS_coverage_layer\\generalized\\ALS_coverage_all_20251103_generalized_v2.gpkg' \n  using driver `GPKG'\nSimple feature collection with 1 feature and 1 field\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: -2336116 ymin: -324107.2 xmax: 2746163 ymax: 1820292\nProjected CRS: NAD83 / Canada Atlas Lambert"
   }
 ]
