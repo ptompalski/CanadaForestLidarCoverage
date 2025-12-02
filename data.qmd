@@ -103,7 +103,7 @@ tribble(
   "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at  [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about)",
   
   "QC", 
-  "ALS data available for purchase ([geoboutique.mern.gouv.qc.ca](http://geoboutique.mern.gouv.qc.ca/)).<br>Derivatives (DEM, CHM, hillshade, slope) available as open data: [https://www.donneesquebec.ca/](https://www.donneesquebec.ca/)",
+  "ALS and derivatives available as open data: [https://lidar-telechargement.portailcartographique.gouv.qc.ca/](https://lidar-telechargement.portailcartographique.gouv.qc.ca/)",
   
   "NB",
   "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp).<br>Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
