@@ -8,6 +8,20 @@ if (!exists("the_crs") || !exists("read_preprocessed_coverage")) {
 # these should be layers that are dissolved by year + PPM,
 # and should include overlaps
 
+multitemporal_output_file <- Sys.getenv(
+  "MULTITEMPORAL_OUTPUT_FILE",
+  unset = glue(
+    "layers/ALS_coverage_layer/multitemporal/ALS_coverage_multitemporal_{ver}.gpkg"
+  )
+)
+overlap_output_file <- Sys.getenv(
+  "OVERLAP_OUTPUT_FILE",
+  unset = glue("layers/ALS_coverage_layer/overlap/ALS_coverage_overlap_{ver}.gpkg")
+)
+
+dir_create(dirname(multitemporal_output_file))
+dir_create(dirname(overlap_output_file))
+
 jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
 coverage_layers <- read_preprocessed_coverage(
   jurisdictions,
@@ -32,9 +46,7 @@ M$PPM_class <- cut(
 # save
 st_write(
   M,
-  dsn = glue(
-    "layers/ALS_coverage_layer/multitemporal/ALS_coverage_multitemporal_{ver}.gpkg"
-  ),
+  dsn = multitemporal_output_file,
   append = F
 )
 
@@ -124,8 +136,6 @@ O <- drop_slivers_buffer(O, 1000, FALSE)
 
 st_write(
   O,
-  dsn = glue(
-    "layers/ALS_coverage_layer/overlap/ALS_coverage_overlap_{ver}.gpkg"
-  ),
+  dsn = overlap_output_file,
   append = F
 )
