@@ -2,10 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-/R/
 /.quarto/
-layers
-*test*
+layers/
 .Rproj
 .bat
 /temp/
+/scratch/
+coverage_test.png
+docs/test.html
