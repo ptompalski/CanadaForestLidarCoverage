@@ -1,4 +1,18 @@
-ALS_NS <- st_read("layers/source_layers/NS/ALS_NS_downloaded_20231123.shp")
+ns_source_file <- "layers/source_layers/NS/ALS_NS_downloaded_20231123.shp"
+ns_output_dir <- Sys.getenv("NS_OUTPUT_DIR", unset = "layers/pre-processed/NS")
+ns_output_file <- Sys.getenv(
+  "NS_OUTPUT_FILE",
+  unset = file.path(ns_output_dir, "ALS_NS.gpkg")
+)
+ns_output_diss_file <- Sys.getenv(
+  "NS_OUTPUT_DISS_FILE",
+  unset = file.path(ns_output_dir, "ALS_NS_diss.gpkg")
+)
+
+dir_create(dirname(ns_output_file))
+dir_create(dirname(ns_output_diss_file))
+
+ALS_NS <- st_read(ns_source_file)
 
 ALS_NS <-
   ALS_NS %>%
@@ -18,7 +32,7 @@ ALS_NS <-
 
 st_write(
   ALS_NS,
-  dsn = "layers/pre-processed/NS/ALS_NS.gpkg",
+  dsn = ns_output_file,
   append = FALSE
 )
 
@@ -31,6 +45,6 @@ ALS_NS_diss <- ALS_NS_diss %>% mutate(area = st_area(geometry))
 
 st_write(
   ALS_NS_diss,
-  dsn = "layers/pre-processed/NS/ALS_NS_diss.gpkg",
+  dsn = ns_output_diss_file,
   append = F
 )
