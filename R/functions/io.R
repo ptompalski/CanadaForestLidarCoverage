@@ -110,6 +110,7 @@ save_map_with_logo <- function(
   units = "in",
   logo_image = logo,
   logo_geometry = "500x",
+  logo_filter = NULL,
   logo_gravity = "SouthWest",
   logo_offset = "+30+50",
   ...
@@ -125,7 +126,11 @@ save_map_with_logo <- function(
   )
 
   background <- magick::image_read(filename)
-  logo_resized <- magick::image_resize(logo_image, geometry = logo_geometry)
+  logo_resized <- if (is.null(logo_filter)) {
+    magick::image_resize(logo_image, geometry = logo_geometry)
+  } else {
+    magick::image_resize(logo_image, geometry = logo_geometry, filter = logo_filter)
+  }
   output <- magick::image_composite(
     background,
     logo_resized,

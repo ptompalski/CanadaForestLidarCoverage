@@ -303,28 +303,16 @@ map_density_f1 <-
 # LOGO_F1
 
 fout <- "img/map2_ALS_density_focused1.png"
-ggsave(
-  plot = map_density_f1,
-  filename = fout,
+save_map_with_logo(
+  map_density_f1,
+  fout,
   width = width_px_f1,
   height = height_px_f1,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-# add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_acquisitionYear_f1 <-
@@ -352,28 +340,16 @@ map_acquisitionYear_f1 <-
 # ggsave(plot = map_acquisitionYear_f1, filename = "img/map3_ALS_AcquisitionYear_focused1.png", width = 1960, height=1500, units = "px")
 
 fout <- "img/map3_ALS_AcquisitionYear_focused1.png"
-ggsave(
-  plot = map_acquisitionYear_f1,
-  filename = fout,
+save_map_with_logo(
+  map_acquisitionYear_f1,
+  fout,
   width = width_px_f1,
   height = height_px_f1,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_coverage_f1 <-
@@ -401,28 +377,16 @@ map_coverage_f1 <-
 
 # ggsave(plot = map_coverage_f1, filename = "img/map1_ALS_coverage_focused1.png", width = 1960, height=1500, units = "px")
 fout <- "img/map1_ALS_coverage_focused1.png"
-ggsave(
-  plot = map_coverage_f1,
-  filename = fout,
+save_map_with_logo(
+  map_coverage_f1,
+  fout,
   width = width_px_f1,
   height = height_px_f1,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_overlap_f1 <-
@@ -450,28 +414,16 @@ map_overlap_f1 <-
 # ggsave(plot = map_overlap_f1, filename = "img/map4_ALS_overlap_focus1.png", width = 1960, height=1500, units = "px")
 
 fout <- "img/map4_ALS_overlap_focus1.png"
-ggsave(
-  plot = map_overlap_f1,
-  filename = fout,
+save_map_with_logo(
+  map_overlap_f1,
+  fout,
   width = width_px_f1,
   height = height_px_f1,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 #####  focus area 2 #####
@@ -498,29 +450,17 @@ map_density_f2 <-
 # ggsave(plot = map_density_f2, filename = "img/map2_ALS_density_focused2.png", width = 2100, height=1260, units = "px")
 
 fout <- "img/map2_ALS_density_focused2.png"
-ggsave(
-  plot = map_density_f2,
-  filename = fout,
+save_map_with_logo(
+  map_density_f2,
+  fout,
   width = width_px_f2,
   height = height_px_f2,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
 # ggsave(plot = map_density_f2, filename = fout, width = 2100, height=1260, units = "px")
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_acquisitionYear_f2 <-
@@ -539,28 +479,16 @@ map_acquisitionYear_f2 <-
 # ggsave(plot = map_acquisitionYear_f2, filename = "img/map3_ALS_AcquisitionYear_focused2.png", width = 2100, height=1260, units = "px")
 
 fout <- "img/map3_ALS_AcquisitionYear_focused2.png"
-ggsave(
-  plot = map_acquisitionYear_f2,
-  filename = fout,
+save_map_with_logo(
+  map_acquisitionYear_f2,
+  fout,
   width = width_px_f2,
   height = height_px_f2,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-# add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_coverage_f2 <-
@@ -579,28 +507,16 @@ map_coverage_f2 <-
 # ggsave(plot = map_coverage_f2, filename = "img/map1_ALS_coverage_focused2.png", width = 2100, height=1260, units = "px")
 
 fout <- "img/map1_ALS_coverage_focused2.png"
-ggsave(
-  plot = map_coverage_f2,
-  filename = fout,
+save_map_with_logo(
+  map_coverage_f2,
+  fout,
   width = width_px_f2,
   height = height_px_f2,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
 
 
 map_overlap_f2 <-
@@ -619,25 +535,13 @@ map_overlap_f2 <-
 # ggsave(plot = map_overlap_f2, filename = "img/map4_ALS_overlap_focus2.png", width = 2100, height=1260, units = "px")
 
 fout <- "img/map4_ALS_overlap_focus2.png"
-ggsave(
-  plot = map_overlap_f2,
-  filename = fout,
+save_map_with_logo(
+  map_overlap_f2,
+  fout,
   width = width_px_f2,
   height = height_px_f2,
-  units = "px"
+  units = "px",
+  logo_filter = "Hermite",
+  logo_gravity = "SouthEast",
+  logo_offset = "+40+85"
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(
-  logo,
-  geometry = "500x",
-  filter = "Hermite"
-)
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthEast",
-  offset = "+40+85"
-)
-image_write(newImg, fout)
