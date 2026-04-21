@@ -8,8 +8,19 @@ density_file <- "layers/source_layers/ON/ALS_ON_Y1_to_Y8_wDensity.gpkg"
 density_cache_dir <- "layers/pre-processed/ON/density_samples"
 laz_temp_dir <- "layers/pre-processed/ON/laz_temp"
 n_tiles_per_acquisition <- 5
+on_output_dir <- Sys.getenv("ON_OUTPUT_DIR", unset = "layers/pre-processed/ON")
+on_output_file <- Sys.getenv(
+  "ON_OUTPUT_FILE",
+  unset = file.path(on_output_dir, "ALS_ON.gpkg")
+)
+on_output_diss_file <- Sys.getenv(
+  "ON_OUTPUT_DISS_FILE",
+  unset = file.path(on_output_dir, "ALS_ON_diss.gpkg")
+)
 
-dir_create("layers/pre-processed/ON")
+dir_create(on_output_dir)
+dir_create(dirname(on_output_file))
+dir_create(dirname(on_output_diss_file))
 dir_create(density_cache_dir)
 dir_create(laz_temp_dir)
 
@@ -267,7 +278,7 @@ ALS_ON <- ALS_ON_wDensity %>%
   ) %>%
   relocate(Province, YEAR, PPM, area, isAvailable)
 
-st_write(ALS_ON, dsn = "layers/pre-processed/ON/ALS_ON.gpkg", append = FALSE)
+st_write(ALS_ON, dsn = on_output_file, append = FALSE)
 
 # without overlaps - newest acquisition kept
 ALS_ON_diss <- remove_overlaps_by_attr(ALS_ON, "YEAR")
@@ -277,6 +288,6 @@ ALS_ON_diss <- ALS_ON_diss %>% mutate(area = st_area(geometry))
 
 st_write(
   ALS_ON_diss,
-  dsn = "layers/pre-processed/ON/ALS_ON_diss.gpkg",
+  dsn = on_output_diss_file,
   append = FALSE
 )
