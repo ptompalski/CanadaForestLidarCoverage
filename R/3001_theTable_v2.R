@@ -1,6 +1,23 @@
 # purpose of this script is to calculate summary statistics needed for the
 # "Acquisitions over time" figure on the first page:
 
+coverage_managed_unmanaged_file <- Sys.getenv(
+  "COVERAGE_MANAGED_UNMANAGED_FILE",
+  unset = "layers/coverageManagedUnmanaged.rds"
+)
+coverage_over_time_file <- Sys.getenv(
+  "COVERAGE_OVER_TIME_FILE",
+  unset = "layers/coverageOverTime.rds"
+)
+data_for_figure_file <- Sys.getenv(
+  "DATA_FOR_FIGURE_FILE",
+  unset = "layers/dataForTheFigure.rds"
+)
+data_for_figure_v3_file <- Sys.getenv(
+  "DATA_FOR_FIGURE_V3_FILE",
+  unset = "layers/dataForTheFigure_v3.rds"
+)
+
 # D <- readRDS("../5_lidarStatusCanada/ALS_coverage_all_2024.rds")
 # D is loaded already in maps_setup
 DD <- D %>% as_tibble() %>% dplyr::select(-geom)
@@ -115,7 +132,7 @@ ALS_area_cumulative_by_year_class <-
 # #calculate coverage in the managed forests
 
 ALS_coverage_overall <- readRDS(
-  file = "layers/coverageManagedUnmanaged.rds"
+  file = coverage_managed_unmanaged_file
 ) %>%
   filter(forest_type == "managed") %>%
   rename(jurisdiction_code = jurisdiction)
@@ -145,11 +162,11 @@ ALS_coverage <-
     nonForest_ALS_coverage_area = nonForest_ALS_area
   )
 
-saveRDS(ALS_coverage, "layers/coverageOverTime.rds")
+saveRDS(ALS_coverage, coverage_over_time_file)
 
 
 #
-dataForTheFigure <- readRDS("layers/dataForTheFigure.rds")
+dataForTheFigure <- readRDS(data_for_figure_file)
 
 ALS_coverage_orig <- dataForTheFigure$DF_area
 
@@ -194,4 +211,4 @@ A <- A %>%
       "{jurisdiction_code}\n{year}\nP<sub>J</sub>={round(total_ALS_coverage_area_perc,1)}%\nP<sub>M</sub>={round(managed_ALS_coverage_area_perc,1)}%"
     )
   )
-saveRDS(A, "layers/dataForTheFigure_v3.rds")
+saveRDS(A, data_for_figure_v3_file)

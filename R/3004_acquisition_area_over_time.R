@@ -4,13 +4,19 @@
 # b) total or cumulative area of acquisitions by year, but excluding overlaps
 
 # using data with acquisitions by year (not dissolved)
-flist2 <- dir_info(
-  file.path(PATH, "multitemporal"),
-  glob = "*.gpkg$",
-  recurse = FALSE
+coverage_managed_unmanaged_file <- Sys.getenv(
+  "COVERAGE_MANAGED_UNMANAGED_FILE",
+  unset = "layers/coverageManagedUnmanaged.rds"
 )
-# get the newest - this file will be used in almost all processing
-f2 <- flist2 %>% arrange(desc(modification_time)) %>% slice(1) %>% pull(path)
+data_for_figure_v4_file <- Sys.getenv(
+  "DATA_FOR_FIGURE_V4_FILE",
+  unset = "layers/dataForTheFigure_v4.rds"
+)
+f2 <- latest_file_by_pattern(
+  file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
+  stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
+  label = "multitemporal ALS coverage GPKG"
+)
 Q <- st_read(f2)
 
 Q <- Q %>%
@@ -180,7 +186,7 @@ ALS_coverage_by_year_class2 <-
 # calculate proportions in the managed forests
 
 managed_area_byProvince <- readRDS(
-  file = "layers/coverageManagedUnmanaged.rds"
+  file = coverage_managed_unmanaged_file
 ) %>%
   filter(forest_type == "managed") %>%
   rename(jurisdiction_code = jurisdiction) %>%
@@ -257,7 +263,7 @@ A <-
       "{jurisdiction_code}\n{year}\nP<sub>J</sub>={round(total_ALS_coverage_area_perc,1)}%\nP<sub>M</sub>={round(managed_ALS_area_coverage_perc,1)}%"
     )
   )
-saveRDS(A, "layers/dataForTheFigure_v4.rds")
+saveRDS(A, data_for_figure_v4_file)
 
 # ALS_coverage2 %>% glimpse()
 # ALS_coverage2 %>% View()

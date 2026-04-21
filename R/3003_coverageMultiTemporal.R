@@ -1,5 +1,14 @@
 # purpose of this script is to calculate summary statistics about the multitemporal coverage
 
+coverage_managed_unmanaged_file <- Sys.getenv(
+  "COVERAGE_MANAGED_UNMANAGED_FILE",
+  unset = "layers/coverageManagedUnmanaged.rds"
+)
+summary_multitemporal_file <- Sys.getenv(
+  "SUMMARY_MULTITEMPORAL_FILE",
+  unset = "layers/summary_multitemporal_list.rds"
+)
+
 #### BY JURISDICTION ####
 
 # load data - should be loaded with the 2000_maps_setup.R
@@ -39,7 +48,7 @@ summary_multitemporal <-
 #### MANAGED FORESTS ONLY #####
 
 # coverage limited to the managed forests
-coverageManagedUnmanaged <- readRDS("layers/coverageManagedUnmanaged.rds")
+coverageManagedUnmanaged <- readRDS(coverage_managed_unmanaged_file)
 
 
 manage_unmanaged_v2 <- rast(managed_forest_mask_path)
@@ -81,7 +90,7 @@ managed_multitemporal_ALS_area <-
 
 #get province totals - total managed area per jurisdiction
 managed_area_byProvince <- readRDS(
-  file = "layers/coverageManagedUnmanaged.rds"
+  file = coverage_managed_unmanaged_file
 ) %>%
   filter(forest_type == "managed") %>%
   select(jurisdiction_code = jurisdiction, area_prov)
@@ -142,4 +151,4 @@ summary_multitemporal_list <- list(
   summary_multitemporal_managed = summary_multitemporal_managed,
   summary_multitemporal_byProvince = summary_multitemporal_byProvince
 )
-saveRDS(summary_multitemporal_list, "layers/summary_multitemporal_list.rds")
+saveRDS(summary_multitemporal_list, summary_multitemporal_file)

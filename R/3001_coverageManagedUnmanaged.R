@@ -1,5 +1,14 @@
 #how much ALS by managed/unmanaged by province
 
+coverage_managed_unmanaged_file <- Sys.getenv(
+  "COVERAGE_MANAGED_UNMANAGED_FILE",
+  unset = "layers/coverageManagedUnmanaged.rds"
+)
+managed_unmanaged_by_jurisdiction_file <- Sys.getenv(
+  "MANAGED_UNMANAGED_BY_JURISDICTION_FILE",
+  unset = "layers/manage_unmanaged_byJurisdiction.rds"
+)
+
 # data
 manage_unmanaged_v2 <- rast(managed_forest_mask_path)
 provinces <- vect(canada_provinces_path)
@@ -74,7 +83,7 @@ X %>%
 #cap the proportions at 100%
 X <- X %>% mutate(prop = if_else(prop > 100, 100, prop))
 
-saveRDS(X, file = "layers/coverageManagedUnmanaged.rds")
+saveRDS(X, file = coverage_managed_unmanaged_file)
 
 
 manage_unmanaged_byJurisdiction <-
@@ -91,7 +100,7 @@ manage_unmanaged_byJurisdiction <-
   relocate(forest_type, .after = jurisdiction)
 saveRDS(
   manage_unmanaged_byJurisdiction,
-  "layers/manage_unmanaged_byJurisdiction.rds"
+  managed_unmanaged_by_jurisdiction_file
 )
 
 # #save managed mask as vector?

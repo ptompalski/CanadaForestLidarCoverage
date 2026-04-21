@@ -6,6 +6,16 @@
 
 source("R/0000_setup.R")
 
+coverage_managed_unmanaged_file <- Sys.getenv(
+  "COVERAGE_MANAGED_UNMANAGED_FILE",
+  unset = "layers/coverageManagedUnmanaged.rds"
+)
+stats_file <- Sys.getenv("STATS_FILE", unset = "layers/Stats.rds")
+data_for_figure_file <- Sys.getenv(
+  "DATA_FOR_FIGURE_FILE",
+  unset = "layers/dataForTheFigure.rds"
+)
+
 # D is loaded already in maps_setup
 
 # Dissolve
@@ -36,23 +46,7 @@ total_ALS_area <- sum(ALS_area_dissolved_by_province$total_ALS_area)
 # table
 
 #values copied from Table 2 in the manuscript
-theTable <- provinces_area <-
-  tribble(
-    ~jurisdiction_name          , ~jurisdiction_code , ~total_area , ~total_forest_area , ~managed_forest_area ,
-
-    "British Columbia"          , "BC"               ,      925186 ,             632864 ,               500534 ,
-    "Alberta"                   , "AB"               ,      642317 ,             341261 ,               250011 ,
-    "Saskatchewan"              , "SK"               ,      591670 ,             252942 ,                85897 ,
-    "Manitoba"                  , "MB"               ,      553556 ,             262938 ,               115529 ,
-    "Ontario"                   , "ON"               ,      917741 ,             652763 ,               334150 ,
-    "Quebec"                    , "QC"               ,     1365128 ,             809223 ,               380741 ,
-    "New Brunswick"             , "NB"               ,       71450 ,              65902 ,                58270 ,
-    "Prince Edward Island"      , "PE"               ,        5660 ,               2888 ,                 2493 ,
-    "Nova Scotia"               , "NS"               ,       53338 ,              47958 ,                37708 ,
-    "Newfoundland and Labrador" , "NL"               ,      373872 ,             197691 ,                62010 ,
-    "Yukon Territory"           , "YT"               ,      474391 ,             219441 ,                39312 ,
-    "Northwest Territories"     , "NT"               ,     1183085 ,             428262 ,                 8686
-  ) %>%
+theTable <- provinces_area %>%
   mutate(
     total_forest_area_perc = round(total_forest_area / total_area * 100, 1),
     managed_forest_area_perc = round(managed_forest_area / total_area * 100, 1)
@@ -78,7 +72,7 @@ theTable %<>%
 # note - these areas are in ha
 
 # coverageManagedUnmanaged <- readRDS("../5_lidarStatusCanada/coverageManagedUnmanaged.rds")
-coverageManagedUnmanaged <- readRDS("layers/coverageManagedUnmanaged.rds")
+coverageManagedUnmanaged <- readRDS(coverage_managed_unmanaged_file)
 # sum(coverageManagedUnmanaged$area_ALS, na.rm = T) #small difference from the area calculated using the shapefile, but very similar.
 # 172575044 ha
 # (172575044 / 100 ) -#area in km2
@@ -207,7 +201,7 @@ Stats <- list(
   managed_ALS_perc = managed_ALS_perc
 )
 
-saveRDS(Stats, "layers/Stats.rds")
+saveRDS(Stats, stats_file)
 
 
 #data for the figure (this is copied from 3000_stats_revised.R)
@@ -292,4 +286,4 @@ dataForTheFigure <- list(
   DF_area_recent_adj = DF_area_recent_adj
 )
 
-saveRDS(dataForTheFigure, "layers/dataForTheFigure.rds")
+saveRDS(dataForTheFigure, data_for_figure_file)
