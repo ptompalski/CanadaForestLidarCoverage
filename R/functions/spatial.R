@@ -38,3 +38,18 @@ finalize_available_coverage <- function(x, province) {
     select(Province, YEAR, PPM, area, isAvailable) %>%
     st_as_sf()
 }
+
+clip_to_forested_ecozones <- function(x) {
+  ecozones_forested <- st_read(forested_ecozones_path, quiet = TRUE) %>%
+    st_transform(crs = the_crs)
+
+  sf::st_intersection(x, ecozones_forested)
+}
+
+read_province_boundaries <- function() {
+  st_read(canada_provinces_path, quiet = TRUE) %>%
+    group_by(PROV) %>%
+    summarise(n = n(), area = sum(Shape_Area), .groups = "drop") %>%
+    mutate(PROV = toupper(PROV)) %>%
+    st_cast()
+}

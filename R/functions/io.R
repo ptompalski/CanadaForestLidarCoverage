@@ -68,3 +68,35 @@ source_scripts <- function(files) {
     message("Finished ", file, " in ", elapsed, " sec")
   }
 }
+
+preprocessed_coverage_path <- function(jurisdiction, dissolved = FALSE) {
+  suffix <- if (dissolved) "_diss" else ""
+
+  file.path(
+    "layers/pre-processed",
+    jurisdiction,
+    paste0("ALS_", jurisdiction, suffix, ".gpkg")
+  )
+}
+
+read_preprocessed_coverage <- function(jurisdictions, dissolved = FALSE, path_overrides = NULL) {
+  layers <- map(
+    jurisdictions,
+    function(jurisdiction) {
+      path <- NULL
+
+      if (!is.null(path_overrides) && jurisdiction %in% names(path_overrides)) {
+        path <- unname(path_overrides[[jurisdiction]])
+      }
+
+      if (is.null(path)) {
+        path <- preprocessed_coverage_path(jurisdiction, dissolved = dissolved)
+      }
+
+      st_read(path, quiet = TRUE)
+    }
+  )
+
+  names(layers) <- jurisdictions
+  layers
+}

@@ -1,4 +1,6 @@
-source("R/0000_setup.R")
+if (!exists("the_crs") || !exists("read_preprocessed_coverage")) {
+  source("R/0000_setup.R")
+}
 
 #availability codes
 # 0 - not available (most of AB)
@@ -6,14 +8,8 @@ source("R/0000_setup.R")
 # 2 - all data available but access is complicated, no web portal etc (ON)
 # 3 - only raster products are available (DTM, DSM etc) QC?
 
-ALS_BC_diss <- st_read("layers/pre-processed/BC/ALS_BC_diss.gpkg")
-ALS_QC_diss <- st_read("layers/pre-processed/QC/ALS_QC_diss.gpkg")
-ALS_AB_diss <- st_read("layers/pre-processed/AB/ALS_AB_diss.gpkg")
-ALS_NS_diss <- st_read("layers/pre-processed/NS/ALS_NS_diss.gpkg")
-ALS_SK_diss <- st_read("layers/pre-processed/SK/ALS_SK_diss.gpkg")
-ALS_NB_diss <- st_read("layers/pre-processed/NB/ALS_NB_diss.gpkg")
-ALS_PEI_diss <- st_read("layers/pre-processed/PEI/ALS_PEI_diss.gpkg")
-ALS_ON_diss <- st_read("layers/pre-processed/ON/ALS_ON_diss.gpkg")
+jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
+coverage_diss <- read_preprocessed_coverage(jurisdictions, dissolved = TRUE)
 
 
 # ### ON ####
@@ -58,25 +54,14 @@ ALS_ON_diss <- st_read("layers/pre-processed/ON/ALS_ON_diss.gpkg")
 
 ### combine into one layer ####
 
-D <- rbind(
-  ALS_AB_diss,
-  ALS_BC_diss,
-  ALS_NB_diss,
-  ALS_ON_diss,
-  ALS_QC_diss,
-  ALS_PEI_diss,
-  ALS_NS_diss,
-  ALS_SK_diss
-)
+D <- do.call(rbind, coverage_diss)
 
 #make sure year is a number
 D$YEAR <- as.numeric(D$YEAR)
 
 ## CLIP TO FORESTED ECOZONEZES ##
 #new step added on 2024-09-2024
-ecozones_forested <- st_read(forested_ecozones_path)
-ecozones_forested %<>% st_transform(crs = the_crs)
-D <- sf::st_intersection(D, ecozones_forested)
+D <- clip_to_forested_ecozones(D)
 
 saveRDS(D, glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds"))
 
@@ -85,14 +70,7 @@ saveRDS(D, glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds"))
 #postprocess the acquisition polygons
 
 # clip to provinces vector (no areas outside)
-provinces <- st_read(canada_provinces_path)
-provinces2 <- provinces %>%
-  group_by(PROV) %>%
-  summarise(n = n(), area = sum(Shape_Area)) %>%
-  mutate(PROV = toupper(PROV)) %>%
-  st_cast()
-
-
+provinces2 <- read_province_boundaries()
 Dx <- st_intersection(D, provinces2)
 saveRDS(Dx, "layers/ALS_coverage_all_2025_clipped.rds")
 

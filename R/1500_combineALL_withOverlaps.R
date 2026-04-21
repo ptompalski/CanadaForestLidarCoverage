@@ -1,33 +1,25 @@
 #identify areas of multiple acquitions
 
-source("R/0000_setup.R")
+if (!exists("the_crs") || !exists("read_preprocessed_coverage")) {
+  source("R/0000_setup.R")
+}
 
 # load layers for every jurisdiction
 # these should be layers that are dissolved by year + PPM,
 # and should include overlaps
 
-ALS_BC <- st_read("layers/pre-processed/BC/ALS_BC.gpkg")
-ALS_NB <- st_read("layers/pre-processed/NB/ALS_NB.gpkg")
-ALS_SK <- st_read("layers/pre-processed/SK/ALS_SK.gpkg")
-ALS_ON <- st_read("layers/pre-processed/ON/ALS_ON_diss.gpkg") #using the dissolved layer here because of the errors in the coverage shapefiles (duplicated acquisitions)
-# ALS_ON <- st_read("layers/source_layers/ON/ALS_ON_2018-2024_wDensity.gpkg")
-ALS_PEI <- st_read("layers/pre-processed/PEI/ALS_PEI.gpkg")
-ALS_QC <- st_read("layers/pre-processed/QC/ALS_QC.gpkg")
-ALS_AB <- st_read("layers/pre-processed/AB/ALS_AB.gpkg")
-ALS_NS <- st_read("layers/pre-processed/NS/ALS_NS.gpkg")
-
-
-M <- rbind(
-  ALS_AB,
-  ALS_BC,
-  ALS_NB,
-  ALS_ON,
-  ALS_QC,
-  ALS_PEI,
-  ALS_NS,
-  ALS_SK
+jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
+coverage_layers <- read_preprocessed_coverage(
+  jurisdictions,
+  path_overrides = c(
+    # using the dissolved layer here because of the errors in the coverage
+    # shapefiles (duplicated acquisitions)
+    ON = preprocessed_coverage_path("ON", dissolved = TRUE)
+  )
 )
 
+M <- do.call(rbind, coverage_layers)
+provinces2 <- read_province_boundaries()
 M <- st_intersection(M, provinces2)
 
 #classify point density
