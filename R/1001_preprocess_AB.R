@@ -2,25 +2,39 @@
 
 #update 2024-06-24 - added ABMI coverage
 
+ab_source_dir <- "layers/source_layers/AB/shapfiles"
+ab_output_dir <- Sys.getenv("AB_OUTPUT_DIR", unset = "layers/pre-processed/AB")
+ab_output_file <- Sys.getenv(
+  "AB_OUTPUT_FILE",
+  unset = file.path(ab_output_dir, "ALS_AB.gpkg")
+)
+ab_output_diss_file <- Sys.getenv(
+  "AB_OUTPUT_DISS_FILE",
+  unset = file.path(ab_output_dir, "ALS_AB_diss.gpkg")
+)
+
+dir_create(dirname(ab_output_file))
+dir_create(dirname(ab_output_diss_file))
+
 ALS_AB_for1 <- st_read(
-  "layers/source_layers/AB/shapfiles/forestry_division/clean_laz_tiles_z11.shp"
+  file.path(ab_source_dir, "forestry_division/clean_laz_tiles_z11.shp")
 )
 ALS_AB_for2 <- st_read(
-  "layers/source_layers/AB/shapfiles/forestry_division/clean_laz_tiles_z12.shp"
+  file.path(ab_source_dir, "forestry_division/clean_laz_tiles_z12.shp")
 )
 ALS_AB_riv1 <- st_read(
-  "layers/source_layers/AB/shapfiles/river_engineering/river_engineering_laz_tiles_z11.shp"
+  file.path(ab_source_dir, "river_engineering/river_engineering_laz_tiles_z11.shp")
 )
 ALS_AB_riv2 <- st_read(
-  "layers/source_layers/AB/shapfiles/river_engineering/river_engineering_laz_tiles_z12.shp"
+  file.path(ab_source_dir, "river_engineering/river_engineering_laz_tiles_z12.shp")
 )
 ALS_AB_gp <- st_read(
-  "layers/source_layers/AB/shapfiles/county_of_grande_prarie/grande_prairie_clean_z11.shp"
+  file.path(ab_source_dir, "county_of_grande_prarie/grande_prairie_clean_z11.shp")
 )
 # ALS_AB_ABMI <- st_read("layers/AB/shapfiles/LiDAR_Imagery_ABMI_2022_24.shp")  #received 2024-06-26
 # ALS_AB_ABMI <- st_read("layers/source_layers/AB/shapfiles/ABMI/LiDAR_Imagery_ABMI_2022_2024_26July24.shp")  #received 2024-07-26
 ALS_AB_ABMI <- st_read(
-  "layers/source_layers/AB/shapfiles/ABMI/LiDAR_Imagery_ABMI_2022_2025_Oct2025.shp"
+  file.path(ab_source_dir, "ABMI/LiDAR_Imagery_ABMI_2022_2025_Oct2025.shp")
 )
 
 
@@ -99,7 +113,7 @@ ALS_AB <-
   bind_rows(ALS_AB, ALS_AB_ABMI)
 
 #save
-st_write(ALS_AB, dsn = "layers/pre-processed/AB/ALS_AB.gpkg", append = F)
+st_write(ALS_AB, dsn = ab_output_file, append = F)
 
 # without overlaps - newest acquisition kept
 ALS_AB_diss <- remove_overlaps_by_attr(ALS_AB, "YEAR")
@@ -109,6 +123,6 @@ ALS_AB_diss <- ALS_AB_diss %>% mutate(area = st_area(geometry))
 
 st_write(
   ALS_AB_diss,
-  dsn = "layers/pre-processed/AB/ALS_AB_diss.gpkg",
+  dsn = ab_output_diss_file,
   append = F
 )
