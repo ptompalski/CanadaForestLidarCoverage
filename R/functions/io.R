@@ -53,3 +53,18 @@ coverage_output_paths <- function(
     diss_file = output_diss_file
   )
 }
+
+source_scripts <- function(files) {
+  for (file in files) {
+    message("Running ", file)
+    start_time <- Sys.time()
+
+    source(file)
+
+    elapsed <- round(
+      as.numeric(difftime(Sys.time(), start_time, units = "secs")),
+      1
+    )
+    message("Finished ", file, " in ", elapsed, " sec")
+  }
+}
