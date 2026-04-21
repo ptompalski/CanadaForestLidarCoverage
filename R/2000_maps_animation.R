@@ -1,13 +1,11 @@
 #### map - animation, acquisitions over time ####
 
 # using data with acquisitions by year
-flist2 <- dir_info(
-  file.path(PATH, "multitemporal"),
-  glob = "*.gpkg$",
-  recurse = FALSE
+f2 <- latest_file_by_pattern(
+  file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
+  stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
+  label = "multitemporal ALS coverage GPKG"
 )
-# get the newest - this file will be used in almost all processing
-f2 <- flist2 %>% arrange(desc(modification_time)) %>% slice(1) %>% pull(path)
 Q <- st_read(f2)
 
 Q$YEAR <- as.numeric(Q$YEAR)
@@ -84,18 +82,7 @@ for (current_year in all_years) {
 
   # map_density
   fout <- glue("temp/map_animation_{current_year}.png")
-  ggsave(plot = map_x, filename = fout, width = 7, height = 5, dpi = 300)
-
-  # add logo using magick
-  background <- image_read(fout)
-  logo_resized <- magick::image_resize(logo, geometry = "500x")
-  newImg <- image_composite(
-    background,
-    logo_resized,
-    gravity = "SouthWest",
-    offset = "+30+50"
-  )
-  image_write(newImg, fout)
+  save_map_with_logo(map_x, fout, width = 7, height = 5, dpi = 300)
 }
 
 

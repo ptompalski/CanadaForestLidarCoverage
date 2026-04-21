@@ -24,6 +24,46 @@ latest_file_by_pattern <- function(pattern, stamp_regex = NULL, label = pattern)
   file_stamps$file[nrow(file_stamps)]
 }
 
+latest_files_by_pattern <- function(pattern, n = 1, stamp_regex = NULL, label = pattern) {
+  files <- Sys.glob(pattern)
+
+  if (length(files) < n) {
+    stop(
+      "Expected at least ",
+      n,
+      " files for ",
+      label,
+      ": ",
+      pattern,
+      call. = FALSE
+    )
+  }
+
+  if (is.null(stamp_regex)) {
+    file_info <- file.info(files)
+    return(files[order(file_info$mtime, decreasing = TRUE)][seq_len(n)])
+  }
+
+  file_stamps <- tibble(
+    file = files,
+    stamp = str_match(basename(files), stamp_regex)[, 2]
+  ) %>%
+    filter(!is.na(stamp)) %>%
+    arrange(desc(stamp))
+
+  if (nrow(file_stamps) < n) {
+    stop(
+      "Expected at least ",
+      n,
+      " files with a parseable date stamp for ",
+      label,
+      call. = FALSE
+    )
+  }
+
+  file_stamps$file[seq_len(n)]
+}
+
 coverage_output_paths <- function(
   jurisdiction,
   output_dir = file.path("layers/pre-processed", jurisdiction),

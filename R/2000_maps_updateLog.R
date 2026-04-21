@@ -3,14 +3,24 @@
 # source("R/2000_maps_setup.R")
 
 #get two newest coverage files
-f_two_most_recent <- flist %>% arrange(desc(modification_time)) %>%  slice(1:2) #%>% pull(path)
+f_two_most_recent <- latest_files_by_pattern(
+  file.path(PATH, "main/ALS_coverage_all_*.rds"),
+  n = 2,
+  stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
+  label = "main ALS coverage RDS"
+)
 
 #get the date of the newest
-updateDate <- f_two_most_recent$modification_time[1] %>% lubridate::as_date() %>% as.character() 
+updateDate <- str_match(
+  basename(f_two_most_recent[1]),
+  "ALS_coverage_all_(\\d{8})\\.rds"
+)[, 2] %>%
+  ymd() %>%
+  as.character()
 
 #read
-coverage1 <- readRDS(f_two_most_recent$path[1]) #newest
-coverage2 <- readRDS(f_two_most_recent$path[2]) #previous
+coverage1 <- readRDS(f_two_most_recent[1]) #newest
+coverage2 <- readRDS(f_two_most_recent[2]) #previous
 
 
 
@@ -52,7 +62,7 @@ map_newAcquisitions <-
 
 
 fout <- glue("img/UpdateLog/map_newAcquisitions_{updateDate}.png")
-ggsave(plot = map_newAcquisitions, filename = fout, width = 7, height=5, dpi = 300)
+save_map_with_logo(map_newAcquisitions, fout, width = 7, height = 5, dpi = 300)
 # 
 # #add logo using magick
 # background <- image_read(fout)
