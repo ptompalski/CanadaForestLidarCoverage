@@ -27,3 +27,14 @@ clean_coverage_polygons <- function(x) {
     st_cast("MULTIPOLYGON", warn = FALSE) %>%
     st_as_sf()
 }
+
+finalize_available_coverage <- function(x, province) {
+  x %>%
+    st_make_valid() %>%
+    st_as_sf() %>%
+    mutate(area = st_area(geometry)) %>%
+    mutate(Province = province) %>%
+    mutate(isAvailable = 1) %>%
+    select(Province, YEAR, PPM, area, isAvailable) %>%
+    st_as_sf()
+}
