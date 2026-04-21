@@ -1,3 +1,16 @@
+pei_output_dir <- Sys.getenv("PEI_OUTPUT_DIR", unset = "layers/pre-processed/PEI")
+pei_output_file <- Sys.getenv(
+  "PEI_OUTPUT_FILE",
+  unset = file.path(pei_output_dir, "ALS_PEI.gpkg")
+)
+pei_output_diss_file <- Sys.getenv(
+  "PEI_OUTPUT_DISS_FILE",
+  unset = file.path(pei_output_dir, "ALS_PEI_diss.gpkg")
+)
+
+dir_create(dirname(pei_output_file))
+dir_create(dirname(pei_output_diss_file))
+
 ALS_PEI <- st_read(
   "layers/source_layers/PE/pei_2020_1k_grid_LIDAR_Coverage.shp"
 )
@@ -51,21 +64,12 @@ ALS_PEI <- bind_rows(
 )
 
 #dissolve by year and PPM
-ALS_PEI <- ALS_PEI %>%
-  group_by(YEAR, PPM) %>%
-  summarize(geometry = st_union(geometry))
+ALS_PEI <- ALS_PEI %>% dissolve_coverage()
 
 
-ALS_PEI <- ALS_PEI %>%
-  st_make_valid() %>%
-  st_as_sf() %>%
-  mutate(area = st_area(geometry)) %>%
-  mutate(Province = "PE") %>%
-  mutate(isAvailable = 1) %>%
-  relocate(Province, YEAR, PPM, area, isAvailable) %>%
-  st_as_sf()
+ALS_PEI <- ALS_PEI %>% finalize_available_coverage("PE")
 
-st_write(ALS_PEI, dsn = "layers/pre-processed/PEI/ALS_PEI.gpkg", append = F)
+st_write(ALS_PEI, dsn = pei_output_file, append = F)
 
 # without overlaps - newest acquisition kept
 ALS_PEI_diss <- remove_overlaps_by_attr(ALS_PEI, "YEAR")
@@ -75,6 +79,6 @@ ALS_PEI_diss <- ALS_PEI_diss %>% mutate(area = st_area(geometry))
 
 st_write(
   ALS_PEI_diss,
-  dsn = "layers/pre-processed/PEI/ALS_PEI_diss.gpkg",
+  dsn = pei_output_diss_file,
   append = F
 )
