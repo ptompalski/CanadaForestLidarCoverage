@@ -4,9 +4,24 @@ source("R/0000_setup.R")
 
 # file downloaded from https://diffusion.mern.gouv.qc.ca/diffusion/RGQ/Imagerie/Index/Lidar/
 # P <- st_layers("layers/source_layers/QC/INDEX_LiDAR.gpkg")
+qc_source_file <- "layers/source_layers/QC/INDEX_LiDAR.gpkg"
+qc_source_layer <- "Index_Tuiles_LiDAR"
+qc_output_dir <- Sys.getenv("QC_OUTPUT_DIR", unset = "layers/pre-processed/QC")
+qc_output_file <- Sys.getenv(
+  "QC_OUTPUT_FILE",
+  unset = file.path(qc_output_dir, "ALS_QC.gpkg")
+)
+qc_output_diss_file <- Sys.getenv(
+  "QC_OUTPUT_DISS_FILE",
+  unset = file.path(qc_output_dir, "ALS_QC_diss.gpkg")
+)
+
+dir_create(dirname(qc_output_file))
+dir_create(dirname(qc_output_diss_file))
+
 ALS_QC <- read_sf(
-  "layers/source_layers/QC/INDEX_LiDAR.gpkg",
-  layer = "Index_Tuiles_LiDAR"
+  qc_source_file,
+  layer = qc_source_layer
 )
 
 #standardise geometry column (sometimes is called "geom")
@@ -48,7 +63,7 @@ ALS_QC <- ALS_QC %>%
 #save
 st_write(
   ALS_QC,
-  dsn = "layers/pre-processed/QC/ALS_QC.gpkg",
+  dsn = qc_output_file,
   append = F
 )
 
@@ -58,7 +73,7 @@ ALS_QC_diss <- remove_overlaps_by_attr(ALS_QC, "YEAR")
 
 st_write(
   ALS_QC_diss,
-  dsn = "layers/pre-processed/QC/ALS_QC_diss.gpkg",
+  dsn = qc_output_diss_file,
   append = F
 )
 
