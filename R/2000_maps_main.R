@@ -30,18 +30,7 @@ map_overview <-
 
 # map_density
 fout <- "img/map0_overview.png"
-ggsave(plot = map_overview, filename = fout, width = 7, height = 5, dpi = 300)
-
-# add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(logo, geometry = "500x")
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthWest",
-  offset = "+30+50"
-)
-image_write(newImg, fout)
+save_map_with_logo(map_overview, fout, width = 7, height = 5, dpi = 300)
 
 
 #### map1 - overall coverage ####
@@ -88,23 +77,7 @@ map_coverage <-
 
 
 fout <- "img/map1_ALS_coverage.png"
-ggsave(plot = map_coverage, filename = fout, width = 7, height = 5)
-
-#add logo using magick
-background <- image_read(fout)
-# And bring in a logo
-# logo_raw <- image_read("https://i.imgur.com/e1IneGq.jpg")
-logo
-logo_resized <- magick::image_resize(logo, geometry = "500x")
-
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthWest",
-  offset = "+30+50"
-)
-newImg
-image_write(newImg, fout)
+save_map_with_logo(map_coverage, fout, width = 7, height = 5)
 
 
 #### map2 - density ####
@@ -139,18 +112,7 @@ map_density <-
 
 # map_density
 fout <- "img/map2_ALS_density.png"
-ggsave(plot = map_density, filename = fout, width = 7, height = 5, dpi = 300)
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(logo, geometry = "500x")
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthWest",
-  offset = "+30+50"
-)
-image_write(newImg, fout)
+save_map_with_logo(map_density, fout, width = 7, height = 5, dpi = 300)
 
 
 #### map3 - acquisition year ####
@@ -199,24 +161,13 @@ map_acquisitionYear <-
   CREDITS #+LOGO
 
 fout <- "img/map3_ALS_AcquisitionYear.png"
-ggsave(
-  plot = map_acquisitionYear,
-  filename = fout,
+save_map_with_logo(
+  map_acquisitionYear,
+  fout,
   width = 7,
   height = 5,
   dpi = 300
 )
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(logo, geometry = "500x")
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthWest",
-  offset = "+30+50"
-)
-image_write(newImg, fout)
 
 
 #### map4 - overlap areas ####
@@ -265,15 +216,4 @@ map_overlap <-
 
 # ggsave(plot = map_overlap, filename = "img/map4_ALS_overlap.png", width = 7, height=5)
 fout <- "img/map4_ALS_overlap.png"
-ggsave(plot = map_overlap, filename = fout, width = 7, height = 5, dpi = 300)
-
-#add logo using magick
-background <- image_read(fout)
-logo_resized <- magick::image_resize(logo, geometry = "500x")
-newImg <- image_composite(
-  background,
-  logo_resized,
-  gravity = "SouthWest",
-  offset = "+30+50"
-)
-image_write(newImg, fout)
+save_map_with_logo(map_overlap, fout, width = 7, height = 5, dpi = 300)

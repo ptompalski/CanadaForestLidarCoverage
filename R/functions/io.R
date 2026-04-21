@@ -100,3 +100,39 @@ read_preprocessed_coverage <- function(jurisdictions, dissolved = FALSE, path_ov
   names(layers) <- jurisdictions
   layers
 }
+
+save_map_with_logo <- function(
+  plot,
+  filename,
+  width,
+  height,
+  dpi = 300,
+  units = "in",
+  logo_image = logo,
+  logo_geometry = "500x",
+  logo_gravity = "SouthWest",
+  logo_offset = "+30+50",
+  ...
+) {
+  ggsave(
+    plot = plot,
+    filename = filename,
+    width = width,
+    height = height,
+    dpi = dpi,
+    units = units,
+    ...
+  )
+
+  background <- magick::image_read(filename)
+  logo_resized <- magick::image_resize(logo_image, geometry = logo_geometry)
+  output <- magick::image_composite(
+    background,
+    logo_resized,
+    gravity = logo_gravity,
+    offset = logo_offset
+  )
+  magick::image_write(output, filename)
+
+  invisible(filename)
+}
