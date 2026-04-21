@@ -6,18 +6,7 @@ source("R/0000_setup.R")
 # P <- st_layers("layers/source_layers/QC/INDEX_LiDAR.gpkg")
 qc_source_file <- "layers/source_layers/QC/INDEX_LiDAR.gpkg"
 qc_source_layer <- "Index_Tuiles_LiDAR"
-qc_output_dir <- Sys.getenv("QC_OUTPUT_DIR", unset = "layers/pre-processed/QC")
-qc_output_file <- Sys.getenv(
-  "QC_OUTPUT_FILE",
-  unset = file.path(qc_output_dir, "ALS_QC.gpkg")
-)
-qc_output_diss_file <- Sys.getenv(
-  "QC_OUTPUT_DISS_FILE",
-  unset = file.path(qc_output_dir, "ALS_QC_diss.gpkg")
-)
-
-dir_create(dirname(qc_output_file))
-dir_create(dirname(qc_output_diss_file))
+qc_output_paths <- coverage_output_paths("QC")
 
 ALS_QC <- read_sf(
   qc_source_file,
@@ -63,7 +52,7 @@ ALS_QC <- ALS_QC %>%
 #save
 st_write(
   ALS_QC,
-  dsn = qc_output_file,
+  dsn = qc_output_paths$file,
   append = F
 )
 
@@ -73,7 +62,7 @@ ALS_QC_diss <- remove_overlaps_by_attr(ALS_QC, "YEAR")
 
 st_write(
   ALS_QC_diss,
-  dsn = qc_output_diss_file,
+  dsn = qc_output_paths$diss_file,
   append = F
 )
 

@@ -3,18 +3,7 @@
 #update 2024-06-24 - added ABMI coverage
 
 ab_source_dir <- "layers/source_layers/AB/shapfiles"
-ab_output_dir <- Sys.getenv("AB_OUTPUT_DIR", unset = "layers/pre-processed/AB")
-ab_output_file <- Sys.getenv(
-  "AB_OUTPUT_FILE",
-  unset = file.path(ab_output_dir, "ALS_AB.gpkg")
-)
-ab_output_diss_file <- Sys.getenv(
-  "AB_OUTPUT_DISS_FILE",
-  unset = file.path(ab_output_dir, "ALS_AB_diss.gpkg")
-)
-
-dir_create(dirname(ab_output_file))
-dir_create(dirname(ab_output_diss_file))
+ab_output_paths <- coverage_output_paths("AB")
 
 ALS_AB_for1 <- st_read(
   file.path(ab_source_dir, "forestry_division/clean_laz_tiles_z11.shp")
@@ -113,7 +102,7 @@ ALS_AB <-
   bind_rows(ALS_AB, ALS_AB_ABMI)
 
 #save
-st_write(ALS_AB, dsn = ab_output_file, append = F)
+st_write(ALS_AB, dsn = ab_output_paths$file, append = F)
 
 # without overlaps - newest acquisition kept
 ALS_AB_diss <- remove_overlaps_by_attr(ALS_AB, "YEAR")
@@ -123,6 +112,6 @@ ALS_AB_diss <- ALS_AB_diss %>% mutate(area = st_area(geometry))
 
 st_write(
   ALS_AB_diss,
-  dsn = ab_output_diss_file,
+  dsn = ab_output_paths$diss_file,
   append = F
 )

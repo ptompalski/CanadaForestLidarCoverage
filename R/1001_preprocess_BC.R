@@ -4,18 +4,7 @@ source("R/0000_setup.R")
 
 #newest updates in the bottom
 
-bc_output_dir <- Sys.getenv("BC_OUTPUT_DIR", unset = "layers/pre-processed/BC")
-bc_output_file <- Sys.getenv(
-  "BC_OUTPUT_FILE",
-  unset = file.path(bc_output_dir, "ALS_BC.gpkg")
-)
-bc_output_diss_file <- Sys.getenv(
-  "BC_OUTPUT_DISS_FILE",
-  unset = file.path(bc_output_dir, "ALS_BC_diss.gpkg")
-)
-
-dir_create(dirname(bc_output_file))
-dir_create(dirname(bc_output_diss_file))
+bc_output_paths <- coverage_output_paths("BC")
 
 bc_source_dir <- "layers/source_layers/BC"
 bc_status_pattern <- file.path(bc_source_dir, "Provincial_ALS_Status_*.shp")
@@ -155,7 +144,7 @@ ALS_BC <- ALS_BC %>%
   relocate(Province, YEAR, PPM, area, isAvailable) %>%
   st_as_sf()
 
-st_write(ALS_BC, dsn = bc_output_file, append = F)
+st_write(ALS_BC, dsn = bc_output_paths$file, append = F)
 
 # without overlaps - newest acquisition kept
 ALS_BC_diss <- remove_overlaps_by_attr(ALS_BC, "YEAR")
@@ -167,6 +156,6 @@ ALS_BC_diss <- ALS_BC_diss %>%
 
 st_write(
   ALS_BC_diss,
-  dsn = bc_output_diss_file,
+  dsn = bc_output_paths$diss_file,
   append = F
 )
