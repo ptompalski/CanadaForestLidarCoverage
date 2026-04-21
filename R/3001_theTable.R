@@ -186,11 +186,7 @@ theTable <-
 # coverage of all forested ecozones?
 D_dissolved <- D %>% summarize(geometry = st_union(geom))
 
-ecozones_forested <- st_read(file.path(
-  "K:/OneDrive - NRCan RNCan/_WORK",
-  "useful_layers",
-  "Ecozones/Forested_ecozones_cliped_dissolved.shp"
-))
+ecozones_forested <- st_read(forested_ecozones_path)
 ecozones_forested %<>% st_transform(crs = the_crs)
 
 

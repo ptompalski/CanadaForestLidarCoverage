@@ -74,11 +74,7 @@ D$YEAR <- as.numeric(D$YEAR)
 
 ## CLIP TO FORESTED ECOZONEZES ##
 #new step added on 2024-09-2024
-ecozones_forested <- st_read(file.path(
-  "K:/OneDrive - NRCan RNCan/_WORK",
-  "useful_layers",
-  "Ecozones/Forested_ecozones_cliped_dissolved.shp"
-))
+ecozones_forested <- st_read(forested_ecozones_path)
 ecozones_forested %<>% st_transform(crs = the_crs)
 D <- sf::st_intersection(D, ecozones_forested)
 
@@ -89,11 +85,7 @@ saveRDS(D, glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds"))
 #postprocess the acquisition polygons
 
 # clip to provinces vector (no areas outside)
-provinces <- st_read(file.path(
-  "K:/OneDrive - NRCan RNCan/_WORK",
-  "useful_layers",
-  "Canada_provinces.shp"
-))
+provinces <- st_read(canada_provinces_path)
 provinces2 <- provinces %>%
   group_by(PROV) %>%
   summarise(n = n(), area = sum(Shape_Area)) %>%

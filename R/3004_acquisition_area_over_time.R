@@ -76,9 +76,7 @@ ALS_coverage <-
 # managed forests ####
 # now calculating coverage in the managed forests
 
-manage_unmanaged_v2 <- rast(
-  "//vic-fas1/france/cwfc/forest_inventory_status/spatial_data/managed_forest_mask.tif"
-)
+manage_unmanaged_v2 <- rast(managed_forest_mask_path)
 
 # replace NA with a value (to compare total areas of all classes to areas of jurisdictions)
 manage_unmanaged_v2 <- subst(manage_unmanaged_v2, NA, 3)

@@ -1,14 +1,8 @@
 #how much ALS by managed/unmanaged by province
 
 # data
-manage_unmanaged_v2 <- rast(
-  "//vic-fas1/france/cwfc/forest_inventory_status/spatial_data/managed_forest_mask.tif"
-)
-provinces <- vect(file.path(
-  "K:/OneDrive - NRCan RNCan/_WORK",
-  "useful_layers",
-  "Canada_provinces.shp"
-))
+manage_unmanaged_v2 <- rast(managed_forest_mask_path)
+provinces <- vect(canada_provinces_path)
 # D <- vect("ALS_coverage_all_2024.gpkg") #already loaded
 
 D <- D %>%

@@ -23,6 +23,9 @@ library(lwgeom)
 library(smoothr)
 
 source("R/9999_functions.R")
+for (function_file in sort(list.files("R/functions", pattern = "\\.R$", full.names = TRUE))) {
+  source(function_file)
+}
 
 #current date - to append to the file names (data versioning)
 ver <- today() %>% str_remove_all(pattern = "-")
@@ -31,6 +34,10 @@ ver <- today() %>% str_remove_all(pattern = "-")
 the_crs <- 3978
 
 logo_path <- "img/NRCan-CFS_logo.png"
+
+forested_ecozones_path <- "layers/Forested_ecozones_cliped_dissolved.shp"
+canada_provinces_path <- "layers/Canada_provinces.shp"
+managed_forest_mask_path <- "layers/managed_forest_mask.tif"
 
 
 fname <- function(x) {

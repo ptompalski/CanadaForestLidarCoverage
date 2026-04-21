@@ -17,27 +17,6 @@ bc_status_available <- c(
   "received_complete"
 )
 
-get_latest_bc_status_file <- function(pattern = bc_status_pattern) {
-  files <- Sys.glob(pattern)
-
-  if (length(files) == 0) {
-    stop("No Provincial_ALS_Status_*.shp files found in ", bc_source_dir)
-  }
-
-  status_files <- tibble(
-    file = files,
-    stamp = str_match(basename(files), "Provincial_ALS_Status_(\\d{8,12})\\.shp")[, 2]
-  ) %>%
-    filter(!is.na(stamp)) %>%
-    arrange(stamp)
-
-  if (nrow(status_files) == 0) {
-    stop("No Provincial_ALS_Status_*.shp files with a parseable date stamp found")
-  }
-
-  status_files$file[nrow(status_files)]
-}
-
 bc_date_year <- function(x) {
   suppressWarnings(as.integer(substr(as.character(x), 1, 4)))
 }
@@ -169,7 +148,11 @@ ALS_BC_2022 %<>%
 
 # new ALS acquisitions from the newest provincial status snapshot.
 # When a new Provincial_ALS_Status_*.shp is added, this automatically uses it.
-bc_status_file <- get_latest_bc_status_file()
+bc_status_file <- latest_file_by_pattern(
+  pattern = bc_status_pattern,
+  stamp_regex = "Provincial_ALS_Status_(\\d{8,12})\\.shp",
+  label = "BC provincial ALS status layer"
+)
 message("Using BC provincial ALS status layer: ", basename(bc_status_file))
 ALS_BC_status <- read_bc_status_layer(bc_status_file)
 
