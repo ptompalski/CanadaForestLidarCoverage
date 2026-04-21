@@ -8,11 +8,11 @@ library(fs)
 #directory with coverage files
 PATH <- "layers/ALS_coverage_layer/"
 
-# list all files, with modification time
-flist <- dir_info(file.path(PATH, "main"), recurse = FALSE)
-
-# get the newest - this file will be used in almost all processing
-f <- flist %>% arrange(desc(modification_time)) %>% slice(1) %>% pull(path)
+f <- latest_file_by_pattern(
+  file.path(PATH, "main/ALS_coverage_all_*.rds"),
+  stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
+  label = "main ALS coverage RDS"
+)
 
 # ALS coverage
 D <- readRDS(f)
@@ -42,9 +42,11 @@ if (year_max > max(acquisition_year_breaks)) {
   acquisition_year_breaks <- c(acquisition_year_breaks, year_max)
 }
 
-
-flist2 <- dir_info(file.path(PATH, "generalized"), recurse = FALSE)
-f2 <- flist2 %>% arrange(desc(modification_time)) %>% slice(1) %>% pull(path)
+f2 <- latest_file_by_pattern(
+  file.path(PATH, "generalized/ALS_coverage_all_*_generalized_v2.gpkg"),
+  stamp_regex = "ALS_coverage_all_(\\d{8})_generalized_v2\\.gpkg",
+  label = "generalized ALS coverage GPKG"
+)
 
 D1 <- st_read(f2)
 # D1 <- st_read("K:/OneDrive - NRCan RNCan/_WORK/5_lidarStatusCanada/ALS_coverage_all_2024_generalized_v2.gpkg")
@@ -55,16 +57,11 @@ r <- rast("layers/manage_unmanaged_v2_aggreg.tif")
 r <- terra::as.factor(r)
 
 
-#overlap
-# list all files, with modification time
-flist2 <- dir_info(
-  file.path(PATH, "overlap"),
-  glob = "*.gpkg$",
-  recurse = FALSE
+f2 <- latest_file_by_pattern(
+  file.path(PATH, "overlap/ALS_coverage_overlap_*.gpkg"),
+  stamp_regex = "ALS_coverage_overlap_(\\d{8})\\.gpkg",
+  label = "overlap ALS coverage GPKG"
 )
-
-# get the newest - this file will be used in almost all processing
-f2 <- flist2 %>% arrange(desc(modification_time)) %>% slice(1) %>% pull(path)
 
 O <- st_read(f2)
 
