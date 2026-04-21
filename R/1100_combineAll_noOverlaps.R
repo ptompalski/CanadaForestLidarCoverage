@@ -8,6 +8,25 @@ if (!exists("the_crs") || !exists("read_preprocessed_coverage")) {
 # 2 - all data available but access is complicated, no web portal etc (ON)
 # 3 - only raster products are available (DTM, DSM etc) QC?
 
+coverage_main_file <- Sys.getenv(
+  "COVERAGE_MAIN_FILE",
+  unset = glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds")
+)
+coverage_clipped_file <- Sys.getenv(
+  "COVERAGE_CLIPPED_FILE",
+  unset = "layers/ALS_coverage_all_2025_clipped.rds"
+)
+coverage_generalized_file <- Sys.getenv(
+  "COVERAGE_GENERALIZED_FILE",
+  unset = glue(
+    "layers/ALS_coverage_layer/generalized/ALS_coverage_all_{ver}_generalized_v2.gpkg"
+  )
+)
+
+dir_create(dirname(coverage_main_file))
+dir_create(dirname(coverage_clipped_file))
+dir_create(dirname(coverage_generalized_file))
+
 jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
 coverage_diss <- read_preprocessed_coverage(jurisdictions, dissolved = TRUE)
 
@@ -63,7 +82,7 @@ D$YEAR <- as.numeric(D$YEAR)
 #new step added on 2024-09-2024
 D <- clip_to_forested_ecozones(D)
 
-saveRDS(D, glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds"))
+saveRDS(D, coverage_main_file)
 
 # st_write(D, glue("ALS_coverage_all_{ver}.gpkg"), append=F)
 
@@ -72,7 +91,7 @@ saveRDS(D, glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds"))
 # clip to provinces vector (no areas outside)
 provinces2 <- read_province_boundaries()
 Dx <- st_intersection(D, provinces2)
-saveRDS(Dx, "layers/ALS_coverage_all_2025_clipped.rds")
+saveRDS(Dx, coverage_clipped_file)
 
 # dissolve all to create a single poly
 D1 <- Dx %>% ungroup() %>% summarise(n = n()) %>% st_cast()
@@ -86,8 +105,6 @@ D1 <- rmapshaper::ms_simplify(D1, keep = 0.02)
 # st_write(D1, glue("ALS_coverage_all_{ver}_generalized_v2.gpkg"), append=F)
 st_write(
   D1,
-  glue(
-    "layers/ALS_coverage_layer/generalized/ALS_coverage_all_{ver}_generalized_v2.gpkg"
-  ),
+  coverage_generalized_file,
   append = F
 )
