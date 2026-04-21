@@ -1,3 +1,7 @@
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
 pei_output_paths <- coverage_output_paths("PEI")
 
 ALS_PEI <- st_read(

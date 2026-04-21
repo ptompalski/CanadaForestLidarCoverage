@@ -3,6 +3,10 @@
 #
 #one shp, no need to run the preprocessing script
 
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
 sk_output_paths <- coverage_output_paths("SK")
 
 ALS_SK <- st_read("layers/source_layers/SK/SK_combined.gpkg")

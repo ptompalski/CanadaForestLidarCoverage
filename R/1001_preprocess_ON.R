@@ -1,4 +1,6 @@
-source("R/0000_setup.R")
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
 
 # preprocess ON data
 

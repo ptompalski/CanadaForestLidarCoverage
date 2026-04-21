@@ -1,6 +1,8 @@
 #preprocess QC acquision
 
-source("R/0000_setup.R")
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
 
 # file downloaded from https://diffusion.mern.gouv.qc.ca/diffusion/RGQ/Imagerie/Index/Lidar/
 # P <- st_layers("layers/source_layers/QC/INDEX_LiDAR.gpkg")

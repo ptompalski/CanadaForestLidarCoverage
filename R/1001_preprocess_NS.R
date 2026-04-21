@@ -1,3 +1,7 @@
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
 ns_source_file <- "layers/source_layers/NS/ALS_NS_downloaded_20231123.shp"
 ns_output_paths <- coverage_output_paths("NS")
 

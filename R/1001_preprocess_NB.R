@@ -1,3 +1,7 @@
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
 nb_output_paths <- coverage_output_paths("NB")
 
 ALS_NB_1 <- st_read("layers/source_layers/NB/geonb_li_idl_cgvd2013.shp")

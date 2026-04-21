@@ -1,4 +1,7 @@
 # Preprocessing acquisition data for AB
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
 
 #update 2024-06-24 - added ABMI coverage
 
