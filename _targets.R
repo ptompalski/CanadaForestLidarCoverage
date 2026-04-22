@@ -166,7 +166,11 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
   do.call(Sys.setenv, as.list(env))
 
   target_env <- new.env(parent = globalenv())
-  for (script in scripts) {
+  for (i in seq_along(scripts)) {
+    script <- scripts[[i]]
+    start_time <- Sys.time()
+    message(sprintf("[%d/%d] Running %s", i, length(scripts), script))
+
     invisible(
       capture.output(
         suppressPackageStartupMessages(
@@ -174,6 +178,12 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
         )
       )
     )
+
+    elapsed <- round(
+      as.numeric(difftime(Sys.time(), start_time, units = "secs")),
+      1
+    )
+    message(sprintf("[%d/%d] Finished %s in %s sec", i, length(scripts), script, elapsed))
   }
 
   output_files
