@@ -47,7 +47,7 @@ run_script_with_env <- function(script, env, output_files, input_files = charact
   output_files
 }
 
-tar_pipeline(
+list(
   tar_target(
     preprocessed_coverage_files,
     c(
