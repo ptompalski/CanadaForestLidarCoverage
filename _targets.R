@@ -1,46 +1,24 @@
-library(targets)
+# targets pipeline for the full Canada forest lidar coverage update.
+#
+# Run with source("R/__RUN_TARGETS.R") or targets::tar_make().
+# Set COVERAGE_VERSION first when producing a new dated release, e.g.
+# Sys.setenv(COVERAGE_VERSION = "20260421").
 
-source("R/0000_setup.R")
+suppressPackageStartupMessages({
+  library(targets)
+  source("R/0000_setup.R")
+})
 
-tar_option_set(
-  packages = c(
-    "dplyr",
-    "fs",
-    "ggfx",
-    "ggnewscale",
-    "ggpattern",
-    "ggplot2",
-    "ggspatial",
-    "ggthemes",
-    "gifski",
-    "glue",
-    "knitr",
-    "lubridate",
-    "lwgeom",
-    "magick",
-    "magrittr",
-    "MetBrewer",
-    "nngeo",
-    "png",
-    "purrr",
-    "quarto",
-    "rmapshaper",
-    "sf",
-    "shadowtext",
-    "smoothr",
-    "stringr",
-    "terra",
-    "tibble",
-    "tidyr",
-    "tidyterra",
-    "tidyverse",
-    "units",
-    "viridis"
-  )
-)
+# R/0000_setup.R loads the project package stack. Keeping packages empty here
+# prevents targets from re-attaching packages and printing startup messages.
+tar_option_set(packages = character())
 
+# Explicit dated version used in output filenames. Keeping this parameter stable
+# is what lets targets skip completed stages on later runs.
 target_version <- Sys.getenv("COVERAGE_VERSION", unset = "20260421")
 
+# Existing project scripts are still the unit of work. The targets below group
+# them into stages so we can refactor individual scripts into functions later.
 preprocess_scripts <- c(
   "R/1001_preprocess_AB.R",
   "R/1001_preprocess_BC.R",
@@ -70,6 +48,9 @@ map_table_scripts <- c(
   "R/3004_acquisition_area_over_time.R"
 )
 
+# Source a set of legacy scripts inside one target while temporarily setting
+# environment variables for versioned inputs/outputs. Messages are suppressed to
+# keep the targets log readable, but warnings and errors are still shown.
 run_scripts_with_env <- function(scripts, env, output_files, input_files = character()) {
   invisible(input_files)
 
@@ -90,13 +71,17 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
 
   target_env <- new.env(parent = globalenv())
   for (script in scripts) {
-    message("Running ", script)
-    source(script, local = target_env)
+    suppressPackageStartupMessages(
+      suppressMessages(source(script, local = target_env))
+    )
   }
 
   output_files
 }
 
+# The update-log map compares the current main coverage layer to the previous
+# dated coverage layer. This helper finds the previous layer without relying on
+# "latest file" logic inside the map script.
 previous_main_coverage_file <- function(current_file) {
   files <- latest_files_by_pattern(
     file.path("layers/ALS_coverage_layer/main", "ALS_coverage_all_*.rds"),
@@ -116,6 +101,8 @@ previous_main_coverage_file <- function(current_file) {
   previous[1]
 }
 
+# Files created by the preprocessing stage. These paths are declared explicitly
+# so targets can verify that the stage produced what downstream stages need.
 preprocessed_outputs <- c(
   coverage_output_paths("AB")$file,
   coverage_output_paths("AB")$diss_file,
@@ -136,6 +123,7 @@ preprocessed_outputs <- c(
   coverage_output_paths("SK")$diss_file
 )
 
+# Versioned outputs created by the two processing scripts.
 coverage_main_file <- file.path(
   "layers/ALS_coverage_layer/main",
   glue("ALS_coverage_all_{target_version}.rds")
@@ -162,6 +150,7 @@ processing_outputs <- c(
   overlap_output_file
 )
 
+# Table/statistic outputs consumed by the Quarto pages.
 table_outputs <- c(
   "layers/coverageManagedUnmanaged.rds",
   "layers/manage_unmanaged_byJurisdiction.rds",
@@ -173,6 +162,7 @@ table_outputs <- c(
   "layers/dataForTheFigure_v4.rds"
 )
 
+# Static map outputs and the animation produced by the map scripts.
 map_outputs <- c(
   "img/map0_overview.png",
   "img/map1_ALS_coverage.png",
@@ -191,6 +181,7 @@ map_outputs <- c(
   "img/animation_ALS_over_time.gif"
 )
 
+# Quarto pages and their rendered HTML outputs.
 qmd_files <- list.files(pattern = "\\.qmd$", full.names = TRUE)
 site_outputs <- file.path(
   "docs",
@@ -198,7 +189,11 @@ site_outputs <- file.path(
 )
 
 list(
+  # Lightweight parameter target. Changing COVERAGE_VERSION invalidates the
+  # downstream stages that use dated output paths.
   tar_target(workflow_version, target_version),
+
+  # Track code files so changes to scripts/helpers invalidate affected stages.
   tar_target(
     workflow_scripts,
     c(
@@ -214,7 +209,11 @@ list(
     ),
     format = "file"
   ),
+
+  # Track website source files separately from generated HTML.
   tar_target(qmd_inputs, qmd_files, format = "file"),
+
+  # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
   tar_target(
     preprocessing,
     run_scripts_with_env(
@@ -225,6 +224,9 @@ list(
     ),
     format = "file"
   ),
+
+  # National coverage products: no-overlap coverage, generalized coverage,
+  # multitemporal acquisitions, and overlap areas.
   tar_target(
     processing,
     run_scripts_with_env(
@@ -242,11 +244,15 @@ list(
     ),
     format = "file"
   ),
+
+  # Previous coverage layer used only for the update-log map.
   tar_target(
     previous_main_coverage,
     previous_main_coverage_file(coverage_main_file),
     format = "file"
   ),
+
+  # Maps, animation, and RDS tables/statistics used by the website.
   tar_target(
     maps_and_tables,
     run_scripts_with_env(
@@ -265,11 +271,15 @@ list(
     ),
     format = "file"
   ),
+
+  # Render the Quarto website after the image/table targets are current.
   tar_target(
     website,
     {
       invisible(maps_and_tables)
-      purrr::walk(qmd_inputs, quarto::quarto_render)
+      purrr::walk(qmd_inputs, ~ suppressMessages(
+        quarto::quarto_render(.x, quiet = TRUE)
+      ))
       site_outputs
     },
     format = "file"

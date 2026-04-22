@@ -2,8 +2,8 @@
 
 This branch has a `targets` example in `_targets.R`.
 
-It does not replace `R/__RUN_UPDATES.R` yet. The example defines the full update
-workflow as staged targets:
+The old sequential update runner has been moved to `R/archive/__RUN_UPDATES.R`.
+The current update workflow is defined as staged targets:
 
 - preprocessing
 - combined coverage and multitemporal processing
@@ -24,8 +24,8 @@ targets::tar_read(processing)
 targets::tar_outdated()
 ```
 
-You can also source `R/__RUN_TARGETS_EXAMPLE.R`. Edit the `coverage_version`
-value in that script, or set `COVERAGE_VERSION` first.
+You can also source `R/__RUN_TARGETS.R`. Edit the `coverage_version` value in
+that script, or set `COVERAGE_VERSION` first.
 
 The main idea is that `targets` tracks scripts, input files, output files, and
 the version parameter. If none of those change, completed stages can be skipped
