@@ -57,12 +57,14 @@ nb_lidar_index_metadata_file <- file.path(
   "geonb_li-idl_shp_headers.json"
 )
 nb_lidar_index_files <- c(
-  cgvd2013 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd2013.shp"),
-  cgvd1928 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd1928.shp")
+  cgvd2013 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd2013.shp")
 )
 nb_lidar_index_basenames <- c(
-  "geonb_li_idl_cgvd2013",
-  "geonb_li_idl_cgvd1928"
+  "geonb_li_idl_cgvd2013"
+)
+nb_lidar_index_cgvd1928_file <- file.path(
+  nb_lidar_index_dir,
+  "geonb_li_idl_cgvd1928.shp"
 )
 
 remote_file_metadata <- function(url) {
@@ -360,10 +362,10 @@ list(
       env = c(
         COVERAGE_VERSION = workflow_version,
         NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
-        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_source_files[[2]]
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file
       ),
       output_files = preprocessed_outputs,
-      input_files = c(workflow_scripts, nb_lidar_index_source_files)
+      input_files = c(workflow_scripts, nb_lidar_index_source_files, nb_lidar_index_cgvd1928_file)
     ),
     format = "file"
   ),
