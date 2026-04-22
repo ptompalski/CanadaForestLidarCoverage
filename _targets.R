@@ -48,6 +48,64 @@ map_table_scripts <- c(
   "R/3004_acquisition_area_over_time.R"
 )
 
+# GeoNB publishes the New Brunswick lidar index as a ZIP download. The HEAD
+# request is cheap and lets us detect remote changes without downloading the ZIP.
+nb_lidar_index_url <- "https://geonb.snb.ca/downloads/lidar_index/geonb_li-idl_shp.zip"
+nb_lidar_index_dir <- "layers/source_layers/NB"
+nb_lidar_index_metadata_file <- file.path(
+  nb_lidar_index_dir,
+  "geonb_li-idl_shp_headers.json"
+)
+nb_lidar_index_files <- c(
+  cgvd2013 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd2013.shp"),
+  cgvd1928 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd1928.shp")
+)
+
+remote_file_metadata <- function(url) {
+  response <- curl::curl_fetch_memory(
+    url,
+    handle = curl::new_handle(nobody = TRUE, followlocation = TRUE)
+  )
+  headers <- curl::parse_headers_list(response$headers)
+
+  list(
+    url = url,
+    status_code = response$status_code,
+    etag = unname(headers[["etag"]]),
+    last_modified = unname(headers[["last-modified"]]),
+    content_length = unname(headers[["content-length"]])
+  )
+}
+
+same_remote_metadata <- function(x, y) {
+  fields <- c("url", "etag", "last_modified", "content_length")
+  identical(x[fields], y[fields])
+}
+
+download_zip_if_changed <- function(url, metadata, dest_dir, metadata_file, output_files) {
+  dir_create(dest_dir)
+  existing_metadata <- NULL
+
+  if (file.exists(metadata_file)) {
+    existing_metadata <- jsonlite::read_json(metadata_file, simplifyVector = TRUE)
+  }
+
+  outputs_exist <- all(file.exists(output_files))
+  metadata_unchanged <- !is.null(existing_metadata) &&
+    same_remote_metadata(metadata, existing_metadata)
+
+  if (!outputs_exist || !metadata_unchanged) {
+    temp_zip <- tempfile(fileext = ".zip")
+    on.exit(unlink(temp_zip), add = TRUE)
+
+    download.file(url, temp_zip, mode = "wb", quiet = TRUE)
+    utils::unzip(temp_zip, exdir = dest_dir, overwrite = TRUE)
+    jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
+  }
+
+  output_files
+}
+
 # Source a set of legacy scripts inside one target while temporarily setting
 # environment variables for versioned inputs/outputs. Messages are suppressed to
 # keep the targets log readable, but warnings and errors are still shown.
@@ -213,14 +271,37 @@ list(
   # Track website source files separately from generated HTML.
   tar_target(qmd_inputs, qmd_files, format = "file"),
 
+  # Online New Brunswick source check. The metadata target reads only HTTP
+  # headers; the file target downloads/unzips only when those headers change.
+  tar_target(
+    nb_lidar_index_remote_metadata,
+    remote_file_metadata(nb_lidar_index_url),
+    cue = tar_cue(mode = "always")
+  ),
+  tar_target(
+    nb_lidar_index_source_files,
+    download_zip_if_changed(
+      url = nb_lidar_index_url,
+      metadata = nb_lidar_index_remote_metadata,
+      dest_dir = nb_lidar_index_dir,
+      metadata_file = nb_lidar_index_metadata_file,
+      output_files = nb_lidar_index_files
+    ),
+    format = "file"
+  ),
+
   # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
   tar_target(
     preprocessing,
     run_scripts_with_env(
       scripts = preprocess_scripts,
-      env = c(COVERAGE_VERSION = workflow_version),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[["cgvd2013"]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_source_files[["cgvd1928"]]
+      ),
       output_files = preprocessed_outputs,
-      input_files = workflow_scripts
+      input_files = c(workflow_scripts, nb_lidar_index_source_files)
     ),
     format = "file"
   ),

@@ -5,12 +5,16 @@ This branch has a `targets` example in `_targets.R`.
 The old sequential update runner has been moved to `R/archive/__RUN_UPDATES.R`.
 The current update workflow is defined as staged targets:
 
+- online source checks and downloads
 - preprocessing
 - combined coverage and multitemporal processing
 - maps and tables
 - Quarto website rendering
 
 The dated output version is controlled explicitly with `COVERAGE_VERSION`.
+The New Brunswick lidar index is checked online using HTTP headers from the
+GeoNB SHP ZIP download. The ZIP is downloaded and unzipped only when the remote
+`ETag`, `Last-Modified`, or `Content-Length` changes.
 
 Useful commands:
 

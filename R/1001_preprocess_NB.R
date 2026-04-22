@@ -4,8 +4,17 @@ if (!exists("the_crs") || !exists("coverage_output_paths")) {
 
 nb_output_paths <- coverage_output_paths("NB")
 
-ALS_NB_1 <- st_read("layers/source_layers/NB/geonb_li_idl_cgvd2013.shp")
-ALS_NB_2 <- st_read("layers/source_layers/NB/geonb_li_idl_cgvd1928.shp")
+nb_lidar_index_cgvd2013_file <- Sys.getenv(
+  "NB_LIDAR_INDEX_CGVD2013_FILE",
+  unset = "layers/source_layers/NB/geonb_li_idl_cgvd2013.shp"
+)
+nb_lidar_index_cgvd1928_file <- Sys.getenv(
+  "NB_LIDAR_INDEX_CGVD1928_FILE",
+  unset = "layers/source_layers/NB/geonb_li_idl_cgvd1928.shp"
+)
+
+ALS_NB_1 <- st_read(nb_lidar_index_cgvd2013_file)
+ALS_NB_2 <- st_read(nb_lidar_index_cgvd1928_file)
 
 ALS_NB_1 <- ALS_NB_1 %>% st_transform(crs = the_crs)
 ALS_NB_2 <- ALS_NB_2 %>% st_transform(crs = the_crs)
