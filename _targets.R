@@ -297,8 +297,8 @@ list(
       scripts = preprocess_scripts,
       env = c(
         COVERAGE_VERSION = workflow_version,
-        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[["cgvd2013"]],
-        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_source_files[["cgvd1928"]]
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_source_files[[2]]
       ),
       output_files = preprocessed_outputs,
       input_files = c(workflow_scripts, nb_lidar_index_source_files)
