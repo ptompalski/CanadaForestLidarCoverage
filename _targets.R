@@ -212,25 +212,14 @@ processing_outputs <- c(
   overlap_output_file
 )
 
-# Table/statistic outputs consumed by the Quarto pages.
-table_outputs <- c(
-  "layers/coverageManagedUnmanaged.rds",
-  "layers/manage_unmanaged_byJurisdiction.rds",
-  "layers/Stats.rds",
-  "layers/dataForTheFigure.rds",
-  "layers/coverageOverTime.rds",
-  "layers/dataForTheFigure_v3.rds",
-  "layers/summary_multitemporal_list.rds",
-  "layers/dataForTheFigure_v4.rds"
-)
-
-# Static map outputs and the animation produced by the map scripts.
-map_outputs <- c(
+map_main_outputs <- c(
   "img/map0_overview.png",
   "img/map1_ALS_coverage.png",
   "img/map2_ALS_density.png",
   "img/map3_ALS_AcquisitionYear.png",
-  "img/map4_ALS_overlap.png",
+  "img/map4_ALS_overlap.png"
+)
+map_focused_outputs <- c(
   "img/map2_ALS_density_focused1.png",
   "img/map3_ALS_AcquisitionYear_focused1.png",
   "img/map1_ALS_coverage_focused1.png",
@@ -238,9 +227,41 @@ map_outputs <- c(
   "img/map2_ALS_density_focused2.png",
   "img/map3_ALS_AcquisitionYear_focused2.png",
   "img/map1_ALS_coverage_focused2.png",
-  "img/map4_ALS_overlap_focus2.png",
-  glue("img/UpdateLog/map_newAcquisitions_{ymd(target_version)}.png"),
-  "img/animation_ALS_over_time.gif"
+  "img/map4_ALS_overlap_focus2.png"
+)
+map_update_log_outputs <- glue("img/UpdateLog/map_newAcquisitions_{ymd(target_version)}.png")
+map_animation_outputs <- "img/animation_ALS_over_time.gif"
+
+# Static map outputs and the animation produced by the map scripts.
+map_outputs <- c(
+  map_main_outputs,
+  map_focused_outputs,
+  map_update_log_outputs,
+  map_animation_outputs
+)
+
+managed_unmanaged_outputs <- c(
+  "layers/coverageManagedUnmanaged.rds",
+  "layers/manage_unmanaged_byJurisdiction.rds"
+)
+table_summary_outputs <- c(
+  "layers/Stats.rds",
+  "layers/dataForTheFigure.rds"
+)
+table_over_time_outputs <- c(
+  "layers/coverageOverTime.rds",
+  "layers/dataForTheFigure_v3.rds"
+)
+summary_multitemporal_outputs <- "layers/summary_multitemporal_list.rds"
+acquisition_area_over_time_outputs <- "layers/dataForTheFigure_v4.rds"
+
+# Table/statistic outputs consumed by the Quarto pages.
+table_outputs <- c(
+  managed_unmanaged_outputs,
+  table_summary_outputs,
+  table_over_time_outputs,
+  summary_multitemporal_outputs,
+  acquisition_area_over_time_outputs
 )
 
 # Quarto pages and their rendered HTML outputs.
@@ -339,9 +360,41 @@ list(
 
   # Maps, animation, and RDS tables/statistics used by the website.
   tar_target(
-    maps_and_tables,
+    maps_main,
     run_scripts_with_env(
-      scripts = map_table_scripts,
+      scripts = c("R/2000_maps_setup.R", "R/2000_maps_main.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = map_main_outputs,
+      input_files = processing
+    ),
+    format = "file"
+  ),
+  tar_target(
+    maps_focused,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/2000_maps_focused.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = map_focused_outputs,
+      input_files = processing
+    ),
+    format = "file"
+  ),
+  tar_target(
+    map_update_log,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/2000_maps_updateLog.R"),
       env = c(
         COVERAGE_VERSION = workflow_version,
         COVERAGE_MAIN_FILE = coverage_main_file,
@@ -351,8 +404,101 @@ list(
         UPDATE_LOG_CURRENT_FILE = coverage_main_file,
         UPDATE_LOG_PREVIOUS_FILE = previous_main_coverage
       ),
-      output_files = c(map_outputs, table_outputs),
+      output_files = map_update_log_outputs,
       input_files = c(processing, previous_main_coverage)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    map_animation,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/2000_maps_animation.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = map_animation_outputs,
+      input_files = processing
+    ),
+    format = "file"
+  ),
+  tar_target(
+    stats_managed_unmanaged,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/3001_coverageManagedUnmanaged.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = managed_unmanaged_outputs,
+      input_files = processing
+    ),
+    format = "file"
+  ),
+  tar_target(
+    stats_table_summary,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/3001_theTable.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = table_summary_outputs,
+      input_files = c(processing, stats_managed_unmanaged)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    stats_table_over_time,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/3001_theTable_v2.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = table_over_time_outputs,
+      input_files = c(processing, stats_managed_unmanaged, stats_table_summary)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    stats_multitemporal,
+    run_scripts_with_env(
+      scripts = c("R/2000_maps_setup.R", "R/3003_coverageMultiTemporal.R"),
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        COVERAGE_MAIN_FILE = coverage_main_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
+        OVERLAP_OUTPUT_FILE = overlap_output_file
+      ),
+      output_files = summary_multitemporal_outputs,
+      input_files = c(processing, stats_managed_unmanaged)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    stats_acquisition_area_over_time,
+    run_scripts_with_env(
+      scripts = "R/3004_acquisition_area_over_time.R",
+      env = c(
+        COVERAGE_VERSION = workflow_version,
+        MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file
+      ),
+      output_files = acquisition_area_over_time_outputs,
+      input_files = c(processing, stats_managed_unmanaged)
     ),
     format = "file"
   ),
@@ -361,7 +507,17 @@ list(
   tar_target(
     website,
     {
-      invisible(maps_and_tables)
+      invisible(c(
+        maps_main,
+        maps_focused,
+        map_update_log,
+        map_animation,
+        stats_managed_unmanaged,
+        stats_table_summary,
+        stats_table_over_time,
+        stats_multitemporal,
+        stats_acquisition_area_over_time
+      ))
       purrr::walk(qmd_inputs, ~ suppressMessages(
         quarto::quarto_render(.x, quiet = TRUE)
       ))
