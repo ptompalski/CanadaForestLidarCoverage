@@ -60,6 +60,10 @@ nb_lidar_index_files <- c(
   cgvd2013 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd2013.shp"),
   cgvd1928 = file.path(nb_lidar_index_dir, "geonb_li_idl_cgvd1928.shp")
 )
+nb_lidar_index_basenames <- c(
+  "geonb_li_idl_cgvd2013",
+  "geonb_li_idl_cgvd1928"
+)
 
 remote_file_metadata <- function(url) {
   response <- curl::curl_fetch_memory(
@@ -82,7 +86,14 @@ same_remote_metadata <- function(x, y) {
   identical(x[fields], y[fields])
 }
 
-download_zip_if_changed <- function(url, metadata, dest_dir, metadata_file, output_files) {
+download_zip_if_changed <- function(
+  url,
+  metadata,
+  dest_dir,
+  metadata_file,
+  output_files,
+  shapefile_basenames = character()
+) {
   dir_create(dest_dir)
   existing_metadata <- NULL
 
@@ -96,10 +107,35 @@ download_zip_if_changed <- function(url, metadata, dest_dir, metadata_file, outp
 
   if (!outputs_exist || !metadata_unchanged) {
     temp_zip <- tempfile(fileext = ".zip")
-    on.exit(unlink(temp_zip), add = TRUE)
+    temp_dir <- tempfile()
+    on.exit(unlink(c(temp_zip, temp_dir), recursive = TRUE, force = TRUE), add = TRUE)
 
     download.file(url, temp_zip, mode = "wb", quiet = TRUE)
-    utils::unzip(temp_zip, exdir = dest_dir, overwrite = TRUE)
+    utils::unzip(temp_zip, exdir = temp_dir, overwrite = TRUE)
+
+    if (length(shapefile_basenames) == 0) {
+      fs::dir_copy(temp_dir, dest_dir, overwrite = TRUE)
+    } else {
+      extracted_files <- list.files(temp_dir, recursive = TRUE, full.names = TRUE)
+
+      for (shapefile_basename in shapefile_basenames) {
+        basename_files <- extracted_files[
+          tools::file_path_sans_ext(base::basename(extracted_files)) == shapefile_basename |
+            tools::file_path_sans_ext(tools::file_path_sans_ext(base::basename(extracted_files))) == shapefile_basename
+        ]
+
+        if (length(basename_files) == 0) {
+          stop("Could not find shapefile components for ", shapefile_basename, call. = FALSE)
+        }
+
+        file.copy(
+          from = basename_files,
+          to = file.path(dest_dir, base::basename(basename_files)),
+          overwrite = TRUE
+        )
+      }
+    }
+
     jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
   }
 
@@ -310,7 +346,8 @@ list(
       metadata = nb_lidar_index_remote_metadata,
       dest_dir = nb_lidar_index_dir,
       metadata_file = nb_lidar_index_metadata_file,
-      output_files = nb_lidar_index_files
+      output_files = nb_lidar_index_files,
+      shapefile_basenames = nb_lidar_index_basenames
     ),
     format = "file"
   ),
