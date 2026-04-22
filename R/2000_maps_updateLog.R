@@ -2,13 +2,20 @@
 
 # source("R/2000_maps_setup.R")
 
-#get two newest coverage files
-f_two_most_recent <- latest_files_by_pattern(
-  file.path(PATH, "main/ALS_coverage_all_*.rds"),
-  n = 2,
-  stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
-  label = "main ALS coverage RDS"
-)
+update_log_current_file <- Sys.getenv("UPDATE_LOG_CURRENT_FILE", unset = NA)
+update_log_previous_file <- Sys.getenv("UPDATE_LOG_PREVIOUS_FILE", unset = NA)
+
+if (is.na(update_log_current_file) || is.na(update_log_previous_file)) {
+  #get two newest coverage files
+  f_two_most_recent <- latest_files_by_pattern(
+    file.path(PATH, "main/ALS_coverage_all_*.rds"),
+    n = 2,
+    stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
+    label = "main ALS coverage RDS"
+  )
+} else {
+  f_two_most_recent <- c(update_log_current_file, update_log_previous_file)
+}
 
 #get the date of the newest
 updateDate <- str_match(

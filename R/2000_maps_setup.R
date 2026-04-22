@@ -8,10 +8,13 @@ library(fs)
 #directory with coverage files
 PATH <- "layers/ALS_coverage_layer/"
 
-f <- latest_file_by_pattern(
-  file.path(PATH, "main/ALS_coverage_all_*.rds"),
-  stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
-  label = "main ALS coverage RDS"
+f <- Sys.getenv(
+  "COVERAGE_MAIN_FILE",
+  unset = latest_file_by_pattern(
+    file.path(PATH, "main/ALS_coverage_all_*.rds"),
+    stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
+    label = "main ALS coverage RDS"
+  )
 )
 
 # ALS coverage
@@ -42,10 +45,13 @@ if (year_max > max(acquisition_year_breaks)) {
   acquisition_year_breaks <- c(acquisition_year_breaks, year_max)
 }
 
-f2 <- latest_file_by_pattern(
-  file.path(PATH, "generalized/ALS_coverage_all_*_generalized_v2.gpkg"),
-  stamp_regex = "ALS_coverage_all_(\\d{8})_generalized_v2\\.gpkg",
-  label = "generalized ALS coverage GPKG"
+f2 <- Sys.getenv(
+  "COVERAGE_GENERALIZED_FILE",
+  unset = latest_file_by_pattern(
+    file.path(PATH, "generalized/ALS_coverage_all_*_generalized_v2.gpkg"),
+    stamp_regex = "ALS_coverage_all_(\\d{8})_generalized_v2\\.gpkg",
+    label = "generalized ALS coverage GPKG"
+  )
 )
 
 D1 <- st_read(f2)
@@ -57,10 +63,13 @@ r <- rast("layers/manage_unmanaged_v2_aggreg.tif")
 r <- terra::as.factor(r)
 
 
-f2 <- latest_file_by_pattern(
-  file.path(PATH, "overlap/ALS_coverage_overlap_*.gpkg"),
-  stamp_regex = "ALS_coverage_overlap_(\\d{8})\\.gpkg",
-  label = "overlap ALS coverage GPKG"
+f2 <- Sys.getenv(
+  "OVERLAP_OUTPUT_FILE",
+  unset = latest_file_by_pattern(
+    file.path(PATH, "overlap/ALS_coverage_overlap_*.gpkg"),
+    stamp_regex = "ALS_coverage_overlap_(\\d{8})\\.gpkg",
+    label = "overlap ALS coverage GPKG"
+  )
 )
 
 O <- st_read(f2)

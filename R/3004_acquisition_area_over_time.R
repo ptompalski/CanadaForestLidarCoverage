@@ -12,10 +12,13 @@ data_for_figure_v4_file <- Sys.getenv(
   "DATA_FOR_FIGURE_V4_FILE",
   unset = "layers/dataForTheFigure_v4.rds"
 )
-f2 <- latest_file_by_pattern(
-  file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
-  stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
-  label = "multitemporal ALS coverage GPKG"
+f2 <- Sys.getenv(
+  "MULTITEMPORAL_OUTPUT_FILE",
+  unset = latest_file_by_pattern(
+    file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
+    stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
+    label = "multitemporal ALS coverage GPKG"
+  )
 )
 Q <- st_read(f2)
 
