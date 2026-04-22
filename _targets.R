@@ -125,7 +125,7 @@ preprocessed_outputs <- c(
   coverage_output_paths("NB")$diss_file,
   coverage_output_paths("NS")$file,
   coverage_output_paths("NS")$diss_file,
-  file.path("layers/pre-processed/ON", "ALS_ON_Y1_to_Y8_wDensity.gpkg"),
+  file.path("layers/source_layers/ON", "ALS_ON_Y1_to_Y8_wDensity.gpkg"),
   coverage_output_paths("ON")$file,
   coverage_output_paths("ON")$diss_file,
   coverage_output_paths("PEI")$file,
