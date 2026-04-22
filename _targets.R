@@ -129,8 +129,12 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
 
   target_env <- new.env(parent = globalenv())
   for (script in scripts) {
-    suppressPackageStartupMessages(
-      suppressMessages(source(script, local = target_env))
+    invisible(
+      capture.output(
+        suppressPackageStartupMessages(
+          suppressMessages(source(script, local = target_env))
+        )
+      )
     )
   }
 
