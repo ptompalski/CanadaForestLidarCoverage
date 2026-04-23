@@ -1,0 +1,163 @@
+#preprocess BC
+
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
+#newest updates in the bottom
+
+bc_output_paths <- coverage_output_paths("BC")
+
+bc_source_dir <- "layers/source_layers/BC"
+bc_status_pattern <- file.path(bc_source_dir, "Provincial_ALS_Status_*.shp")
+bc_status_available <- c(
+  "Completed",
+  "acquired_complete",
+  "analysis_ready",
+  "faib_complete",
+  "recieved_complete",
+  "received_complete"
+)
+
+bc_date_year <- function(x) {
+  suppressWarnings(as.integer(substr(as.character(x), 1, 4)))
+}
+
+read_bc_status_layer <- function(file) {
+  snapshot_stamp <- str_match(
+    basename(file),
+    "Provincial_ALS_Status_(\\d{8,12})\\.shp"
+  )[, 2]
+  snapshot_year <- bc_date_year(snapshot_stamp)
+
+  x <- st_read(file)
+
+  if (!"status" %in% names(x)) {
+    stop("Expected a `status` field in ", file)
+  }
+
+  x %>%
+    filter(status %in% bc_status_available) %>%
+    mutate(
+      YEAR = coalesce(
+        if ("enddate" %in% names(.)) bc_date_year(enddate) else NA_integer_,
+        if ("startdate" %in% names(.)) bc_date_year(startdate) else NA_integer_,
+        snapshot_year
+      ),
+      PPM = 8
+    ) %>%
+    filter(!is.na(YEAR)) %>%
+    dissolve_coverage()
+}
+
+# there were multiple shapefiles for BC
+# first starting in 2010 up to 2020
+# second was downloaded from lidar.bc portal and had acquisitions starting in 2015 up to 2021
+
+#combing all of them here
+
+ALS_BC_lidarbc <- st_read(
+  "layers/source_layers/BC/BC_LiDAR_Point_Cloud_Index.shp"
+) #last update 2024-04-09
+ALS_BC_lidarbc %<>% select(YEAR = year_, PPM = density)
+ALS_BC_lidarbc %<>% dissolve_coverage()
+
+ALS_BC_older <- st_read("layers/source_layers/BC/Lidar_BC.shp")
+ALS_BC_older %<>% select(YEAR, PPM = MinimumPts)
+ALS_BC_older %<>% dissolve_coverage(make_valid = TRUE)
+ALS_BC_older %<>% mutate(YEAR = as.numeric(YEAR))
+
+ALS_BC_tolko <- st_read(
+  "layers/source_layers/BC/Tolko_BCTS_LIDAR_acquisition.shp"
+)
+ALS_BC_tolko %<>%
+  mutate(YEAR = 2014, PPM = 2) %>%
+  dissolve_coverage()
+
+## older ALS acquisitions (shared on 2025-11-26)
+# North Vancouver Island 2012
+BCTS_WFP_2012 <- st_read("layers/source_layers/BC/BCTS_WFP_2012.shp")
+BCTS_WFP_2012 %<>%
+  mutate(YEAR = 2012, PPM = 11) %>%
+  dissolve_coverage()
+
+# Cranbrook TSA 2011
+Cranbrook_TSA_2011 <- st_read("layers/source_layers/BC/faib_ssc_lidar.shp")
+Cranbrook_TSA_2011 %<>%
+  mutate(YEAR = 2011, PPM = NA) %>%
+  dissolve_coverage()
+
+# Merritt TSA-2016
+Merritt_TSA_2016 <- st_read(
+  "layers/source_layers/BC/faib_merritt_lidar_2017.shp"
+)
+Merritt_TSA_2016 %<>%
+  mutate(YEAR = 2016, PPM = NA) %>%
+  dissolve_coverage()
+
+# Sunshine Coast 2019?
+
+ALS_BC_2022_bcts <- st_read("layers/source_layers/BC/bcts_lidar_2022.shp")
+ALS_BC_2022_bcts %<>% select(YEAR = YearAcquir) %>% mutate(PPM = 8)
+
+# page 28, table 4 in the acquisition specs document:
+# https://www2.gov.bc.ca/assets/gov/data/geographic/digital-imagery/specifications_for_airborne_lidar_for_the_province_of_british_columbia_53.pdf
+# states the nominal last-return point densities for this program and they all have to meet Quality Level 2 (QL2) which is >=8pts/m2.
+
+ALS_BC_2022_bcts %<>% dissolve_coverage()
+
+ALS_BC_2022 <- st_read(
+  "layers/source_layers/BC/lidar_2022_se_july14_finalPriority12.shp"
+)
+ALS_BC_2022 %<>% mutate(YEAR = 2022, PPM = 8)
+ALS_BC_2022 %<>% dissolve_coverage()
+
+# new ALS acquisitions from the newest provincial status snapshot.
+# When a new Provincial_ALS_Status_*.shp is added, this automatically uses it.
+bc_status_file <- latest_file_by_pattern(
+  pattern = bc_status_pattern,
+  stamp_regex = "Provincial_ALS_Status_(\\d{8,12})\\.shp",
+  label = "BC provincial ALS status layer"
+)
+message("Using BC provincial ALS status layer: ", basename(bc_status_file))
+ALS_BC_status <- read_bc_status_layer(bc_status_file)
+
+ALS_BC <- bind_rows(
+  BCTS_WFP_2012,
+  Merritt_TSA_2016,
+  Cranbrook_TSA_2011,
+  ALS_BC_older,
+  ALS_BC_lidarbc,
+  ALS_BC_tolko,
+  ALS_BC_2022_bcts,
+  ALS_BC_2022,
+  ALS_BC_status
+)
+
+#dissolve by year and PPM
+ALS_BC <- ALS_BC %>% dissolve_coverage()
+
+
+ALS_BC <- ALS_BC %>%
+  clean_coverage_polygons() %>%
+  mutate(area = st_area(geometry)) %>%
+  mutate(Province = "BC") %>%
+  mutate(isAvailable = 1) %>%
+  relocate(Province, YEAR, PPM, area, isAvailable) %>%
+  st_as_sf()
+
+st_write(ALS_BC, dsn = bc_output_paths$file, append = F)
+
+# without overlaps - newest acquisition kept
+ALS_BC_diss <- remove_overlaps_by_attr(ALS_BC, "YEAR")
+
+#update area
+ALS_BC_diss <- ALS_BC_diss %>%
+  clean_coverage_polygons() %>%
+  mutate(area = st_area(geometry))
+
+st_write(
+  ALS_BC_diss,
+  dsn = bc_output_paths$diss_file,
+  append = F
+)

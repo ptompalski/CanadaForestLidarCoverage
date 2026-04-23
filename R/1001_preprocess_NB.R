@@ -1,0 +1,71 @@
+if (!exists("the_crs") || !exists("coverage_output_paths")) {
+  source("R/0000_setup.R")
+}
+
+nb_output_paths <- coverage_output_paths("NB")
+
+nb_lidar_index_cgvd2013_file <- Sys.getenv(
+  "NB_LIDAR_INDEX_CGVD2013_FILE",
+  unset = "layers/source_layers/NB/geonb_li_idl_cgvd2013.shp"
+)
+nb_lidar_index_cgvd1928_file <- Sys.getenv(
+  "NB_LIDAR_INDEX_CGVD1928_FILE",
+  unset = "layers/source_layers/NB/geonb_li_idl_cgvd1928.shp"
+)
+
+ALS_NB_1 <- st_read(nb_lidar_index_cgvd2013_file)
+ALS_NB_2 <- st_read(nb_lidar_index_cgvd1928_file)
+
+ALS_NB_1 <- ALS_NB_1 %>% st_transform(crs = the_crs)
+ALS_NB_2 <- ALS_NB_2 %>% st_transform(crs = the_crs)
+
+ALS_NB <- bind_rows(ALS_NB_1, ALS_NB_2)
+
+
+#correct acquisition year
+ALS_NB <-
+  ALS_NB %>%
+  mutate(
+    Year = str_replace(pattern = "2017&2018", replacement = "2017", Year)
+  ) %>%
+  mutate(Year = str_replace(pattern = "20172018", replacement = "2017", Year))
+
+
+ALS_NB %<>% select(YEAR = Year, PPM)
+ALS_NB %<>% mutate(YEAR = as.numeric(str_sub(YEAR, start = 1, end = 4)))
+
+#dissolve by year and PPM
+ALS_NB <- ALS_NB %>% dissolve_coverage(make_valid = TRUE)
+
+
+ALS_NB <- ALS_NB %>%
+  st_make_valid() %>%
+  st_as_sf() %>%
+  mutate(area = st_area(geometry)) %>%
+  mutate(Province = "NB") %>%
+  mutate(isAvailable = 1) %>%
+  relocate(Province, YEAR, PPM, area, isAvailable) %>%
+  st_as_sf()
+
+st_write(ALS_NB, dsn = nb_output_paths$file, append = F)
+
+# without overlaps - newest acquisition kept
+ALS_NB_diss <- remove_overlaps_by_attr(ALS_NB, "YEAR")
+
+#update area
+ALS_NB_diss <- ALS_NB_diss %>% mutate(area = st_area(geometry))
+
+st_write(
+  ALS_NB_diss,
+  dsn = nb_output_paths$diss_file,
+  append = F
+)
+
+# ALS_NB_diss <-
+#   ALS_NB %>%
+#   group_by(YEAR, PPM) %>%
+#   summarise(n = n(), area = sum(area), geometry = st_union(geometry)) %>%
+#   mutate(Province = "NB") %>%
+#   mutate(isAvailable = 1) %>%
+#   st_cast() %>%
+#   select(Province, YEAR, PPM, n, area, isAvailable)
