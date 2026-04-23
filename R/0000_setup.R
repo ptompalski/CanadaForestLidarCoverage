@@ -11,5 +11,7 @@ fname <- function(x) {
   basename(tools::file_path_sans_ext(x))
 }
 
-source("R/config/theme.R")
+if (!identical(Sys.getenv("SKIP_PROJECT_THEME"), "true")) {
+  source("R/config/theme.R")
+}
 source("R/config/reference_tables.R")

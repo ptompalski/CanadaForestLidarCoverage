@@ -6,7 +6,14 @@
 
 suppressPackageStartupMessages({
   library(targets)
+  old_skip_project_theme <- Sys.getenv("SKIP_PROJECT_THEME", unset = NA_character_)
+  Sys.setenv(SKIP_PROJECT_THEME = "true")
   source("R/0000_setup.R")
+  if (is.na(old_skip_project_theme)) {
+    Sys.unsetenv("SKIP_PROJECT_THEME")
+  } else {
+    Sys.setenv(SKIP_PROJECT_THEME = old_skip_project_theme)
+  }
 })
 
 # R/0000_setup.R loads the project package stack. Keeping packages empty here
@@ -35,13 +42,17 @@ processing_scripts <- c(
   "R/1500_combineALL_withOverlaps.R"
 )
 
-common_source_files <- c(
+core_source_files <- c(
   "R/0000_setup.R",
   "R/config/packages.R",
   "R/config/paths.R",
   "R/config/reference_tables.R",
-  "R/config/theme.R",
   list.files("R/functions", pattern = "\\.R$", full.names = TRUE)
+)
+
+plot_source_files <- c(
+  core_source_files,
+  "R/config/theme.R"
 )
 
 # GeoNB publishes the New Brunswick lidar index as a ZIP download. The HEAD
@@ -323,63 +334,68 @@ list(
   # Track code files by stage. Keeping these narrow prevents a change in one
   # map/stat script from invalidating preprocessing and processing.
   tar_target(
-    source_common_files,
-    common_source_files,
+    source_core_files,
+    core_source_files,
+    format = "file"
+  ),
+  tar_target(
+    source_plot_files,
+    plot_source_files,
     format = "file"
   ),
   tar_target(
     source_preprocessing_files,
-    c(source_common_files, preprocess_scripts),
+    c(source_core_files, preprocess_scripts),
     format = "file"
   ),
   tar_target(
     source_processing_files,
-    c(source_common_files, processing_scripts),
+    c(source_core_files, processing_scripts),
     format = "file"
   ),
   tar_target(
     source_maps_main_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_main.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/2000_maps_main.R"),
     format = "file"
   ),
   tar_target(
     source_maps_focused_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_focused.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/2000_maps_focused.R"),
     format = "file"
   ),
   tar_target(
     source_map_update_log_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_updateLog.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/2000_maps_updateLog.R"),
     format = "file"
   ),
   tar_target(
     source_map_animation_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_animation.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/2000_maps_animation.R"),
     format = "file"
   ),
   tar_target(
     source_stats_managed_unmanaged_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/3001_coverageManagedUnmanaged.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/3001_coverageManagedUnmanaged.R"),
     format = "file"
   ),
   tar_target(
     source_stats_table_summary_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/3001_theTable.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/3001_theTable.R"),
     format = "file"
   ),
   tar_target(
     source_stats_table_over_time_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/3001_theTable_v2.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/3001_theTable_v2.R"),
     format = "file"
   ),
   tar_target(
     source_stats_multitemporal_files,
-    c(source_common_files, "R/2000_maps_setup.R", "R/3003_coverageMultiTemporal.R"),
+    c(source_plot_files, "R/2000_maps_setup.R", "R/3003_coverageMultiTemporal.R"),
     format = "file"
   ),
   tar_target(
     source_stats_acquisition_area_files,
-    c(source_common_files, "R/3004_acquisition_area_over_time.R"),
+    c(source_core_files, "R/3004_acquisition_area_over_time.R"),
     format = "file"
   ),
 
@@ -412,6 +428,7 @@ list(
     run_scripts_with_env(
       scripts = preprocess_scripts,
       env = c(
+        SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
         NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file
@@ -429,6 +446,7 @@ list(
     run_scripts_with_env(
       scripts = processing_scripts,
       env = c(
+        SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         COVERAGE_MAIN_FILE = coverage_main_file,
         COVERAGE_CLIPPED_FILE = coverage_clipped_file,
@@ -585,6 +603,7 @@ list(
     run_scripts_with_env(
       scripts = "R/3004_acquisition_area_over_time.R",
       env = c(
+        SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file
       ),
