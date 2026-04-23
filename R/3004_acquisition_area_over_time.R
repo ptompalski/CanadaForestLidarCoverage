@@ -95,7 +95,7 @@ manage_unmanaged_v2 <- subst(manage_unmanaged_v2, NA, 3)
 
 province_lookup <- tibble(
   jurisdiction_code = sort(unique(Q$Province)),
-  province_id = dplyr::row_number()
+  province_id = seq_along(jurisdiction_code)
 )
 
 Q_raster <- Q %>%
