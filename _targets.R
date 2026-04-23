@@ -35,17 +35,13 @@ processing_scripts <- c(
   "R/1500_combineALL_withOverlaps.R"
 )
 
-map_table_scripts <- c(
-  "R/2000_maps_setup.R",
-  "R/2000_maps_main.R",
-  "R/2000_maps_focused.R",
-  "R/2000_maps_updateLog.R",
-  "R/2000_maps_animation.R",
-  "R/3001_coverageManagedUnmanaged.R",
-  "R/3001_theTable.R",
-  "R/3001_theTable_v2.R",
-  "R/3003_coverageMultiTemporal.R",
-  "R/3004_acquisition_area_over_time.R"
+common_source_files <- c(
+  "R/0000_setup.R",
+  "R/config/packages.R",
+  "R/config/paths.R",
+  "R/config/reference_tables.R",
+  "R/config/theme.R",
+  list.files("R/functions", pattern = "\\.R$", full.names = TRUE)
 )
 
 # GeoNB publishes the New Brunswick lidar index as a ZIP download. The HEAD
@@ -324,20 +320,66 @@ list(
   # downstream stages that use dated output paths.
   tar_target(workflow_version, target_version),
 
-  # Track code files so changes to scripts/helpers invalidate affected stages.
+  # Track code files by stage. Keeping these narrow prevents a change in one
+  # map/stat script from invalidating preprocessing and processing.
   tar_target(
-    workflow_scripts,
-    c(
-      "R/0000_setup.R",
-      "R/config/packages.R",
-      "R/config/paths.R",
-      "R/config/reference_tables.R",
-      "R/config/theme.R",
-      list.files("R/functions", pattern = "\\.R$", full.names = TRUE),
-      preprocess_scripts,
-      processing_scripts,
-      map_table_scripts
-    ),
+    source_common_files,
+    common_source_files,
+    format = "file"
+  ),
+  tar_target(
+    source_preprocessing_files,
+    c(source_common_files, preprocess_scripts),
+    format = "file"
+  ),
+  tar_target(
+    source_processing_files,
+    c(source_common_files, processing_scripts),
+    format = "file"
+  ),
+  tar_target(
+    source_maps_main_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_main.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_maps_focused_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_focused.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_map_update_log_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_updateLog.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_map_animation_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/2000_maps_animation.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_stats_managed_unmanaged_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/3001_coverageManagedUnmanaged.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_stats_table_summary_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/3001_theTable.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_stats_table_over_time_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/3001_theTable_v2.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_stats_multitemporal_files,
+    c(source_common_files, "R/2000_maps_setup.R", "R/3003_coverageMultiTemporal.R"),
+    format = "file"
+  ),
+  tar_target(
+    source_stats_acquisition_area_files,
+    c(source_common_files, "R/3004_acquisition_area_over_time.R"),
     format = "file"
   ),
 
@@ -375,7 +417,7 @@ list(
         NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file
       ),
       output_files = preprocessed_outputs,
-      input_files = c(workflow_scripts, nb_lidar_index_source_files, nb_lidar_index_cgvd1928_file)
+      input_files = c(source_preprocessing_files, nb_lidar_index_source_files, nb_lidar_index_cgvd1928_file)
     ),
     format = "file"
   ),
@@ -395,7 +437,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = processing_outputs,
-      input_files = preprocessing
+      input_files = c(source_processing_files, preprocessing)
     ),
     format = "file"
   ),
@@ -420,7 +462,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_main_outputs,
-      input_files = processing
+      input_files = c(source_maps_main_files, processing)
     ),
     format = "file"
   ),
@@ -436,7 +478,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_focused_outputs,
-      input_files = processing
+      input_files = c(source_maps_focused_files, processing)
     ),
     format = "file"
   ),
@@ -454,7 +496,7 @@ list(
         UPDATE_LOG_PREVIOUS_FILE = previous_main_coverage
       ),
       output_files = map_update_log_outputs,
-      input_files = c(processing, previous_main_coverage)
+      input_files = c(source_map_update_log_files, processing, previous_main_coverage)
     ),
     format = "file"
   ),
@@ -470,7 +512,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_animation_outputs,
-      input_files = processing
+      input_files = c(source_map_animation_files, processing)
     ),
     format = "file"
   ),
@@ -486,7 +528,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = managed_unmanaged_outputs,
-      input_files = processing
+      input_files = c(source_stats_managed_unmanaged_files, processing)
     ),
     format = "file"
   ),
@@ -502,7 +544,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_summary_outputs,
-      input_files = c(processing, stats_managed_unmanaged)
+      input_files = c(source_stats_table_summary_files, processing, stats_managed_unmanaged)
     ),
     format = "file"
   ),
@@ -518,7 +560,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_over_time_outputs,
-      input_files = c(processing, stats_managed_unmanaged, stats_table_summary)
+      input_files = c(source_stats_table_over_time_files, processing, stats_managed_unmanaged, stats_table_summary)
     ),
     format = "file"
   ),
@@ -534,7 +576,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = summary_multitemporal_outputs,
-      input_files = c(processing, stats_managed_unmanaged)
+      input_files = c(source_stats_multitemporal_files, processing, stats_managed_unmanaged)
     ),
     format = "file"
   ),
@@ -547,7 +589,7 @@ list(
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file
       ),
       output_files = acquisition_area_over_time_outputs,
-      input_files = c(processing, stats_managed_unmanaged)
+      input_files = c(source_stats_acquisition_area_files, processing, stats_managed_unmanaged)
     ),
     format = "file"
   ),
