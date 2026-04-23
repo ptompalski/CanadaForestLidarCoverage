@@ -12,10 +12,16 @@ data_for_figure_v4_file <- Sys.getenv(
   "DATA_FOR_FIGURE_V4_FILE",
   unset = "layers/dataForTheFigure_v4.rds"
 )
-f2 <- latest_file_by_pattern(
-  file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
-  stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
-  label = "multitemporal ALS coverage GPKG"
+if (!exists("PATH")) {
+  PATH <- "layers/ALS_coverage_layer/"
+}
+f2 <- Sys.getenv(
+  "MULTITEMPORAL_OUTPUT_FILE",
+  unset = latest_file_by_pattern(
+    file.path(PATH, "multitemporal/ALS_coverage_multitemporal_*.gpkg"),
+    stamp_regex = "ALS_coverage_multitemporal_(\\d{8})\\.gpkg",
+    label = "multitemporal ALS coverage GPKG"
+  )
 )
 Q <- st_read(f2)
 
@@ -87,85 +93,99 @@ manage_unmanaged_v2 <- rast(managed_forest_mask_path)
 # replace NA with a value (to compare total areas of all classes to areas of jurisdictions)
 manage_unmanaged_v2 <- subst(manage_unmanaged_v2, NA, 3)
 
-ALS_coverage_by_year_class <- purrr::map_dfr(years, function(y) {
-  message("year: ", y)
+province_lookup <- tibble(
+  jurisdiction_code = sort(unique(Q$Province)),
+  province_id = seq_along(jurisdiction_code)
+)
 
-  # 1) ---- DISSOLVED version ----
-  Q_diss <- Q %>%
-    dplyr::filter(YEAR <= y) %>%
-    dplyr::group_by(Province) %>%
-    dplyr::summarize(.groups = "drop")
+Q_raster <- Q %>%
+  dplyr::left_join(province_lookup, by = c("Province" = "jurisdiction_code"))
 
-  Q_diss_spat <- terra::vect(Q_diss)
+r_first_year <- terra::rasterize(
+  terra::vect(Q_raster),
+  manage_unmanaged_v2,
+  field = "YEAR",
+  fun = "min"
+)
+r_province <- terra::rasterize(
+  terra::vect(Q_raster),
+  manage_unmanaged_v2,
+  field = "province_id",
+  fun = "min"
+)
 
-  ex_diss <- terra::extract(
-    manage_unmanaged_v2,
-    Q_diss_spat,
-    fun = table,
-    na.rm = TRUE,
-    bind = TRUE
-  )
+names(r_first_year) <- "year"
+names(r_province) <- "province_id"
+names(manage_unmanaged_v2) <- "class"
 
-  ex_diss$Province <- Q_diss$Province
+coverage_cells <- terra::crosstab(
+  c(r_province, r_first_year, manage_unmanaged_v2),
+  long = TRUE,
+  useNA = FALSE
+)
+names(coverage_cells)[names(coverage_cells) %in% c("Freq", "freq")] <- "n_cells"
+names(coverage_cells)[names(coverage_cells) == "n"] <- "n_cells"
 
-  dissolved_tbl <- ex_diss %>%
-    tibble::as_tibble() %>%
-    dplyr::rename(jurisdiction_code = Province) %>%
-    dplyr::mutate(
-      year = y,
-      dissolved = TRUE
-    ) %>%
-    dplyr::select(jurisdiction_code, year, dissolved, `1`:`3`) %>%
-    tidyr::pivot_longer(`1`:`3`, names_to = "class", values_to = "area_km2")
+ALS_coverage_by_year_class_dissolved <-
+  coverage_cells %>%
+  tibble::as_tibble() %>%
+  dplyr::left_join(province_lookup, by = "province_id") %>%
+  dplyr::mutate(
+    year = as.numeric(year),
+    class = as.character(class),
+    area_km2 = n_cells
+  ) %>%
+  dplyr::select(jurisdiction_code, year, class, area_km2) %>%
+  tidyr::complete(
+    jurisdiction_code,
+    year = years,
+    class,
+    fill = list(area_km2 = 0)
+  ) %>%
+  dplyr::arrange(jurisdiction_code, class, year) %>%
+  dplyr::group_by(jurisdiction_code, class) %>%
+  dplyr::mutate(area_km2 = cumsum(area_km2)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(dissolved = TRUE)
 
-  # 2) ---- NON-DISSOLVED version ----
-  Q_raw <- Q %>%
-    dplyr::filter(YEAR <= y) %>%
-    dplyr::mutate(poly_id = dplyr::row_number())
+Q_raw <- Q %>%
+  dplyr::mutate(poly_id = dplyr::row_number())
 
-  Q_raw_spat <- terra::vect(Q_raw)
+ex_raw <- terra::extract(
+  manage_unmanaged_v2,
+  terra::vect(Q_raw),
+  fun = table,
+  na.rm = TRUE,
+  bind = TRUE
+)
 
-  ex_raw <- terra::extract(
-    manage_unmanaged_v2,
-    Q_raw_spat,
-    fun = table,
-    na.rm = TRUE,
-    bind = TRUE
-  )
+ex_raw$Province <- Q_raw$Province
+ex_raw$YEAR <- Q_raw$YEAR
 
-  # make sure Province is there
-  ex_raw$Province <- Q_raw$Province
-  ex_raw$year <- y
+ALS_coverage_by_year_class_total <-
+  ex_raw %>%
+  tibble::as_tibble() %>%
+  dplyr::rename(jurisdiction_code = Province, year = YEAR) %>%
+  dplyr::select(jurisdiction_code, year, `1`:`3`) %>%
+  tidyr::pivot_longer(`1`:`3`, names_to = "class", values_to = "area_km2") %>%
+  dplyr::group_by(jurisdiction_code, year, class) %>%
+  dplyr::summarize(area_km2 = sum(area_km2, na.rm = TRUE), .groups = "drop") %>%
+  tidyr::complete(
+    jurisdiction_code,
+    year = years,
+    class,
+    fill = list(area_km2 = 0)
+  ) %>%
+  dplyr::arrange(jurisdiction_code, class, year) %>%
+  dplyr::group_by(jurisdiction_code, class) %>%
+  dplyr::mutate(area_km2 = cumsum(area_km2)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(dissolved = FALSE)
 
-  nondissolved_tbl <- ex_raw %>%
-    tibble::as_tibble() %>%
-    dplyr::rename(jurisdiction_code = Province) %>%
-    # ensure poly_id exists even if terra dropped it
-    {
-      if (!"poly_id" %in% names(.)) {
-        dplyr::mutate(., poly_id = dplyr::row_number())
-      } else {
-        .
-      }
-    } %>%
-    # select safely (any_of won't error if col missing)
-    dplyr::select(
-      jurisdiction_code,
-      year,
-      dplyr::any_of("poly_id"),
-      `1`:`3`
-    ) %>%
-    tidyr::pivot_longer(`1`:`3`, names_to = "class", values_to = "area_km2") %>%
-    dplyr::group_by(jurisdiction_code, year, class) %>%
-    dplyr::summarize(
-      area_km2 = sum(area_km2, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    dplyr::mutate(dissolved = FALSE)
-
-  # 3) ---- combine ----
-  dplyr::bind_rows(dissolved_tbl, nondissolved_tbl)
-})
+ALS_coverage_by_year_class <- dplyr::bind_rows(
+  ALS_coverage_by_year_class_dissolved,
+  ALS_coverage_by_year_class_total
+)
 
 
 #pivot wider to make it one row per year

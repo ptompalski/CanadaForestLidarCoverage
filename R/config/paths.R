@@ -1,5 +1,8 @@
 # current date - to append to the file names (data versioning)
-ver <- today() %>% str_remove_all(pattern = "-")
+ver <- Sys.getenv(
+  "COVERAGE_VERSION",
+  unset = today() %>% str_remove_all(pattern = "-")
+)
 
 the_crs <- 3978
 

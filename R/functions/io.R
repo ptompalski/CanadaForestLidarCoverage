@@ -148,13 +148,21 @@ save_map_with_logo <- function(
   height,
   dpi = 300,
   units = "in",
-  logo_image = logo,
+  logo_image = NULL,
   logo_geometry = "500x",
   logo_filter = NULL,
   logo_gravity = "SouthWest",
   logo_offset = "+30+50",
   ...
 ) {
+  if (is.null(logo_image)) {
+    if (!exists("logo", envir = parent.frame(), inherits = TRUE)) {
+      stop("No logo image was supplied and no `logo` object exists.", call. = FALSE)
+    }
+
+    logo_image <- get("logo", envir = parent.frame(), inherits = TRUE)
+  }
+
   ggsave(
     plot = plot,
     filename = filename,
