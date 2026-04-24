@@ -1,0 +1,467 @@
+---
+title: "Homepage coverage map"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    toc: false
+engine: knitr
+date: today
+language:
+  title-block-published: "Last modified"
+---
+
+<style>
+html,
+body {
+  margin: 0;
+  background: #dfe7ea;
+  overflow: hidden;
+}
+
+#title-block-header,
+.quarto-title-block,
+#quarto-header,
+#quarto-margin-sidebar,
+#quarto-content > *:not(main) {
+  display: none !important;
+}
+
+#quarto-document-content {
+  padding: 0 !important;
+}
+
+#quarto-content {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+main.content,
+main.content.column-page,
+#quarto-document-content,
+#quarto-document-content.content.column-page {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  grid-column: 1 / -1 !important;
+}
+</style>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+library(dplyr)
+library(fs)
+library(htmltools)
+library(jsonlite)
+library(sf)
+
+coverage_file <- dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
+  filter(grepl("^ALS_coverage_all_.*\\.rds$", path_file(path))) |>
+  arrange(desc(modification_time)) |>
+  slice(1) |>
+  pull(path)
+
+coverage <- readRDS(coverage_file) |>
+  st_make_valid() |>
+  st_collection_extract("POLYGON", warn = FALSE) |>
+  st_cast("MULTIPOLYGON", warn = FALSE) |>
+  mutate(
+    YEAR = as.numeric(YEAR),
+    PPM = as.numeric(PPM),
+    feature_id = row_number()
+  ) |>
+  mutate(
+    PPM_class = cut(
+      PPM,
+      breaks = c(0, 1, 2, 5, 10, 20, 50, 100),
+      labels = c("<1", "1-2", "2-5", "5-10", "10-20", "20-50", ">50")
+    )
+  ) |>
+  select(feature_id, Province, YEAR, PPM, PPM_class, isAvailable)
+
+coverage_3347 <- coverage |>
+  st_transform(3347)
+
+build_dissolved_layer <- function(x, group_col) {
+  split_groups <- split(x, x[[group_col]])
+
+  dissolved_groups <- lapply(names(split_groups), function(group_value) {
+    grp <- split_groups[[group_value]] |>
+      st_make_valid()
+
+    union_geom <- tryCatch(
+      st_union(grp),
+      error = function(e) st_union(st_buffer(grp, 0))
+    )
+
+    st_sf(
+      group_value = as.character(group_value),
+      acquisition_count = nrow(grp),
+      geometry = st_sfc(union_geom, crs = st_crs(x))
+    )
+  })
+
+  bind_rows(dissolved_groups) |>
+    mutate(
+      area_km2 = as.numeric(st_area(geometry)) / 1e6
+    ) |>
+    st_make_valid() |>
+    st_cast("MULTIPOLYGON", warn = FALSE) |>
+    st_simplify(dTolerance = 500, preserveTopology = TRUE) |>
+    st_transform(4326)
+}
+
+layer_jurisdiction <- build_dissolved_layer(coverage_3347, "Province")
+layer_year <- build_dissolved_layer(filter(coverage_3347, !is.na(YEAR)), "YEAR")
+layer_density <- build_dissolved_layer(filter(coverage_3347, !is.na(PPM_class)), "PPM_class")
+
+geojson_string <- function(x) {
+  geojson_file <- tempfile(fileext = ".geojson")
+  st_write(x, geojson_file, driver = "GeoJSON", quiet = TRUE, delete_dsn = TRUE)
+  paste(readLines(geojson_file, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+}
+
+geojson_jurisdiction <- geojson_string(layer_jurisdiction)
+geojson_year <- geojson_string(layer_year)
+geojson_density <- geojson_string(layer_density)
+
+metadata <- list(
+  source_file = path_file(coverage_file),
+  simplify_tolerance_m = 500,
+  year_min = min(coverage$YEAR, na.rm = TRUE),
+  year_max = max(coverage$YEAR, na.rm = TRUE),
+  provinces = sort(unique(coverage$Province)),
+  density_labels = levels(coverage$PPM_class),
+  feature_counts = list(
+    jurisdiction = nrow(layer_jurisdiction),
+    year = nrow(layer_year),
+    density = nrow(layer_density)
+  )
+)
+
+browsable(
+  tagList(
+    tags$link(
+      rel = "stylesheet",
+      href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+      integrity = "sha256-p4NxAoJBhIINfQ63Bf0OUSFdxxpz5yN2F1Mfd1C0g3s=",
+      crossorigin = ""
+    ),
+    tags$script(
+      src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+      integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
+      crossorigin = ""
+    ),
+    tags$style(HTML("
+      .map-shell {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: none;
+        position: relative;
+      }
+      #coverage-map {
+        width: 100%;
+        height: 680px;
+        border: 0;
+      }
+      .map-controls {
+        align-items: stretch;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(37, 58, 74, 0.18);
+        border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(18, 33, 45, 0.16);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.75rem 0.85rem;
+        box-sizing: border-box;
+        min-width: 12rem;
+        max-width: min(15rem, calc(100vw - 2rem));
+      }
+      .map-mode-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .map-action-group {
+        border-top: 1px solid rgba(37, 58, 74, 0.12);
+        margin-top: 0.1rem;
+        padding-top: 0.55rem;
+      }
+      .map-label {
+        color: #243746;
+        font-size: 0.84rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .map-controls button {
+        background: #f4f4f4;
+        border: 1px solid #c8c8c8;
+        border-radius: 4px;
+        cursor: pointer;
+        font: inherit;
+        padding: 0.45rem 0.65rem;
+        text-align: left;
+        width: 100%;
+      }
+      .map-controls button.active {
+        background: #284b63;
+        border-color: #284b63;
+        color: white;
+      }
+      .map-legend {
+        background: white;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
+        color: #222;
+        font: 12px/1.4 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        padding: 0.6rem 0.7rem;
+      }
+      .map-legend-title {
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+      .map-legend-row {
+        align-items: center;
+        display: flex;
+        gap: 0.45rem;
+        margin: 0.15rem 0;
+      }
+      .map-swatch {
+        display: inline-block;
+        height: 0.85rem;
+        width: 1.35rem;
+      }
+      @media (max-width: 720px) {
+        .map-controls {
+          min-width: 0;
+        }
+      }
+    ")),
+    tags$div(
+      class = "map-shell",
+      tags$div(id = "coverage-map")
+    ),
+    tags$script(HTML(sprintf(
+      "const coverageLayersData = {jurisdiction: %s, year: %s, density: %s};\nconst coverageMeta = %s;",
+      geojson_jurisdiction,
+      geojson_year,
+      geojson_density,
+      toJSON(metadata, auto_unbox = TRUE)
+    ))),
+    tags$script(HTML("
+      const map = L.map('coverage-map', {
+        minZoom: 3,
+        maxZoom: 9,
+        preferCanvas: true
+      }).setView([58.5, -96], 3);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      }).addTo(map);
+
+      let currentMode = 'jurisdiction';
+      let currentFillOpacity = 0.65;
+
+      const provincePalette = {
+        AB: '#1f78b4',
+        BC: '#33a02c',
+        MB: '#e31a1c',
+        NB: '#6a3d9a',
+        NL: '#a6cee3',
+        NS: '#ff7f00',
+        NT: '#b2df8a',
+        NU: '#fb9a99',
+        ON: '#666666',
+        PE: '#800000',
+        QC: '#b15928',
+        SK: '#c71585',
+        YT: '#cab2d6'
+      };
+      const yearPalette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
+      const densityPalette = ['#ABC9C8', '#7BB2B9', '#549BB2', '#3A81A8', '#256391', '#11476D', '#0A3351'];
+      const densityBreaks = [0, 1, 2, 5, 10, 20, 50, 100];
+      const densityLabels = ['<1', '1-2', '2-5', '5-10', '10-20', '20-50', '>50'];
+
+      function interpolateIndex(value, min, max, n) {
+        if (value === null || value === undefined || Number.isNaN(value)) return -1;
+        if (max <= min) return 0;
+        return Math.max(0, Math.min(n - 1, Math.floor((value - min) / (max - min) * n)));
+      }
+
+      function featureColor(feature) {
+        const p = feature.properties;
+        if (currentMode === 'jurisdiction') {
+          return provincePalette[p.group_value] || '#8a8a8a';
+        }
+        if (currentMode === 'year') {
+          const idx = interpolateIndex(Number(p.group_value), coverageMeta.year_min, coverageMeta.year_max + 1, yearPalette.length);
+          return idx < 0 ? '#bdbdbd' : yearPalette[idx];
+        }
+        if (currentMode === 'density') {
+          const idx = densityLabels.indexOf(String(p.group_value));
+          return idx < 0 ? '#bdbdbd' : densityPalette[idx];
+        }
+        return '#8a8a8a';
+      }
+
+      function styleFeature(feature) {
+        return {
+          color: '#303030',
+          fillColor: featureColor(feature),
+          fillOpacity: currentFillOpacity,
+          opacity: 0.85,
+          weight: 0.7
+        };
+      }
+
+      function formatNumber(x, digits = 0) {
+        if (x === null || x === undefined || Number.isNaN(Number(x))) return 'NA';
+        return Number(x).toLocaleString(undefined, {
+          maximumFractionDigits: digits,
+          minimumFractionDigits: digits
+        });
+      }
+
+      function popupHtml(feature, mode) {
+        const p = feature.properties;
+        if (mode === 'jurisdiction') {
+          return `<strong>${p.group_value}</strong><br>
+            Dissolved by jurisdiction<br>
+            Area: ${formatNumber(p.area_km2, 0)} km<sup>2</sup><br>
+            Acquisition units: ${formatNumber(p.acquisition_count, 0)}`;
+        }
+        if (mode === 'year') {
+          return `<strong>${p.group_value}</strong><br>
+            Dissolved by acquisition year<br>
+            Area: ${formatNumber(p.area_km2, 0)} km<sup>2</sup><br>
+            Acquisition units: ${formatNumber(p.acquisition_count, 0)}`;
+        }
+        return `<strong>${p.group_value} pts/m<sup>2</sup></strong><br>
+          Dissolved by density class<br>
+          Area: ${formatNumber(p.area_km2, 0)} km<sup>2</sup><br>
+          Acquisition units: ${formatNumber(p.acquisition_count, 0)}`;
+      }
+
+      function bindFeature(mode) {
+        return function(feature, layer) {
+          layer.bindPopup(popupHtml(feature, mode));
+        };
+      }
+
+      function makeLayer(mode) {
+        return L.geoJSON(coverageLayersData[mode], {
+          style: styleFeature,
+          onEachFeature: bindFeature(mode)
+        });
+      }
+
+      const layerRegistry = {
+        jurisdiction: makeLayer('jurisdiction'),
+        year: makeLayer('year'),
+        density: makeLayer('density')
+      };
+
+      let activeLayer = layerRegistry[currentMode].addTo(map);
+      map.fitBounds(activeLayer.getBounds(), { padding: [12, 12] });
+
+      function switchLayer(mode) {
+        map.removeLayer(activeLayer);
+        currentMode = mode;
+        activeLayer = layerRegistry[currentMode];
+        activeLayer.setStyle(styleFeature);
+        activeLayer.addTo(map);
+        map.fitBounds(activeLayer.getBounds(), { padding: [12, 12] });
+      }
+
+      const controls = L.control({ position: 'topright' });
+      controls.onAdd = function() {
+        const div = L.DomUtil.create('div', 'map-controls leaflet-control');
+        div.innerHTML = `
+          <div class='map-mode-group'>
+            <span class='map-label'>Color by</span>
+            <button class='active' type='button' data-mode='jurisdiction'>Jurisdiction</button>
+            <button type='button' data-mode='year'>Acquisition year</button>
+            <button type='button' data-mode='density'>Point density</button>
+          </div>
+          <div class='map-action-group'>
+            <button type='button' id='map-fullscreen-toggle'>Full screen</button>
+          </div>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.disableScrollPropagation(div);
+        return div;
+      };
+      controls.addTo(map);
+
+      const legend = L.control({ position: 'bottomright' });
+      legend.onAdd = function() {
+        this._div = L.DomUtil.create('div', 'map-legend');
+        this.update();
+        return this._div;
+      };
+      legend.update = function() {
+        if (currentMode === 'jurisdiction') {
+          const provinces = (coverageMeta.provinces || []).filter(p => provincePalette[p]);
+          this._div.innerHTML = `<div class='map-legend-title'>Jurisdiction</div>` +
+            provinces.map(p => `<div class='map-legend-row'><span class='map-swatch' style='background:${provincePalette[p]}'></span>${p}</div>`).join('');
+        } else if (currentMode === 'year') {
+          const breaks = yearPalette.map((_, i) => {
+            const start = Math.round(coverageMeta.year_min + i * (coverageMeta.year_max - coverageMeta.year_min + 1) / yearPalette.length);
+            const end = Math.round(coverageMeta.year_min + (i + 1) * (coverageMeta.year_max - coverageMeta.year_min + 1) / yearPalette.length - 1);
+            return `${start}${end > start ? '-' + end : ''}`;
+          });
+          this._div.innerHTML = `<div class='map-legend-title'>Acquisition year</div>` +
+            yearPalette.map((c, i) => `<div class='map-legend-row'><span class='map-swatch' style='background:${c}'></span>${breaks[i]}</div>`).join('');
+        } else if (currentMode === 'density') {
+          this._div.innerHTML = `<div class='map-legend-title'>Point density</div>` +
+            densityPalette.map((c, i) => `<div class='map-legend-row'><span class='map-swatch' style='background:${c}'></span>${densityLabels[i]}</div>`).join('');
+        }
+      };
+      legend.addTo(map);
+
+      document.querySelectorAll('.map-controls button').forEach(button => {
+        if (!button.dataset.mode) return;
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.map-controls button').forEach(b => b.classList.remove('active'));
+          button.classList.add('active');
+          switchLayer(button.dataset.mode);
+          legend.update();
+        });
+      });
+
+      const fullscreenButton = document.getElementById('map-fullscreen-toggle');
+      const mapShell = document.querySelector('.map-shell');
+
+      function updateFullscreenLabel() {
+        fullscreenButton.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+      }
+
+      fullscreenButton.addEventListener('click', async () => {
+        try {
+          if (document.fullscreenElement) {
+            await document.exitFullscreen();
+          } else {
+            await mapShell.requestFullscreen();
+          }
+        } catch (err) {
+          console.error('Fullscreen toggle failed', err);
+        }
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        updateFullscreenLabel();
+        setTimeout(() => map.invalidateSize(), 120);
+      });
+
+      updateFullscreenLabel();
+    "))
+  )
+)
+```
