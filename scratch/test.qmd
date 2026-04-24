@@ -16,31 +16,34 @@ library(htmltools)
 library(jsonlite)
 library(sf)
 
-project_root <- if (dir_exists("layers")) "." else ".."
-path <- file.path(project_root, "layers/ALS_coverage_layer")
-simplify_tolerance_m <- 2500
+input_dir <- tryCatch(
+  normalizePath(dirname(knitr::current_input(dir = TRUE)), winslash = "/", mustWork = TRUE),
+  error = function(e) normalizePath(".", winslash = "/", mustWork = TRUE)
+)
 
-coverage_file <- dir_info(file.path(path, "main"), recurse = FALSE) |>
-  filter(grepl("^ALS_coverage_all_.*\\.rds$", path_file(path))) |>
+project_root <- normalizePath(file.path(input_dir, ".."), winslash = "/", mustWork = TRUE)
+variants_path <- file.path(project_root, "scratch", "test_files", "simplification_variants")
+
+if (!dir_exists(variants_path)) {
+  stop(sprintf("Simplification variants directory not found: %s", variants_path))
+}
+
+coverage_file <- dir_info(variants_path, recurse = FALSE) |>
+  filter(grepl("^ALS_coverage_all_.*_simplify_mapshaper_keep0\\.04\\.gpkg$", path_file(path))) |>
   arrange(desc(modification_time)) |>
   slice(1) |>
   pull(path)
 
-coverage <- readRDS(coverage_file) |>
-  st_make_valid() |>
-  st_collection_extract("POLYGON", warn = FALSE) |>
-  st_cast("MULTIPOLYGON", warn = FALSE) |>
+coverage_web <- st_read(coverage_file, quiet = TRUE)
+
+has_area_km2 <- "area_km2" %in% names(coverage_web)
+
+coverage_web <- coverage_web |>
   mutate(
     YEAR = as.numeric(YEAR),
     PPM = as.numeric(PPM),
-    area_km2 = as.numeric(area) / 1e6,
-    feature_id = row_number()
+    area_km2 = if (has_area_km2) as.numeric(area_km2) else NA_real_
   ) |>
-  select(feature_id, Province, YEAR, PPM, area_km2, isAvailable)
-
-coverage_web <- coverage |>
-  st_transform(3347) |>
-  st_simplify(dTolerance = simplify_tolerance_m, preserveTopology = TRUE) |>
   st_transform(4326)
 
 geojson_file <- tempfile(fileext = ".geojson")
@@ -50,7 +53,8 @@ geojson <- paste(readLines(geojson_file, warn = FALSE, encoding = "UTF-8"), coll
 metadata <- list(
   source_file = path_file(coverage_file),
   feature_count = nrow(coverage_web),
-  simplify_tolerance_m = simplify_tolerance_m,
+  simplify_method = "rmapshaper::ms_simplify",
+  simplify_keep = if ("simplify_keep" %in% names(coverage_web)) unique(coverage_web$simplify_keep)[1] else NA_real_,
   year_min = min(coverage_web$YEAR, na.rm = TRUE),
   year_max = max(coverage_web$YEAR, na.rm = TRUE),
   ppm_min = min(coverage_web$PPM, na.rm = TRUE),
@@ -139,7 +143,6 @@ browsable(
         class = "map-toolbar",
         tags$button(class = "active", type = "button", `data-mode` = "year", "Acquisition year"),
         tags$button(type = "button", `data-mode` = "density", "Point density"),
-        tags$button(type = "button", `data-mode` = "province", "Jurisdiction"),
         tags$span(
           class = "map-meta",
           sprintf(
@@ -164,30 +167,16 @@ browsable(
         preferCanvas: true
       }).setView([58.5, -96], 3);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        subdomains: 'abcd',
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       }).addTo(map);
 
       let currentMode = 'year';
 
       const yearPalette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
       const densityPalette = ['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b'];
-      const provincePalette = {
-        AB: '#4e79a7',
-        BC: '#f28e2b',
-        NB: '#e15759',
-        NS: '#76b7b2',
-        ON: '#59a14f',
-        PEI: '#edc948',
-        QC: '#b07aa1',
-        SK: '#ff9da7',
-        YT: '#9c755f',
-        NT: '#bab0ab',
-        NU: '#86bc86',
-        NL: '#8cd17d',
-        MB: '#b6992d'
-      };
 
       function interpolateIndex(value, min, max, n) {
         if (value === null || value === undefined || Number.isNaN(value)) return -1;
@@ -205,7 +194,7 @@ browsable(
           const idx = interpolateIndex(Number(p.PPM), coverageMeta.ppm_min, coverageMeta.ppm_max + 0.001, densityPalette.length);
           return idx < 0 ? '#bdbdbd' : densityPalette[idx];
         }
-        return provincePalette[p.Province] || '#8a8a8a';
+        return '#8a8a8a';
       }
 
       function styleFeature(feature) {
@@ -238,24 +227,12 @@ browsable(
              Year: ${props.YEAR ?? 'NA'}<br>
              Density: ${formatNumber(props.PPM, 1)} pts/m<sup>2</sup><br>
              Area: ${formatNumber(props.area_km2, 0)} km<sup>2</sup>`
-          : `<div class='map-info-title'>Coverage</div>Hover over an area`;
+          : `<div class='map-info-title'>Coverage</div>Click an area`;
       };
       info.addTo(map);
 
-      function highlightFeature(e) {
-        const layer = e.target;
-        layer.setStyle({ weight: 2, color: '#111', fillOpacity: 0.78 });
-        layer.bringToFront();
-        info.update(layer.feature.properties);
-      }
-
-      function resetHighlight(e) {
-        coverageLayer.resetStyle(e.target);
-        info.update();
-      }
-
-      function zoomToFeature(e) {
-        map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+      function showFeatureInfo(e) {
+        info.update(e.target.feature.properties);
       }
 
       function bindFeature(feature, layer) {
@@ -267,9 +244,8 @@ browsable(
            Area: ${formatNumber(p.area_km2, 0)} km<sup>2</sup>`
         );
         layer.on({
-          mouseover: highlightFeature,
-          mouseout: resetHighlight,
-          click: zoomToFeature
+          click: showFeatureInfo,
+          popupclose: () => info.update()
         });
       }
 
@@ -303,10 +279,6 @@ browsable(
           });
           this._div.innerHTML = `<div class='map-legend-title'>Point density</div>` +
             densityPalette.map((c, i) => `<div class='map-legend-row'><span class='map-swatch' style='background:${c}'></span>${breaks[i]}</div>`).join('');
-        } else {
-          const provinces = Array.from(new Set(coverageData.features.map(f => f.properties.Province))).sort();
-          this._div.innerHTML = `<div class='map-legend-title'>Jurisdiction</div>` +
-            provinces.map(p => `<div class='map-legend-row'><span class='map-swatch' style='background:${provincePalette[p] || '#8a8a8a'}'></span>${p}</div>`).join('');
         }
       };
       legend.addTo(map);

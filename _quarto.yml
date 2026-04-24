@@ -5,9 +5,6 @@ project:
 website:
   title: "ALS data coverage in Canadian forests"
   repo-url: https://github.com/ptompalski/CanadaForestLidarCoverage
-  repo-actions:
-    - source
-    - issue
   navbar:
     pinned: true
     left:
