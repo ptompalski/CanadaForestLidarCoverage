@@ -1,24 +1,53 @@
 ---
 title: "Update Log"
-format: html
+format:
+  html:
+    page-layout: full
 engine: knitr
 lightbox: true
 date: today
-language: 
+language:
   title-block-published: "Last modified"
 ---
+
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
+
+```{=html}
+<header class="subpage-fixed-header">
+  <div class="subpage-fixed-header-inner">
+    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
+    <nav class="subpage-topnav">
+      <a href="index.html#interactive-map">Map</a>
+      <a href="index.html#summary">Summary</a>
+      <a href="data.html">Data sources</a>
+      <a href="log.html">Updates</a>
+      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
+    </nav>
+  </div>
+</header>
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Resources</p>
+    <h1>Update log</h1>
+    <p class="subpage-hero-lede">Coverage additions are logged here as dated map snapshots. This keeps the refresh history visible without overloading the landing page.</p>
+  </div>
+</section>
+<div class="subpage-main">
+```
 
 ```{r, echo=F, message=F}
 library(tidyverse)
 library(lubridate)
 
-# Set the folder path where your images are
 img_folder <- "img/UpdateLog"
-
-# List image files
 img_files <- list.files(path = img_folder, pattern = "\\.png$", full.names = TRUE)
 
-# Extract date from filename (e.g., "ALS_2024-06-01.jpg")
 img_info <- tibble(file = img_files) %>%
   mutate(
     filename = basename(file),
@@ -27,15 +56,31 @@ img_info <- tibble(file = img_files) %>%
   ) %>%
   arrange(desc(date))
 
-# Create formatted markdown strings
 output <- map2_chr(
   img_info$file,
   img_info$date,
-  ~ glue::glue("**ALS coverage added on {format(.y, '%B %d, %Y')}**  \n![]({.x}){{width=100%}}\n")
+  ~ glue::glue("## ALS coverage added on {format(.y, '%B %d, %Y')}\n\n![]({.x}){{width=100%}}\n\n")
 )
 
-# Output as raw markdown
 knitr::asis_output(paste(output, collapse = "\n"))
-
 ```
 
+```{=html}
+</div>
+<section class="column-screen subpage-footer-wrap">
+  <footer class="subpage-footer">
+    <div class="subpage-footer-inner">
+      <div>
+        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
+        <p class="subpage-footer-copy">Dated snapshots of additions to the national coverage compilation.</p>
+      </div>
+      <nav class="subpage-footer-links">
+        <a href="index.html">Home</a>
+        <a href="maps.html">Static maps</a>
+        <a href="data.html">Data access</a>
+        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
+      </nav>
+    </div>
+  </footer>
+</section>
+```

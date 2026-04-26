@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-04-20">
+<meta name="dcterms.date" content="2026-04-25">
 
 <title>Multitemporal data – ALS data coverage in Canadian forests</title>
 <style>
@@ -149,7 +149,7 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -164,10 +164,10 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#eastern-regional-extent" id="toc-eastern-regional-extent" class="nav-link" data-scroll-target="#eastern-regional-extent">Eastern regional extent</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/ptompalski/CanadaForestLidarCoverage/blob/main/multitemporal.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestLidarCoverage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full column-body" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -176,13 +176,13 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-body">
 
     
     <div>
     <div class="quarto-title-meta-heading">Last modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 20, 2026</p>
+      <p class="date">April 25, 2026</p>
     </div>
   </div>
   
@@ -194,7 +194,54 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>An area of 394421.3 km<sup>2</sup> has been surveyed more than once using ALS, providing multitemporal coverage that represents about <strong>8.6%</strong> of Canada’s land area and <strong>14.1%</strong> of managed forests.</p>
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
+<header class="subpage-fixed-header">
+  <div class="subpage-fixed-header-inner">
+    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
+    <nav class="subpage-topnav">
+      <a href="index.html#interactive-map">Map</a>
+      <a href="index.html#summary">Summary</a>
+      <a href="data.html">Data sources</a>
+      <a href="log.html">Updates</a>
+      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
+    </nav>
+  </div>
+</header>
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Static maps</p>
+    <h1>Multitemporal data</h1>
+    <p class="subpage-hero-lede">Repeated ALS acquisitions identify areas that have been surveyed more than once. This page combines the national summary, provincial totals, and static overlap maps in one place.</p>
+  </div>
+</section>
+<div class="subpage-main">
+<nav class="subpage-jump-links" aria-label="Static map pages">
+  <a class="subpage-jump-link" href="maps.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">National overview</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-west.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Western Canada</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-east.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Eastern Canada</span>
+  </a>
+  <a class="subpage-jump-link is-current" href="multitemporal.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Multitemporal data</span>
+  </a>
+</nav>
+<div class="subpage-copy-wide">
+<p>An area of 404420.3 km<sup>2</sup> has been surveyed more than once using ALS, providing multitemporal coverage that represents about <strong>8.8%</strong> of Canada’s land area and <strong>14.6%</strong> of managed forests.</p>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -215,7 +262,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td style="text-align: left;">New Brunswick (NB)</td>
-<td style="text-align: left;">16,803 (23.5%)</td>
+<td style="text-align: left;">26,802 (37.5%)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Nova Scotia (NS)</td>
@@ -241,7 +288,6 @@ ul.task-list li input[type="checkbox"] {
 </table>
 </div>
 </div>
-<p><br></p>
 <section id="maps-overlap" class="level2">
 <h2 class="anchored" data-anchor-id="maps-overlap">Areas of multiple acquisitions</h2>
 <section id="national-extent" class="level3">
@@ -255,10 +301,27 @@ ul.task-list li input[type="checkbox"] {
 <section id="eastern-regional-extent" class="level3">
 <h3 class="anchored" data-anchor-id="eastern-regional-extent">Eastern regional extent</h3>
 <p><img src="img/map4_ALS_overlap_focus2.png" class="img-fluid" data-group="maps"></p>
+</section></section></div>
+<section class="column-screen subpage-footer-wrap">
+  <footer class="subpage-footer">
+    <div class="subpage-footer-inner">
+      <div>
+        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
+        <p class="subpage-footer-copy">Multitemporal coverage summaries and static overlap maps.</p>
+      </div>
+      <nav class="subpage-footer-links">
+        <a href="index.html">Home</a>
+        <a href="maps.html">National overview</a>
+        <a href="data.html">Data access</a>
+        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
+      </nav>
+    </div>
+  </footer>
+</section>
 
 
-</section>
-</section>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -686,4 +749,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptompalski/CanadaForestLidarCoverage/blob/main/multitemporal.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/ptompalski/CanadaForestLidarCoverage/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+</body></html>

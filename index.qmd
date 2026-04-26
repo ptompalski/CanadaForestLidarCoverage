@@ -12,22 +12,30 @@ language:
 ---
 
 <style>
-#title-block-header {
-  display: none;
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
 }
 </style>
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-source("R/0000_setup.R")
-
 library(dplyr)
-library(fs)
 library(ggiraph)
+library(ggplot2)
 library(ggtext)
 library(htmltools)
 
 Stats <- readRDS("layers/Stats.rds")
 theTable <- Stats$theTable
+
+coverage_info <- fs::dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
+  filter(grepl("^ALS_coverage_all_.*\\.rds$", basename(path))) |>
+  arrange(desc(modification_time)) |>
+  slice(1)
+
+coverage_file_date <- format(as.Date(coverage_info$modification_time[[1]]), "%B %d, %Y")
+coverage_file_name <- basename(coverage_info$path[[1]])
 
 total_ALS_area <- Stats$total_ALS_area
 total_ALS_perc <- round(Stats$total_ALS_perc, 1)
@@ -43,25 +51,73 @@ multitemporal_area <- as.numeric(summary_multitemporal_Canada$total_multitempora
 multitemporal_area_million <- round(multitemporal_area / 1000000, 2)
 multitemporal_canada_perc <- round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop, 1)
 multitemporal_managed_perc <- round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop, 1)
+
+prov_clrs <- tribble(
+  ~Jurisdiction, ~color,
+  "AB", "#1f78b4",
+  "BC", "#33a02c",
+  "NB", "#6a3d9a",
+  "NS", "#ff7f00",
+  "ON", "#666666",
+  "PE", "#800000",
+  "QC", "#b15928",
+  "SK", "#c71585"
+)
+
+clrs <- prov_clrs$color
+names(clrs) <- prov_clrs$Jurisdiction
+
+coverage_time <- readRDS("layers/dataForTheFigure_v4.rds")
+site_font_family <- "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+nav_card <- function(href, eyebrow, title, description) {
+  tags$a(
+    class = "homepage-nav-card",
+    href = href,
+    tags$span(class = "homepage-nav-eyebrow", eyebrow),
+    tags$h3(title),
+    tags$p(description)
+  )
+}
+
 browsable(
   tagList(
+    tags$header(
+      id = "overview",
+      class = "homepage-fixed-header",
+      tags$div(
+        class = "homepage-fixed-header-inner",
+        tags$a(
+          href = "#overview",
+          class = "homepage-site-mark",
+          tags$span("Canada Forest ALS")
+        ),
+        tags$nav(
+          class = "homepage-topnav",
+          tags$a(href = "#interactive-map", "Map"),
+          tags$a(href = "#summary", "Summary"),
+          tags$a(href = "#data-sources", "Data sources"),
+          tags$a(href = "log.html", "Updates"),
+          tags$a(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", "GitHub")
+        )
+      )
+    ),
     tags$section(
-      class = "column-screen homepage-intro-band",
+      class = "column-screen homepage-intro-band homepage-anchor-target",
       tags$div(
         class = "homepage-hero-copy",
         tags$p(class = "homepage-eyebrow", "National ALS coverage overview"),
         tags$h1("ALS data coverage in Canadian forests"),
         tags$p(
           class = "homepage-hero-lede",
-          "Explore airborne laser scanning coverage across Canada's forested landscapes, with national extent, acquisition timing, and density patterns prepared for forestry applications."
+          "Explore airborne laser scanning coverage across Canada's forested landscapes, with national extent, acquisition timing, density patterns, and repeated acquisitions prepared for forestry applications."
         ),
         tags$div(
           class = "homepage-hero-actions",
-          tags$a(href = "maps.html", class = "homepage-button homepage-button-primary", "Explore maps"),
-          tags$a(href = "data.html", class = "homepage-button homepage-button-secondary", "Data access")
+          tags$a(href = "#interactive-map", class = "homepage-button homepage-button-primary", "Jump to map"),
+          tags$a(href = "maps.html", class = "homepage-button homepage-button-secondary", "Static maps")
         ),
         tags$section(
           class = "homepage-stats-band homepage-stats-band-hero",
@@ -115,7 +171,8 @@ browsable(
       )
     ),
     tags$section(
-      class = "column-screen homepage-map-band",
+      id = "interactive-map",
+      class = "column-screen homepage-map-band homepage-anchor-target",
       tags$iframe(
         class = "homepage-map-frame",
         src = "home-map.html",
@@ -127,96 +184,50 @@ browsable(
 )
 ```
 
-## About the coverage
+## Additional maps {#explore}
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 browsable(
   tags$section(
-    class = "homepage-detail-grid",
-    tags$div(
-      tags$p(class = "homepage-section-kicker", "What this site tracks"),
-      tags$p(
-        class = "homepage-body-copy",
-        "This website summarizes airborne laser scanning coverage across Canada's forested landscapes. It focuses on acquisitions relevant to forestry and excludes urban ALS programs and research-only collections outside the forested ecozones."
-      ),
-      tags$p(
-        class = "homepage-body-copy",
-        HTML("The site is updated to keep the national overview, acquisition statistics, and jurisdictional summaries aligned with the current state of public ALS availability. Source-specific update timing and access notes are documented on the <a href='data.html'>Data access</a> page.")
-      )
-    ),
-    tags$div(
-      class = "homepage-reference-panel",
-      tags$p(class = "homepage-section-kicker", "Reference"),
-      tags$p(
-        class = "homepage-body-copy",
-        HTML("This website accompanies <a href='https://doi.org/10.1139/cjfr-2024-0255'>White et al. 2025</a> and extends the publication with updated coverage estimates, current source notes, and map products that can be revisited as new ALS acquisitions become available.")
-      ),
-      tags$p(
-        class = "homepage-reference-citation",
-        HTML("White, J.C., Tompalski, P., Bater, C.W., Wulder, M.A., Fortin, M., Hennigar, C., Robere-McGugan, G., Sinclair, I., White, R. (2025). <strong>Enhanced forest inventories in Canada: implementation, status, and research needs.</strong> Canadian Journal of Forest Research, 55: 1-37.")
-      )
+    class = "homepage-card-grid homepage-anchor-target",
+    nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
+    nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
+    nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
+    nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+  )
+)
+```
+
+## Summary {#summary}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
+  tags$section(
+    class = "homepage-section-intro homepage-anchor-target",
+    tags$p(
+      class = "homepage-body-copy homepage-body-copy-wide",
+      "The national overview is supported by jurisdiction-specific source checks and periodic refreshes. The table below summarizes the current ALS coverage figures used across the site, followed by cumulative acquisition area through time."
     )
   )
 )
 ```
 
-## Explore the site
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
-nav_card <- function(href, eyebrow, title, description) {
-  tags$a(
-    class = "homepage-nav-card",
-    href = href,
-    tags$span(class = "homepage-nav-eyebrow", eyebrow),
-    tags$h3(title),
-    tags$p(description)
-  )
-}
-
-browsable(
-  tags$section(
-    class = "homepage-card-grid",
-    nav_card("maps.html", "Coverage maps", "National overview", "Browse the national map products, including coverage, density, and acquisition year views."),
-    nav_card("maps-west.html", "Regional maps", "Western Canada", "Inspect the detailed western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
-    nav_card("maps-east.html", "Regional maps", "Eastern Canada", "Inspect the detailed eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
-    nav_card("multitemporal.html", "Change over time", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once."),
-    nav_card("data.html", "Resources", "Data access", "Find jurisdiction-specific download links, update dates, and notes on access restrictions."),
-    nav_card("log.html", "Resources", "Update log", "See what changed between releases and track new acquisitions as they are integrated.")
-  )
-)
-```
-
-## Jurisdiction summary
-
-The national overview is supported by jurisdiction-specific source checks and periodic refreshes. The table below summarizes the current ALS coverage figures used across the site.
+### Coverage by jurisdiction
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-theTable %>%
-  knitr::kable()
+knitr::kable(theTable)
 ```
 
-## Acquisition history
-
-The growth in ALS coverage differs substantially by jurisdiction. The chart below traces cumulative acquisition area through time, while the animation shows the national footprint expanding as programs mature and repeat acquisitions accumulate.
+### Coverage over time
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-prov_clrs <- tribble(
-  ~Jurisdiction, ~color,
-  "AB", "#1f78b4",
-  "BC", "#33a02c",
-  "NB", "#6a3d9a",
-  "NS", "#ff7f00",
-  "ON", "#666666",
-  "PE", "#800000",
-  "QC", "#b15928",
-  "SK", "#c71585"
-)
+coverage_time_latest <- coverage_time %>%
+  group_by(jurisdiction_code) %>%
+  filter(year == max(year, na.rm = TRUE)) %>%
+  slice_tail(n = 1) %>%
+  ungroup()
 
-clrs <- prov_clrs$color
-names(clrs) <- prov_clrs$Jurisdiction
-
-D <- readRDS("layers/dataForTheFigure_v4.rds")
-g <- D %>%
+g <- coverage_time %>%
   ggplot(aes(
     year,
     cumulative_total_ALS_acquisition_area,
@@ -225,35 +236,69 @@ g <- D %>%
     tooltip = tip,
     data_id = jurisdiction_code
   )) +
-  geom_line_interactive(aes(tooltip = NULL)) +
+  geom_line_interactive(aes(tooltip = NULL), linewidth = 1.2, alpha = 0.95) +
   geom_point_interactive(
     hover_nearest = FALSE,
-    size = 6 / .pt,
-    hover_css = "r:3px;",
+    size = 7 / .pt,
+    stroke = 0.35,
+    hover_css = "r:4px;",
     selected_css = "r:1px;"
   ) +
-  xlab("Acquisition year") +
-  ylab(expression(paste("Area [thousands of km"^2 * "]"))) +
-  scale_color_manual(values = clrs, name = "") +
-  labs(
-    title = "Cumulative area of ALS acquisitions",
-    subtitle = "(Overlapping ALS areas are included in totals)",
-    caption = "P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data.<br>P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data."
+  geom_text(
+    data = coverage_time_latest,
+    aes(
+      x = year + 0.45,
+      y = cumulative_total_ALS_acquisition_area,
+      label = jurisdiction_code,
+      color = jurisdiction_code
+    ),
+    inherit.aes = FALSE,
+    hjust = 0,
+    size = 3.5,
+    fontface = "bold",
+    show.legend = FALSE
   ) +
+  xlab("Acquisition year") +
+  ylab(expression(paste("Cumulative ALS area [thousands of km"^2 * "]"))) +
+  scale_x_continuous(
+    breaks = seq(min(coverage_time$year), max(coverage_time$year), by = 5),
+    expand = expansion(mult = c(0.01, 0.14))
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0.02, 0.08))) +
+  scale_color_manual(values = clrs, guide = "none") +
+  labs(
+    title = NULL,
+    subtitle = NULL,
+    caption = paste(
+      "Cumulative area of ALS acquisitions. Overlapping ALS areas are included in totals.<br>",
+      "Hover points for jurisdiction-level coverage percentages.<br>",
+      "P<sub>J</sub> = percentage of jurisdictional area that is covered by ALS data.<br>",
+      "P<sub>M</sub> = percentage of jurisdictional managed forest area that is covered by ALS data."
+    )
+  ) +
+  theme_minimal(base_family = site_font_family) +
   theme(
-    plot.caption = element_markdown(size = 10, colour = "#888888"),
-    plot.subtitle = element_markdown(),
-    plot.title = element_markdown()
+    panel.grid = element_blank(),
+    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    axis.line = element_line(colour = "#9aa9b5", linewidth = 0.35),
+    axis.ticks = element_line(colour = "#9aa9b5", linewidth = 0.35),
+    axis.title = element_text(size = 11, colour = "#31424f"),
+    axis.text = element_text(size = 10, colour = "#4e6475"),
+    plot.title = element_blank(),
+    plot.subtitle = element_blank(),
+    plot.caption = element_markdown(size = 8.4, colour = "#7a8a96", lineheight = 1.4),
+    plot.margin = margin(6, 56, 8, 8)
   )
 
-g <- girafe(ggobj = g, width_svg = 8, height_svg = 6)
+g <- girafe(ggobj = g, width_svg = 8, height_svg = 5.1)
 
 g <- girafe_options(
   g,
   opts_hover(css = "opacity:1;"),
-  opts_hover_inv(css = "opacity:0.2;"),
+  opts_hover_inv(css = "opacity:0.18;"),
   opts_selection(css = "opacity:1;"),
-  opts_selection_inv(css = "opacity:0.2;"),
+  opts_selection_inv(css = "opacity:0.18;"),
   opts_tooltip(
     css = "background-color: #333333;
            color: #ffffff;
@@ -268,47 +313,150 @@ g <- girafe_options(
 g
 ```
 
-![](img/animation_ALS_over_time.gif){.lightbox .homepage-inline-media}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
+  tags$section(
+    class = "column-screen homepage-paper-band homepage-anchor-target",
+    tags$div(
+      class = "homepage-paper-band-inner",
+      tags$div(
+        class = "homepage-paper-copy",
+        tags$p(class = "homepage-section-kicker", "Related publication"),
+        tags$h2("Enhanced forest inventories in Canada"),
+        tags$p(
+          class = "homepage-body-copy",
+          "This website extends the published national overview with updated coverage sources, current summary statistics, and interactive map products that continue to evolve beyond the paper snapshot."
+        ),
+        tags$p(
+          class = "homepage-paper-citation",
+          HTML("White, J.C., Tompalski, P., Bater, C.W., Wulder, M.A., Fortin, M., Hennigar, C., Robere-McGugan, G., Sinclair, I., White, R. (2025). <strong>Enhanced forest inventories in Canada: implementation, status, and research needs.</strong> Canadian Journal of Forest Research, 55: 1-37.")
+        ),
+        tags$div(
+          class = "homepage-paper-actions",
+          tags$a(
+            href = "https://doi.org/10.1139/cjfr-2024-0255",
+            class = "homepage-button homepage-button-primary",
+            "Read the paper"
+          )
+        )
+      ),
+      tags$div(
+        class = "homepage-paper-media",
+        tags$img(
+          src = "img/paper.png",
+          alt = "Front page of the related publication"
+        )
+      )
+    )
+  )
+)
+```
 
+## Data sources {#data-sources}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
+  tags$section(
+    class = "homepage-detail-grid homepage-anchor-target",
+    tags$div(
+      tags$p(class = "homepage-section-kicker", "What this site tracks"),
+      tags$p(
+        class = "homepage-body-copy",
+        "This website summarizes airborne laser scanning coverage across Canada's forested landscapes. It emphasizes acquisitions relevant to forestry and excludes urban ALS programs and research-only collections outside the forested ecozones."
+      ),
+      tags$p(
+        class = "homepage-body-copy",
+        HTML("The national overview, coverage statistics, and map products are updated as new public ALS acquisitions become available. Jurisdiction-specific download links, source notes, and update timing are documented on the <a href='data.html'>Data access</a> page.")
+      )
+    ),
+    tags$div(
+      class = "homepage-reference-panel",
+      tags$p(class = "homepage-section-kicker", "About this website"),
+      tags$p(
+        class = "homepage-body-copy",
+        "The website is maintained as a current operational companion to the national overview, with updated source notes, revised coverage estimates, and interactive products that go beyond the publication snapshot."
+      )
+    )
+  )
+)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
+  tags$section(
+    class = "column-screen homepage-footer-wrap",
+    tags$footer(
+      class = "homepage-footer",
+      tags$div(
+        class = "homepage-footer-inner",
+        tags$div(
+          tags$p(class = "homepage-footer-title", "ALS data coverage in Canadian forests"),
+          tags$p(class = "homepage-footer-update", paste("Last coverage update:", coverage_file_date))
+        ),
+        tags$nav(
+          class = "homepage-footer-links",
+          tags$a(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", "GitHub repository"),
+          tags$a(href = "log.html", "Update log"),
+          tags$a(href = "data.html", "Data access"),
+          tags$a(href = "contact.html", "Contact")
+        )
+      )
+    )
+  )
+)
+```
+
+```{=html}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const statNodes = document.querySelectorAll('.homepage-stat-number');
-  if (!statNodes.length) return;
+  const statNumbers = document.querySelectorAll('.homepage-stat-number');
+  const statsSection = document.querySelector('.homepage-stats-grid');
+  const header = document.querySelector('.homepage-fixed-header');
 
-  const animateStat = (node) => {
-    if (node.dataset.animated === 'true') return;
-    node.dataset.animated = 'true';
+  if (header) {
+    const onScroll = () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 12);
+    };
+    onScroll();
+    document.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  if (!statNumbers.length || !statsSection) return;
+
+  const animateValue = (node) => {
     const target = Number(node.dataset.target || 0);
     const decimals = Number(node.dataset.decimals || 0);
-    const duration = 1400;
+    const duration = 1100;
     const start = performance.now();
 
-    const step = (now) => {
-      const progress = Math.min((now - start) / duration, 1);
+    const step = (timestamp) => {
+      const progress = Math.min((timestamp - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      const value = target * eased;
-      node.textContent = value.toLocaleString(undefined, {
+      node.textContent = (target * eased).toLocaleString(undefined, {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
       });
       if (progress < 1) {
-        requestAnimationFrame(step);
+        window.requestAnimationFrame(step);
       }
     };
 
-    requestAnimationFrame(step);
+    window.requestAnimationFrame(step);
   };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        statNodes.forEach(animateStat);
-        observer.disconnect();
-      }
+      if (!entry.isIntersecting) return;
+      statNumbers.forEach((node) => {
+        if (node.dataset.animated === 'true') return;
+        node.dataset.animated = 'true';
+        animateValue(node);
+      });
+      observer.disconnect();
     });
   }, { threshold: 0.35 });
 
-  const statsBand = document.querySelector('.homepage-stats-band');
-  if (statsBand) observer.observe(statsBand);
+  observer.observe(statsSection);
 });
 </script>
+```
