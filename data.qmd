@@ -1,135 +1,131 @@
 ---
 title: "Data"
-format: html
+format:
+  html:
+    page-layout: full
 engine: knitr
 date: today
-language: 
+language:
   title-block-published: "Last modified"
 ---
+
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
 
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
 library(kableExtra)
 
-# find the most recent shapefile in each provincial folder
-
 getNewestFileDate <- function(dir) {
-  
   PATH <- glue::glue("layers/source_layers/{dir}/")
-  # PATH <- glue::glue("../5_lidarStatusCanada/layers/{dir}/")
-  
-  flist <- fs::dir_ls(PATH , recurse = T, glob = "*.shp$") %>% lapply(file.info) %>% bind_rows() %>% arrange(desc(ctime))
-  return(as_date(flist[1,]$ctime))
-  
+  flist <- fs::dir_ls(PATH, recurse = TRUE, glob = "*.shp$") %>%
+    lapply(file.info) %>%
+    bind_rows() %>%
+    arrange(desc(ctime))
+  as_date(flist[1, ]$ctime)
 }
 
-tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE","NS")) %>%
+tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE", "NS")) %>%
   mutate(`Last update` = map(Jurisdiction, getNewestFileDate)) %>%
-  unnest(`Last update`) 
+  unnest(`Last update`)
 ```
 
+```{=html}
+<header class="subpage-fixed-header">
+  <div class="subpage-fixed-header-inner">
+    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
+    <nav class="subpage-topnav">
+      <a href="index.html#interactive-map">Map</a>
+      <a href="index.html#summary">Summary</a>
+      <a href="data.html">Data sources</a>
+      <a href="log.html">Updates</a>
+      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
+    </nav>
+  </div>
+</header>
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Resources</p>
+    <h1>Data access</h1>
+    <p class="subpage-hero-lede">Source notes, update timing, and jurisdiction-level availability for the ALS coverage compilation. This page is the reference point for where the underlying coverage information comes from and how openly it can be accessed.</p>
+  </div>
+</section>
+<div class="subpage-main">
+```
 
+::: {.subpage-copy-wide}
+The data used in this compilation were obtained from a mix of online services and direct exchanges with the provincial and territorial organizations responsible for data management. Because some coverage layers are not public, the exact vector layers used on this website cannot be redistributed here.
+:::
 
 ## ALS coverage data sources
 
-The data used in this compilation was obtained from a number of sources including online services and by directly contacting Provincial and Territorial departments responsible for data management. Because some of the coverage data are not available for the public, the vector layers presented on this website cannot be shared. 
-
-The table below lists the sources of coverage data by jurisdiction. Note that "Last update" corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most recent ALS acquisition.
+::: {.subpage-copy-wide}
+The table below lists the coverage sources by jurisdiction. `Last update` is the date when the jurisdictional coverage layer in this project was refreshed; it is not the date of the most recent ALS acquisition.
+:::
 
 ```{r, echo=F, warning=F, message=F}
-#| tbl-colwidths: [10, 15, 75]
-
-theFootnote <- "\"Last update\" corresponds to the date the coverage map for each jurisdiction was updated, and is not indicative of the most ALS acquisition."
-
 tribble(
   ~Jurisdiction, ~`Data source`,
-  
-  "BC",
-  "BC Ministry of Forests and [lidar.gov.bc.ca](https://lidar.gov.bc.ca/). ",
-  
-  "AB",
-  "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)",
-  
-  "SK",
-  "SK Ministry of Environment",
-  
-  "ON",
-  "Ministry of Natural Resources",
-  
-  "QC",
-  "Ministère des Ressources naturelles et des Forêts, [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec)",
-  
-  "NB",
-  "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp)",
-  
-  "PE",
-  "Prince Edward Island Department of Environment, Energy and Climate Action", #https://www.gov.pe.ca/gis/index.php3?number=1011267&lang=E
-  
-  "NS",
-  "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables"
-  
-  
-) %>% left_join(tbl_updates) %>%
-  relocate(`Data source`,.after = last_col()) %>%
-  kable() 
- 
-  # kableExtra::footnote(general = theFootnote) %>%
-  # kable_classic() %>% 
+  "BC", "BC Ministry of Forests and [lidar.gov.bc.ca](https://lidar.gov.bc.ca/).",
+  "AB", "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI)",
+  "SK", "SK Ministry of Environment",
+  "ON", "Ministry of Natural Resources",
+  "QC", "Ministere des Ressources naturelles et des Forets, [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec)",
+  "NB", "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp)",
+  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action",
+  "NS", "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables"
+) %>%
+  left_join(tbl_updates) %>%
+  relocate(`Data source`, .after = last_col()) %>%
+  kable()
 ```
-
-
-
-
 
 ## ALS data availability
 
 ```{r, echo=F, warning=F, message=F}
-
-#| tbl-colwidths: [15, 85]
-
 tribble(
   ~Jurisdiction, ~`Data sharing policy`,
-  
-  "BC",
-  "ALS - open data.<br>DEM and CHM from systematic provincial acquisition will be shared. <br>[www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
-  
-  "AB", 
-  "GoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry. <br>Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. <br>ABMI acquisitions [will be made freely available](https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&scroll).",
-
-  
-  "SK", 
-  "ALS point clouds currently not shared as open data.<br>Derivatives (DEM) are shared openly (not all derived from lidar): [environment-saskatchewan.hub.arcgis.com](https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory)", 
-  "ON", 
-  "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at  [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about)",
-  
-  "QC", 
-  "ALS - open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec)",
-  
-  "NB",
-  "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp).<br>Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
-  
-  "PE", 
-  "ALS data available for download:  [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/)",
-  
-  "NS", 
-  "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
-  
-) |>  
-  
-  knitr::kable(escape=F)  
+  "BC", "ALS - open data.<br>DEM and CHM from systematic provincial acquisition will be shared. <br>[www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
+  "AB", "GoA: Initial provincial coverage ALS data and derivatives were acquired with a licence (i.e., data were leased for 99 years). Sharing is limited to GoA partners (e.g. academia) for collaborative projects and forest industry. <br>Industry: 11 projects between 2017 and 2022 funded through the Forest Resource Improvement Program (FRIP). Data are not currently open, although FRIP is public funds. <br>ABMI acquisitions [will be made freely available](https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&scroll).",
+  "SK", "ALS point clouds currently not shared as open data.<br>Derivatives (DEM) are shared openly (not all derived from lidar): [environment-saskatchewan.hub.arcgis.com](https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory)",
+  "ON", "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about)",
+  "QC", "ALS - open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec)",
+  "NB", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp).<br>Derivatives (i.e. DEM, CHM, hillshade, slope) are open and are available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
+  "PE", "ALS data available for download: [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/)",
+  "NS", "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
+) |>
+  knitr::kable(escape = FALSE)
 ```
-
 
 ## Additional ALS datasets in Canada
 
-ALS data acquired outside of forest ecosystems (e.g.,  in urban areas or for flood mapping purposes)  or for research purposes are not included in the maps and summaries above. Some of those datasets include:
-
 - [High Resolution Digital Elevation Model (HRDEM) - CanElevation Series](https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995)
-
 - [High Resolution Digital Elevation Model Mosaic (HRDEM Mosaic) CanElevation Series](https://open.canada.ca/data/en/dataset/0fe65119-e96e-4a57-8bfe-9d9245fba06b)
-
 - [National Elevation Data Strategy](https://natural-resources.canada.ca/maps-tools-publications/satellite-elevation-air-photos/national-elevation-data-strategy)
-
 - [LiDAR Point Clouds - CanElevation Series](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947)
-
 - [Petawawa Research Forest](https://opendata.nfis.org/mapserver/PRF.html)
+
+```{=html}
+</div>
+<section class="column-screen subpage-footer-wrap">
+  <footer class="subpage-footer">
+    <div class="subpage-footer-inner">
+      <div>
+        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
+        <p class="subpage-footer-copy">Source notes, update timing, and data-sharing status by jurisdiction.</p>
+      </div>
+      <nav class="subpage-footer-links">
+        <a href="index.html">Home</a>
+        <a href="maps.html">Static maps</a>
+        <a href="log.html">Update log</a>
+        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
+      </nav>
+    </div>
+  </footer>
+</section>
+```

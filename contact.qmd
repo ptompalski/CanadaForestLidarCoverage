@@ -1,14 +1,80 @@
 ---
 title: "Contact"
+format:
+  html:
+    page-layout: full
 date: today
-language: 
+language:
   title-block-published: "Last modified"
 ---
 
-# We welcome your feedback! 
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
 
-If you find errors or know of data that should be added to the maps please let us know. You can [submit an issue](https://github.com/ptompalski/CanadaForestryLidar/issues/new) or contact us directly at
+```{=html}
+<header class="subpage-fixed-header">
+  <div class="subpage-fixed-header-inner">
+    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
+    <nav class="subpage-topnav">
+      <a href="index.html#interactive-map">Map</a>
+      <a href="index.html#summary">Summary</a>
+      <a href="data.html">Data sources</a>
+      <a href="log.html">Updates</a>
+      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
+    </nav>
+  </div>
+</header>
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Resources</p>
+    <h1>Contact</h1>
+    <p class="subpage-hero-lede">Use this page to report missing coverage, flag errors, or point us to jurisdictional updates that should be reflected in the maps.</p>
+  </div>
+</section>
+<div class="subpage-main">
+```
+
+::: {.subpage-copy-wide}
+If you find errors or know of ALS coverage that should be added to the maps, please open an issue in the repository or contact the project team directly.
+:::
+
+::: {.subpage-summary-grid}
+::: {.subpage-summary-card}
+### GitHub issues
+
+Report a problem or suggest a correction through the [project issue tracker](https://github.com/ptompalski/CanadaForestLidarCoverage/issues/new).
+:::
+
+::: {.subpage-summary-card}
+### Direct contacts
 
 Piotr Tompalski: piotr.tompalski\@nrcan-rncan.gc.ca
 
 Joanne White: joanne.white\@nrcan-rncan.gc.ca
+:::
+:::
+
+```{=html}
+</div>
+<section class="column-screen subpage-footer-wrap">
+  <footer class="subpage-footer">
+    <div class="subpage-footer-inner">
+      <div>
+        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
+        <p class="subpage-footer-copy">Project contacts and issue reporting for map corrections and new coverage leads.</p>
+      </div>
+      <nav class="subpage-footer-links">
+        <a href="index.html">Home</a>
+        <a href="data.html">Data access</a>
+        <a href="log.html">Update log</a>
+        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
+      </nav>
+    </div>
+  </footer>
+</section>
+```

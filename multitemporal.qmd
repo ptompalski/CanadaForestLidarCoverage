@@ -1,34 +1,87 @@
 ---
 title: "Multitemporal data"
-format: html
+format:
+  html:
+    page-layout: full
 engine: knitr
 date: today
-language: 
+language:
   title-block-published: "Last modified"
 ---
+
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
 
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
 
-#stats for the multitemporal data
 summary_multitemporal_list <- readRDS("layers/summary_multitemporal_list.rds")
 summary_multitemporal_Canada <- summary_multitemporal_list$summary_multitemporal_Canada
 summary_multitemporal_managed <- summary_multitemporal_list$summary_multitemporal_managed
-
 ```
 
-An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada’s land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+```{=html}
+<header class="subpage-fixed-header">
+  <div class="subpage-fixed-header-inner">
+    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
+    <nav class="subpage-topnav">
+      <a href="index.html#interactive-map">Map</a>
+      <a href="index.html#summary">Summary</a>
+      <a href="data.html">Data sources</a>
+      <a href="log.html">Updates</a>
+      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
+    </nav>
+  </div>
+</header>
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Static maps</p>
+    <h1>Multitemporal data</h1>
+    <p class="subpage-hero-lede">Repeated ALS acquisitions identify areas that have been surveyed more than once. This page combines the national summary, provincial totals, and static overlap maps in one place.</p>
+  </div>
+</section>
+<div class="subpage-main">
+```
 
+```{=html}
+<nav class="subpage-jump-links" aria-label="Static map pages">
+  <a class="subpage-jump-link" href="maps.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">National overview</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-west.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Western Canada</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-east.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Eastern Canada</span>
+  </a>
+  <a class="subpage-jump-link is-current" href="multitemporal.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Multitemporal data</span>
+  </a>
+</nav>
+```
+
+::: {.subpage-copy-wide}
+An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada's land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+:::
 
 ```{r, echo=F, warning=F, message=F}
 summary_multitemporal_list$summary_multitemporal_byProvince %>%
-    mutate(Jurisdiction = paste0(jurisdiction_name, " (", jurisdiction_code, ")")  ) %>%
-  relocate(Jurisdiction)%>%
-  select(-jurisdiction_name,-jurisdiction_code) %>%
-    mutate(
+  mutate(Jurisdiction = paste0(jurisdiction_name, " (", jurisdiction_code, ")")) %>%
+  relocate(Jurisdiction) %>%
+  select(-jurisdiction_name, -jurisdiction_code) %>%
+  mutate(
     `Multitemporal ALS coverage` = paste0(
       format(
-        round(as.numeric(multitemporal_ALS_area )),
+        round(as.numeric(multitemporal_ALS_area)),
         big.mark = ",",
         scientific = FALSE
       ),
@@ -37,18 +90,14 @@ summary_multitemporal_list$summary_multitemporal_byProvince %>%
       "%)"
     )
   ) %>%
-    select(
-        -multitemporal_ALS_area, 
-        -multitemporal_ALS_area_prop,
-        -managed_multitemporal_ALS_area,
-        - managed_multitemporal_ALS_area_prop) %>%
-      knitr::kable()  
-#   glimpse()
-    
-
+  select(
+    -multitemporal_ALS_area,
+    -multitemporal_ALS_area_prop,
+    -managed_multitemporal_ALS_area,
+    -managed_multitemporal_ALS_area_prop
+  ) %>%
+  knitr::kable()
 ```
-
-<br>
 
 ## Areas of multiple acquisitions {#maps-overlap}
 
@@ -60,3 +109,23 @@ summary_multitemporal_list$summary_multitemporal_byProvince %>%
 
 ### Eastern regional extent
 ![](img/map4_ALS_overlap_focus2.png){group="maps"}
+
+```{=html}
+</div>
+<section class="column-screen subpage-footer-wrap">
+  <footer class="subpage-footer">
+    <div class="subpage-footer-inner">
+      <div>
+        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
+        <p class="subpage-footer-copy">Multitemporal coverage summaries and static overlap maps.</p>
+      </div>
+      <nav class="subpage-footer-links">
+        <a href="index.html">Home</a>
+        <a href="maps.html">National overview</a>
+        <a href="data.html">Data access</a>
+        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
+      </nav>
+    </div>
+  </footer>
+</section>
+```
