@@ -478,32 +478,67 @@ main.content.page-columns.page-full.column-body > :last-child {
 
 .homepage-nav-card {
   display: block;
-  padding: 1.15rem 1.2rem 1.1rem;
   border: 1px solid #d6e0e7;
-  color: #132433;
+  color: #000000;
   text-decoration: none;
   transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+  overflow: hidden;
+  background: #173247;
 }
 
 .homepage-nav-card:hover,
 .homepage-nav-card:focus {
   border-color: #7f96ab;
   box-shadow: 0 10px 22px rgba(19, 36, 51, 0.08);
-  color: #132433;
+  color: #000000;
   text-decoration: none;
   transform: translateY(-1px);
 }
 
-.homepage-nav-card h3 {
-  margin: 0 0 0.45rem;
-  font-size: 1.1rem;
-  color: #132433;
+.homepage-nav-card-media {
+  aspect-ratio: 16 / 18.5;
+  position: relative;
+  overflow: hidden;
+  background: #173247;
 }
 
-.homepage-nav-card p {
+.homepage-nav-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.96);
+}
+
+.homepage-nav-card-zoom .homepage-nav-card-media img {
+  transform: scale(1.24);
+  transform-origin: center center;
+}
+
+.homepage-nav-card-copy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 1.05rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.18) 18%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0.9) 72%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.homepage-nav-card-copy h3 {
   margin: 0;
-  color: #4a5e6c;
-  line-height: 1.55;
+  font-size: 1.28rem;
+  color: #000000;
+  align-self: flex-start;
+  line-height: 1.15;
+}
+
+.homepage-nav-card-copy .homepage-nav-eyebrow {
+  color: rgba(0, 0, 0, 0.84);
+  margin: 0;
+  align-self: flex-start;
 }
 
 h2 {
