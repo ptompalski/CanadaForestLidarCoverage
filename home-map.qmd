@@ -424,7 +424,6 @@ browsable(
         '11-15': '#FE9F6D',
         '>15': '#FCFDBF'
       };
-      const densityBreaks = [0, 1, 2, 5, 10, 20, 50, 100];
       const densityLabels = ['<1', '1-2', '2-5', '5-10', '10-20', '20-50', '>50'];
 
       function interpolateIndex(value, min, max, n) {

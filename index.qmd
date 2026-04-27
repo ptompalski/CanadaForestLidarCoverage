@@ -30,13 +30,7 @@ source("R/site_components.R")
 Stats <- readRDS("layers/Stats.rds")
 theTable <- Stats$theTable
 
-coverage_info <- fs::dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
-  filter(grepl("^ALS_coverage_all_.*\\.rds$", basename(path))) |>
-  arrange(desc(modification_time)) |>
-  slice(1)
-
 coverage_file_date <- get_latest_coverage_date()
-coverage_file_name <- basename(coverage_info$path[[1]])
 
 total_ALS_area <- Stats$total_ALS_area
 total_ALS_perc <- round(Stats$total_ALS_perc, 1)
