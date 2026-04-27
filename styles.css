@@ -359,6 +359,10 @@ main.content.page-columns.page-full.column-body > :last-child {
   padding: 0 1.5rem;
 }
 
+.homepage-card-grid-explore {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .homepage-body-copy-wide {
   max-width: 58rem;
 }
@@ -402,6 +406,10 @@ main.content.page-columns.page-full.column-body > :last-child {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin: 1.5rem 0 0;
+}
+
+#summary {
+  margin-top: 1.25rem;
 }
 
 .homepage-paper-band {
