@@ -126,7 +126,6 @@ multitemporal_3347 <- multitemporal |>
   st_transform(3347)
 
 minimum_mapping_unit_km2 <- 25
-export_dir <- "scratch/homepage_layers"
 cleanup_buffer_m <- 750
 
 clean_group_geometry <- function(grp, mmu_km2, buffer_m) {
@@ -198,31 +197,6 @@ layer_jurisdiction <- build_dissolved_layer(coverage_3347, "Province")
 layer_year <- build_dissolved_layer(filter(coverage_3347, !is.na(YEAR)), "YEAR")
 layer_density <- build_dissolved_layer(filter(coverage_3347, !is.na(PPM_class)), "PPM_class")
 layer_multitemporal <- build_dissolved_layer(filter(multitemporal_3347, !is.na(delta_class)), "delta_class")
-
-dir_create(export_dir, recurse = TRUE)
-
-export_layers <- list(
-  jurisdiction = layer_jurisdiction,
-  year = layer_year,
-  density = layer_density,
-  multitemporal = layer_multitemporal
-)
-
-invisible(lapply(names(export_layers), function(layer_name) {
-  export_path <- path(
-    export_dir,
-    paste0("homepage_", layer_name, "_mmu", minimum_mapping_unit_km2, ".gpkg")
-  )
-
-  st_write(
-    export_layers[[layer_name]],
-    export_path,
-    layer = "coverage",
-    driver = "GPKG",
-    quiet = TRUE,
-    delete_dsn = TRUE
-  )
-}))
 
 geojson_string <- function(x) {
   geojson_file <- tempfile(fileext = ".geojson")
