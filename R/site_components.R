@@ -14,6 +14,22 @@ site_footer <- function(coverage_file_date = NULL) {
     coverage_file_date <- get_latest_coverage_date()
   }
 
+  footer_group <- function(title, links) {
+    htmltools::tags$div(
+      class = "homepage-footer-group",
+      htmltools::tags$p(class = "homepage-footer-group-title", title),
+      htmltools::tags$ul(
+        class = "homepage-footer-group-list",
+        lapply(
+          links,
+          function(link) {
+            htmltools::tags$li(htmltools::tags$a(href = link$href, link$label))
+          }
+        )
+      )
+    )
+  }
+
   htmltools::browsable(
     htmltools::tags$section(
       class = "column-screen homepage-footer-wrap",
@@ -26,10 +42,34 @@ site_footer <- function(coverage_file_date = NULL) {
             htmltools::tags$p(class = "homepage-footer-update", paste("Last coverage update:", coverage_file_date))
           ),
           htmltools::tags$nav(
-            class = "homepage-footer-links",
-            htmltools::tags$a(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", "GitHub repository"),
-            htmltools::tags$a(href = "log.html", "Update log"),
-            htmltools::tags$a(href = "contact.html", "Contact")
+            class = "homepage-footer-nav",
+            footer_group(
+              "Explore",
+              list(
+                list(href = "index.html#interactive-map", label = "Map"),
+                list(href = "index.html#summary", label = "Summary"),
+                list(href = "index.html#publication", label = "Publication"),
+                list(href = "index.html#data-sources", label = "Data sources")
+              )
+            ),
+            footer_group(
+              "Static maps",
+              list(
+                list(href = "maps.html", label = "National overview"),
+                list(href = "maps-west.html", label = "Western Canada"),
+                list(href = "maps-east.html", label = "Eastern Canada"),
+                list(href = "multitemporal.html", label = "Multitemporal")
+              )
+            ),
+            footer_group(
+              "Project",
+              list(
+                list(href = "log.html", label = "Update log"),
+                list(href = "contact.html", label = "Contact"),
+                list(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", label = "GitHub repository"),
+                list(href = "https://doi.org/10.1139/cjfr-2024-0155", label = "Read the paper")
+              )
+            )
           )
         )
       )
