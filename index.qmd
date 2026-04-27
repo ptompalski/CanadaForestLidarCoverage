@@ -137,13 +137,19 @@ data_sources_combined <- tribble(
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
-nav_card <- function(href, eyebrow, title, description) {
+nav_card <- function(href, eyebrow, title, image_src, image_alt, extra_class = NULL) {
   tags$a(
-    class = "homepage-nav-card",
+    class = paste("homepage-nav-card", extra_class),
     href = href,
-    tags$span(class = "homepage-nav-eyebrow", eyebrow),
-    tags$h3(title),
-    tags$p(description)
+    tags$div(
+      class = "homepage-nav-card-media",
+      tags$img(src = image_src, alt = image_alt, loading = "lazy"),
+      tags$div(
+        class = "homepage-nav-card-copy",
+        tags$span(class = "homepage-nav-eyebrow", eyebrow),
+        tags$h3(title)
+      )
+    ),
   )
 }
 
@@ -265,10 +271,10 @@ browsable(
       class = "column-body",
       tags$div(
         class = "homepage-card-grid homepage-card-grid-explore",
-        nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
-        nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
-        nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
-        nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+        nav_card("maps.html", "Static maps", "National overview", "img/map1_ALS_coverage.png", "National static ALS coverage map"),
+        nav_card("maps-west.html", "Static maps", "Western Canada", "img/map1_ALS_coverage_focused1.png", "Western Canada static ALS coverage map"),
+        nav_card("maps-east.html", "Static maps", "Eastern Canada", "img/map1_ALS_coverage_focused2.png", "Eastern Canada static ALS coverage map"),
+        nav_card("multitemporal.html", "Static maps", "Multitemporal data", "img/map4_ALS_overlap_focus1.png", "Multitemporal static ALS overlap map", "homepage-nav-card-zoom")
       )
     )
   )
