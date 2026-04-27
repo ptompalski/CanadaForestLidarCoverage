@@ -173,11 +173,11 @@ main.content.page-columns.page-full.column-body > :last-child {
   color: rgba(245, 247, 250, 0.9);
 }
 
-.homepage-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin-top: 1.5rem;
+.homepage-hero-update {
+  margin: 1.2rem 0 0;
+  color: rgba(213, 225, 234, 0.82);
+  font-size: 0.96rem;
+  line-height: 1.5;
 }
 
 .homepage-stats-band-hero {
@@ -903,11 +903,6 @@ tbody tr:nth-child(even) {
 
   .subpage-hero-copy h1 {
     max-width: none;
-  }
-
-  .homepage-hero-actions {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .homepage-button {
