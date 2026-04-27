@@ -4,7 +4,7 @@
     "href": "maps.html",
     "title": "Coverage maps",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "maps.html#maps-coverage",
@@ -116,7 +116,7 @@
     "href": "maps-west.html",
     "title": "Detailed maps - western Canada",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "maps-west.html#als-coverage",
@@ -151,14 +151,14 @@
     "href": "contact.html",
     "title": "Contact",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub\n    \n  \n\n\n  \n    Resources\n    Contact\n    Use this page to report missing coverage, flag errors, or point us to jurisdictional updates that should be reflected in the maps.\n  \n\n\n\nIf you find errors or know of ALS coverage that should be added to the maps, please open an issue in the repository or contact the project team directly.\n\n\n\nGitHub issues\nReport a problem or suggest a correction through the project issue tracker.\n\n\nDirect contacts\nPiotr Tompalski: piotr.tompalski@nrcan-rncan.gc.ca\nJoanne White: joanne.white@nrcan-rncan.gc.ca\n\n\n\n\n  \n    \n      \n        ALS data coverage in Canadian forests\n        Project contacts and issue reporting for map corrections and new coverage leads.\n      \n      \n        Home\n        Data access\n        Update log\n        GitHub repository"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact\n\n\n\n\n\n  \n    Resources\n    Contact\n    Use this page to report missing coverage, flag errors, or point us to jurisdictional updates that should be reflected in the maps.\n  \n\n\n\nIf you find errors or know of ALS coverage that should be added to the maps, please open an issue in the repository or contact the project team directly.\n\n\n\nGitHub issues\nReport a problem or suggest a correction through the project issue tracker.\n\n\nDirect contacts\nPiotr Tompalski: piotr.tompalski@nrcan-rncan.gc.ca\nJoanne White: joanne.white@nrcan-rncan.gc.ca\n\n\n\n\n\n\n\nALS data coverage in Canadian forests\nLast coverage update: April 23, 2026\n\n\nGitHub repository\nUpdate log\nContact"
   },
   {
     "objectID": "log.html",
     "href": "log.html",
     "title": "Update Log",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "log.html#als-coverage-added-on-april-20-2026",
@@ -172,7 +172,7 @@
     "href": "maps-east.html",
     "title": "Detailed maps - eastern Canada",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "maps-east.html#als-coverage",
@@ -207,7 +207,7 @@
     "href": "multitemporal.html",
     "title": "Multitemporal data",
     "section": "",
-    "text": "Canada Forest ALS\n    \n      Map\n      Summary\n      Data sources\n      Updates\n      GitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "multitemporal.html#maps-overlap",
@@ -249,28 +249,28 @@
     "href": "index.html",
     "title": "ALS data coverage in Canadian forests",
     "section": "",
-    "text": "Canada Forest ALS\n\n\nMap\nSummary\nData sources\nUpdates\nGitHub"
+    "text": "Canada Forest ALS\n\n\nMap\nSummary\nPublication\nData sources\nContact"
   },
   {
     "objectID": "index.html#explore",
     "href": "index.html#explore",
     "title": "ALS data coverage in Canadian forests",
     "section": "Additional maps",
-    "text": "Additional maps\n\n\nStatic maps\nNational overview\nBrowse the static national map products, including coverage, density, acquisition year, and multitemporal views.\n\n\nStatic maps\nWestern Canada\nInspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories.\n\n\nStatic maps\nEastern Canada\nInspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces.\n\n\nStatic maps\nMultitemporal data\nReview overlapping ALS acquisitions and areas that have been surveyed more than once."
+    "text": "Additional maps\n\n\n\nStatic maps\nNational overview\nBrowse the static national map products, including coverage, density, acquisition year, and multitemporal views.\n\n\nStatic maps\nWestern Canada\nInspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories.\n\n\nStatic maps\nEastern Canada\nInspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces.\n\n\nStatic maps\nMultitemporal data\nReview overlapping ALS acquisitions and areas that have been surveyed more than once."
   },
   {
     "objectID": "index.html#summary",
     "href": "index.html#summary",
     "title": "ALS data coverage in Canadian forests",
     "section": "Summary",
-    "text": "Summary\n\nThe national overview is supported by jurisdiction-specific source checks and periodic refreshes. The table below summarizes the current ALS coverage figures used across the site, followed by cumulative acquisition area through time.\n\n\nCoverage by jurisdiction\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nTotal ALS coverage\nALS coverage over managed forest\n\n\n\n\nBritish Columbia (BC)\n391,123 (42.3%)\n268,103 (53.7%)\n\n\nAlberta (AB)\n395,121 (61.5%)\n236,209 (94.5%)\n\n\nSaskatchewan (SK)\n108,660 (18.4%)\n69,555 (81%)\n\n\nOntario (ON)\n445,042 (48.5%)\n333,744 (99.6%)\n\n\nQuebec (QC)\n551,196 (40.4%)\n375,949 (98.8%)\n\n\nNew Brunswick (NB)\n74,795 (100%)\n58,299 (100%)\n\n\nPrince Edward Island (PE)\n5,734 (100%)\n2,429 (100%)\n\n\nNova Scotia (NS)\n56,684 (100%)\n37,279 (100%)\n\n\n\n\n\n\n\nCoverage over time\n\n\n\n\n\n\n\n\n\nRelated publication\nEnhanced forest inventories in Canada\nThis website extends the published national overview with updated coverage sources, current summary statistics, and interactive map products that continue to evolve beyond the paper snapshot.\nWhite, J.C., Tompalski, P., Bater, C.W., Wulder, M.A., Fortin, M., Hennigar, C., Robere-McGugan, G., Sinclair, I., White, R. (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research, 55: 1-37.\n\nRead the paper"
+    "text": "Summary\n\nThe national overview is supported by jurisdiction-specific source checks and periodic refreshes. The table below summarizes the current ALS coverage figures used across the site, followed by cumulative acquisition area through time.\n\n\nCoverage by jurisdiction\n\n\n\n\n\n\n\n\n\n\nJurisdiction\nTotal ALS coverage\nALS coverage over managed forest\n\n\n\n\nBritish Columbia (BC)\n391,123 (42.3%)\n268,103 (53.7%)\n\n\nAlberta (AB)\n395,121 (61.5%)\n236,209 (94.5%)\n\n\nSaskatchewan (SK)\n108,660 (18.4%)\n69,555 (81%)\n\n\nOntario (ON)\n445,042 (48.5%)\n333,744 (99.6%)\n\n\nQuebec (QC)\n551,196 (40.4%)\n375,949 (98.8%)\n\n\nNew Brunswick (NB)\n74,795 (100%)\n58,299 (100%)\n\n\nPrince Edward Island (PE)\n5,734 (100%)\n2,429 (100%)\n\n\nNova Scotia (NS)\n56,684 (100%)\n37,279 (100%)\n\n\n\n\n\n\n\nCoverage over time\n\n\n\n\n\n\n\n\n\nRelated publication\nEnhanced forest inventories in Canada: implementation, status, and research needs\nThis website extends the published national overview with updated coverage sources, current summary statistics, and interactive map products that continue to evolve beyond the paper snapshot.\nWhite, J.C., Tompalski, P., Bater, C.W., Wulder, M.A., Fortin, M., Hennigar, C., Robere-McGugan, G., Sinclair, I., White, R. (2025). Enhanced forest inventories in Canada: implementation, status, and research needs. Canadian Journal of Forest Research, 55: 1-37.\n\nRead the paper"
   },
   {
     "objectID": "index.html#data-sources",
     "href": "index.html#data-sources",
     "title": "ALS data coverage in Canadian forests",
     "section": "Data sources",
-    "text": "Data sources\n\n\nWhat this site tracks\nThis website summarizes airborne laser scanning coverage across Canada's forested landscapes. It emphasizes acquisitions relevant to forestry and excludes urban ALS programs and research-only collections outside the forested ecozones.\nThe national overview, coverage statistics, and map products are updated as new public ALS acquisitions become available. Jurisdiction-specific download links, source notes, and update timing are documented on the Data access page.\n\n\nAbout this website\nThe website is maintained as a current operational companion to the national overview, with updated source notes, revised coverage estimates, and interactive products that go beyond the publication snapshot.\n\n\n\n\n\n\nALS data coverage in Canadian forests\nLast coverage update: April 23, 2026\n\n\nGitHub repository\nUpdate log\nData access\nContact"
+    "text": "Data sources\n\nCoverage sources and availability\nThe jurisdictional coverage layers in this compilation come from a mix of public download services and direct exchanges with provincial organizations responsible for ALS data management. Last update is the date when the jurisdictional coverage layer in this project was refreshed, not the date of the latest ALS acquisition.\n\n\n\n\n\n\nJurisdiction\nLast update\nSource and sharing\n\n\n\n\nBritish Columbia (BC)\n2026-04-01\nSource: BC Ministry of Forests and lidar.gov.bc.ca.Access: ALS open data. DEM and CHM from systematic provincial acquisition will be shared. www.lidar.gov.bc.ca\n\n\nAlberta (AB)\n2025-10-14\nSource: AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI).Access: Initial provincial coverage ALS data and derivatives were acquired with a licence. Sharing is limited to GoA partners for collaborative projects and forest industry. FRIP-funded industry projects are not currently open. ABMI acquisitions will be made freely available.\n\n\nSaskatchewan (SK)\n2025-07-17\nSource: SK Ministry of Environment.Access: ALS point clouds are not currently shared as open data. Derivatives (DEM) are shared openly, though not all are lidar-derived: environment-saskatchewan.hub.arcgis.com.\n\n\nOntario (ON)\n2026-03-13\nSource: Ministry of Natural Resources.Access: ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at geohub.lio.gov.on.ca.\n\n\nQuebec (QC)\n2025-10-07\nSource: Ministere des Ressources naturelles et des Forets, donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec.Access: ALS open data: donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec.\n\n\nNew Brunswick (NB)\n2026-04-22\nSource: NB Natural Resources and Energy Development, and www.snb.ca/geonb1.Access: ALS data are open and available for download: www.snb.ca/geonb1/e/dc/lidar.asp. Derivatives (DEM, CHM, hillshade, slope) are also available as WMS/WCS service.\n\n\nPrince Edward Island (PE)\n2024-10-24\nSource: Prince Edward Island Department of Environment, Energy and Climate Action.Access: ALS data available for download: download-telecharger.services.geo.ca.\n\n\nNova Scotia (NS)\n2024-10-24\nSource: nsgi.novascotia.ca/datalocator and Department of Natural Resources and Renewables.Access: ALS files and derivatives are open data (nsgi.novascotia.ca/datalocator/elevation/).\n\n\n\n\n\n\nAdditional ALS datasets in Canada\n\n\nHigh Resolution Digital Elevation Model (HRDEM) - CanElevation Series\n\n\nHigh Resolution Digital Elevation Model Mosaic (HRDEM Mosaic) CanElevation Series\n\n\nNational Elevation Data Strategy\n\n\nLiDAR Point Clouds - CanElevation Series\n\n\nPetawawa Research Forest\n\n\n\n\n\n\n\nALS data coverage in Canadian forests\nLast coverage update: April 23, 2026\n\n\nGitHub repository\nUpdate log\nContact"
   },
   {
     "objectID": "log.html#als-coverage-added-on-november-26-2025",

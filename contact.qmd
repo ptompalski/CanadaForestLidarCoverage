@@ -3,6 +3,7 @@ title: "Contact"
 format:
   html:
     page-layout: full
+    toc: false
 date: today
 language:
   title-block-published: "Last modified"
@@ -16,19 +17,18 @@ language:
 }
 </style>
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(htmltools)
+source("R/site_components.R")
+coverage_file_date <- get_latest_coverage_date()
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+site_header()
+```
+
 ```{=html}
-<header class="subpage-fixed-header">
-  <div class="subpage-fixed-header-inner">
-    <a href="index.html" class="subpage-site-mark">Canada Forest ALS</a>
-    <nav class="subpage-topnav">
-      <a href="index.html#interactive-map">Map</a>
-      <a href="index.html#summary">Summary</a>
-      <a href="data.html">Data sources</a>
-      <a href="log.html">Updates</a>
-      <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub</a>
-    </nav>
-  </div>
-</header>
 <section class="column-screen subpage-hero-band">
   <div class="subpage-hero-copy">
     <p class="subpage-eyebrow">Resources</p>
@@ -61,20 +61,8 @@ Joanne White: joanne.white\@nrcan-rncan.gc.ca
 
 ```{=html}
 </div>
-<section class="column-screen subpage-footer-wrap">
-  <footer class="subpage-footer">
-    <div class="subpage-footer-inner">
-      <div>
-        <p class="subpage-footer-title">ALS data coverage in Canadian forests</p>
-        <p class="subpage-footer-copy">Project contacts and issue reporting for map corrections and new coverage leads.</p>
-      </div>
-      <nav class="subpage-footer-links">
-        <a href="index.html">Home</a>
-        <a href="data.html">Data access</a>
-        <a href="log.html">Update log</a>
-        <a href="https://github.com/ptompalski/CanadaForestLidarCoverage">GitHub repository</a>
-      </nav>
-    </div>
-  </footer>
-</section>
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+site_footer(coverage_file_date)
 ```

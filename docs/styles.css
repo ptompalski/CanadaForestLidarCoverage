@@ -47,6 +47,9 @@ main.content,
 main.content.page-columns.page-full.column-body {
   background: #ffffff;
   margin-bottom: 0 !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 main.content.page-columns.page-full.column-body > :last-child {
@@ -119,6 +122,19 @@ main.content.page-columns.page-full.column-body > :last-child {
   font-size: 0.95rem;
   font-weight: 600;
   text-decoration: none;
+}
+
+.homepage-topnav-iconlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.homepage-topnav-iconlink svg {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .homepage-topnav a:hover,
@@ -337,6 +353,12 @@ main.content.page-columns.page-full.column-body > :last-child {
   margin: 0 0 1.5rem;
 }
 
+.homepage-content-shell {
+  max-width: 1200px;
+  margin: 0 auto 4rem;
+  padding: 0 1.5rem;
+}
+
 .homepage-body-copy-wide {
   max-width: 58rem;
 }
@@ -361,17 +383,30 @@ main.content.page-columns.page-full.column-body > :last-child {
   font-size: 0.96rem;
 }
 
+.homepage-source-list {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.homepage-source-list li + li {
+  margin-top: 0.35rem;
+}
+
+.homepage-additional-sources {
+  margin-top: 2.5rem;
+}
+
 .homepage-card-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
-  margin: 1.5rem 0 4rem;
+  margin: 1.5rem 0 0;
 }
 
 .homepage-paper-band {
   margin: 1rem 0 4.25rem;
-  background:
-    linear-gradient(90deg, rgba(19, 36, 51, 0.98) 0%, rgba(19, 36, 51, 0.96) 48%, rgba(19, 36, 51, 0.72) 70%, rgba(19, 36, 51, 0.38) 100%);
+  background: #132433;
   overflow: hidden;
 }
 
@@ -422,14 +457,6 @@ main.content.page-columns.page-full.column-body > :last-child {
   justify-content: flex-end;
 }
 
-.homepage-paper-media::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(19, 36, 51, 1) 0%, rgba(19, 36, 51, 0.32) 38%, rgba(19, 36, 51, 0.08) 100%);
-  z-index: 1;
-}
-
 .homepage-paper-media img {
   position: relative;
   z-index: 0;
@@ -437,7 +464,7 @@ main.content.page-columns.page-full.column-body > :last-child {
   max-height: 360px;
   object-fit: cover;
   object-position: top center;
-  opacity: 0.58;
+  opacity: 1;
   box-shadow: 0 20px 48px rgba(4, 10, 16, 0.22);
 }
 
@@ -676,6 +703,8 @@ tbody tr:nth-child(even) {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 0;
+  width: 100%;
+  flex: 1 0 auto;
 }
 
 .subpage-main .level2 {
