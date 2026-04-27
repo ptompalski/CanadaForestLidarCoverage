@@ -186,10 +186,9 @@ browsable(
           class = "homepage-hero-lede",
           "Explore airborne laser scanning coverage across Canada's forested landscapes, with national extent, acquisition timing, density patterns, and repeated acquisitions prepared for forestry applications."
         ),
-        tags$div(
-          class = "homepage-hero-actions",
-          tags$a(href = "#interactive-map", class = "homepage-button homepage-button-primary", "Jump to map"),
-          tags$a(href = "maps.html", class = "homepage-button homepage-button-secondary", "Static maps")
+        tags$p(
+          class = "homepage-hero-update",
+          paste("Last coverage update:", coverage_file_date)
         ),
         tags$section(
           class = "homepage-stats-band homepage-stats-band-hero",
