@@ -63,6 +63,8 @@ coverage_file <- dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
   slice(1) |>
   pull(path)
 
+Stats <- readRDS("layers/Stats.rds")
+
 multitemporal_file <- dir_info("layers/ALS_coverage_layer/overlap", recurse = FALSE) |>
   filter(grepl("^ALS_coverage_overlap_.*\\.gpkg$", path_file(path))) |>
   arrange(desc(modification_time)) |>
@@ -89,6 +91,21 @@ coverage <- readRDS(coverage_file) |>
 
 coverage_3347 <- coverage |>
   st_transform(3347)
+
+jurisdiction_hover <- Stats$theTable |>
+  mutate(
+    code = sub(".*\\(([A-Z]{2})\\)$", "\\1", Jurisdiction),
+    coverage_km2 = as.numeric(gsub(",", "", sub(" .*", "", `Total ALS coverage`))),
+    coverage_pct = sub(".*\\(([^)]+)\\).*", "\\1", `Total ALS coverage`),
+    coverage_ha = format(round(coverage_km2 * 100), big.mark = ",", scientific = FALSE),
+    coverage_label = paste0(coverage_ha, " ha"),
+    coverage_pct = ifelse(grepl("%$", coverage_pct), coverage_pct, paste0(coverage_pct, "%"))
+  ) |>
+  transmute(
+    code,
+    total_als_coverage_ha = coverage_label,
+    total_als_coverage_pct = coverage_pct
+  )
 
 multitemporal <- st_read(multitemporal_file, quiet = TRUE) |>
   st_make_valid() |>
@@ -228,6 +245,15 @@ metadata <- list(
   provinces = sort(unique(coverage$Province)),
   density_labels = levels(coverage$PPM_class),
   multitemporal_labels = c("1-2", "3-5", "6-10", "11-15", ">15"),
+  jurisdiction_hover = setNames(
+    lapply(seq_len(nrow(jurisdiction_hover)), function(i) {
+      list(
+        total_als_coverage_ha = jurisdiction_hover$total_als_coverage_ha[[i]],
+        total_als_coverage_pct = jurisdiction_hover$total_als_coverage_pct[[i]]
+      )
+    }),
+    jurisdiction_hover$code
+  ),
   feature_counts = list(
     jurisdiction = nrow(layer_jurisdiction),
     year = nrow(layer_year),
@@ -351,6 +377,22 @@ browsable(
         margin-top: 0.4rem;
         font-size: 0.78rem;
       }
+      .map-hover-tooltip {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(36, 55, 70, 0.22);
+        border-radius: 4px;
+        box-shadow: 0 6px 16px rgba(18, 33, 45, 0.14);
+        color: #223645;
+        font: 12px/1.45 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        padding: 0.45rem 0.55rem;
+      }
+      .map-hover-tooltip::before {
+        display: none;
+      }
+      .map-hover-tooltip .tooltip-title {
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+      }
       @media (max-width: 720px) {
         .map-controls {
           min-width: 0;
@@ -446,9 +488,43 @@ browsable(
         };
       }
 
+      function tooltipHtml(feature) {
+        const p = feature.properties;
+        if (currentMode === 'jurisdiction') {
+          const code = String(p.group_value || '');
+          const stats = (coverageMeta.jurisdiction_hover || {})[code];
+          if (!stats) return code;
+          return `<div class='tooltip-title'>${code}</div>
+            <div>Total ALS coverage: ${stats.total_als_coverage_ha}</div>
+            <div>${stats.total_als_coverage_pct}</div>`;
+        }
+        if (currentMode === 'year') {
+          return String(p.group_value || '');
+        }
+        if (currentMode === 'density') {
+          return String(p.group_value || '');
+        }
+        if (currentMode === 'multitemporal') {
+          return `${String(p.group_value || '')} years`;
+        }
+        return '';
+      }
+
+      function onEachFeature(feature, layer) {
+        const tooltip = tooltipHtml(feature);
+        if (!tooltip) return;
+        layer.bindTooltip(tooltip, {
+          sticky: true,
+          direction: 'auto',
+          opacity: 1,
+          className: 'map-hover-tooltip'
+        });
+      }
+
       function makeLayer(mode) {
         return L.geoJSON(coverageLayersData[mode], {
-          style: styleFeature
+          style: styleFeature,
+          onEachFeature: onEachFeature
         });
       }
 
