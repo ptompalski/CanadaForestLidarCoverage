@@ -373,7 +373,8 @@ browsable(
       const map = L.map('coverage-map', {
         minZoom: 3,
         maxZoom: 9,
-        preferCanvas: true
+        preferCanvas: true,
+        scrollWheelZoom: false
       }).setView([58.5, -96], 3);
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {

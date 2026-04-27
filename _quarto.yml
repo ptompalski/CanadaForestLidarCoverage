@@ -22,8 +22,6 @@ website:
             text: Multitemporal data
       - text: Resources
         menu:
-          - href: data.qmd
-            text: Data access
           - href: log.qmd
             text: Update log
           - href: contact.qmd

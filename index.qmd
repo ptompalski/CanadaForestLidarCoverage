@@ -25,6 +25,7 @@ library(ggiraph)
 library(ggplot2)
 library(ggtext)
 library(htmltools)
+source("R/site_components.R")
 
 Stats <- readRDS("layers/Stats.rds")
 theTable <- Stats$theTable
@@ -34,7 +35,7 @@ coverage_info <- fs::dir_info("layers/ALS_coverage_layer/main", recurse = FALSE)
   arrange(desc(modification_time)) |>
   slice(1)
 
-coverage_file_date <- format(as.Date(coverage_info$modification_time[[1]]), "%B %d, %Y")
+coverage_file_date <- get_latest_coverage_date()
 coverage_file_name <- basename(coverage_info$path[[1]])
 
 total_ALS_area <- Stats$total_ALS_area
@@ -69,6 +70,56 @@ names(clrs) <- prov_clrs$Jurisdiction
 
 coverage_time <- readRDS("layers/dataForTheFigure_v4.rds")
 site_font_family <- "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+
+getNewestFileDate <- function(dir) {
+  path_dir <- file.path("layers", "source_layers", dir)
+  flist <- fs::dir_ls(path_dir, recurse = TRUE, glob = "*.shp$") |>
+    lapply(file.info) |>
+    bind_rows() |>
+    arrange(desc(ctime))
+
+  as.Date(flist[1, "ctime"][[1]])
+}
+
+tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE", "NS")) |>
+  mutate(`Last update` = vapply(Jurisdiction, function(x) format(getNewestFileDate(x), "%Y-%m-%d"), character(1)))
+
+jurisdiction_labels <- tribble(
+  ~Jurisdiction, ~Jurisdiction_label,
+  "BC", "British Columbia (BC)",
+  "AB", "Alberta (AB)",
+  "SK", "Saskatchewan (SK)",
+  "ON", "Ontario (ON)",
+  "QC", "Quebec (QC)",
+  "NB", "New Brunswick (NB)",
+  "PE", "Prince Edward Island (PE)",
+  "NS", "Nova Scotia (NS)"
+)
+
+data_sources_combined <- tribble(
+  ~Jurisdiction, ~`Data source`, ~`Data sharing policy`,
+  "BC", "BC Ministry of Forests and [lidar.gov.bc.ca](https://lidar.gov.bc.ca/).", "ALS open data. DEM and CHM from systematic provincial acquisition will be shared. [www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
+  "AB", "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI).", "Initial provincial coverage ALS data and derivatives were acquired with a licence. Sharing is limited to GoA partners for collaborative projects and forest industry. FRIP-funded industry projects are not currently open. ABMI acquisitions [will be made freely available](https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&scroll).",
+  "SK", "SK Ministry of Environment.", "ALS point clouds are not currently shared as open data. Derivatives (DEM) are shared openly, though not all are lidar-derived: [environment-saskatchewan.hub.arcgis.com](https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory).",
+  "ON", "Ministry of Natural Resources.", "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/maps/lio::forest-resources-inventory-leaf-on-lidar/about).",
+  "QC", "Ministere des Ressources naturelles et des Forets, [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).", "ALS open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).",
+  "NB", "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp).", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp). Derivatives (DEM, CHM, hillshade, slope) are also available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
+  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS data available for download: [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/).",
+  "NS", "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
+) |>
+  left_join(jurisdiction_labels, by = "Jurisdiction") |>
+  left_join(tbl_updates, by = "Jurisdiction") |>
+  mutate(
+    `Source and sharing` = paste0(
+      "<strong>Source:</strong> ", `Data source`, "<br><br>",
+      "<strong>Access:</strong> ", `Data sharing policy`
+    )
+  ) |>
+  transmute(
+    Jurisdiction = Jurisdiction_label,
+    `Last update` = `Last update`,
+    `Source and sharing`
+  )
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
@@ -98,9 +149,16 @@ browsable(
           class = "homepage-topnav",
           tags$a(href = "#interactive-map", "Map"),
           tags$a(href = "#summary", "Summary"),
+          tags$a(href = "#publication", "Publication"),
           tags$a(href = "#data-sources", "Data sources"),
-          tags$a(href = "log.html", "Updates"),
-          tags$a(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", "GitHub")
+          tags$a(href = "contact.html", "Contact"),
+          tags$a(
+            href = "https://github.com/ptompalski/CanadaForestLidarCoverage",
+            class = "homepage-topnav-iconlink",
+            `aria-label` = "GitHub repository",
+            title = "GitHub repository",
+            HTML('<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.5 7.5 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>')
+          )
         )
       )
     ),
@@ -184,16 +242,19 @@ browsable(
 )
 ```
 
-## Additional maps {#explore}
-
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 browsable(
   tags$section(
-    class = "homepage-card-grid homepage-anchor-target",
-    nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
-    nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
-    nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
-    nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+    id = "explore",
+    class = "homepage-content-shell homepage-anchor-target homepage-explore-shell",
+    tags$h2("Additional maps"),
+    tags$div(
+      class = "homepage-card-grid",
+      nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
+      nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
+      nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
+      nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+    )
   )
 )
 ```
@@ -316,13 +377,14 @@ g
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 browsable(
   tags$section(
+    id = "publication",
     class = "column-screen homepage-paper-band homepage-anchor-target",
     tags$div(
       class = "homepage-paper-band-inner",
       tags$div(
         class = "homepage-paper-copy",
         tags$p(class = "homepage-section-kicker", "Related publication"),
-        tags$h2("Enhanced forest inventories in Canada"),
+        tags$h2("Enhanced forest inventories in Canada: implementation, status, and research needs"),
         tags$p(
           class = "homepage-body-copy",
           "This website extends the published national overview with updated coverage sources, current summary statistics, and interactive map products that continue to evolve beyond the paper snapshot."
@@ -357,53 +419,39 @@ browsable(
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 browsable(
   tags$section(
-    class = "homepage-detail-grid homepage-anchor-target",
-    tags$div(
-      tags$p(class = "homepage-section-kicker", "What this site tracks"),
-      tags$p(
-        class = "homepage-body-copy",
-        "This website summarizes airborne laser scanning coverage across Canada's forested landscapes. It emphasizes acquisitions relevant to forestry and excludes urban ALS programs and research-only collections outside the forested ecozones."
-      ),
-      tags$p(
-        class = "homepage-body-copy",
-        HTML("The national overview, coverage statistics, and map products are updated as new public ALS acquisitions become available. Jurisdiction-specific download links, source notes, and update timing are documented on the <a href='data.html'>Data access</a> page.")
-      )
-    ),
-    tags$div(
-      class = "homepage-reference-panel",
-      tags$p(class = "homepage-section-kicker", "About this website"),
-      tags$p(
-        class = "homepage-body-copy",
-        "The website is maintained as a current operational companion to the national overview, with updated source notes, revised coverage estimates, and interactive products that go beyond the publication snapshot."
-      )
+    class = "homepage-section-intro homepage-anchor-target",
+    tags$p(class = "homepage-section-kicker", "Coverage sources and availability"),
+    tags$p(
+      class = "homepage-body-copy homepage-body-copy-wide",
+      HTML("The jurisdictional coverage layers in this compilation come from a mix of public download services and direct exchanges with provincial organizations responsible for ALS data management. <code>Last update</code> is the date when the jurisdictional coverage layer in this project was refreshed, not the date of the latest ALS acquisition.")
+    )
+  )
+)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::kable(data_sources_combined, escape = FALSE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
+  tags$section(
+    class = "homepage-section-intro homepage-additional-sources",
+    tags$p(class = "homepage-section-kicker", "Additional ALS datasets in Canada"),
+    tags$ul(
+      class = "homepage-body-copy-wide homepage-source-list",
+      tags$li(tags$a(href = "https://open.canada.ca/data/en/dataset/957782bf-847c-4644-a757-e383c0057995", "High Resolution Digital Elevation Model (HRDEM) - CanElevation Series")),
+      tags$li(tags$a(href = "https://open.canada.ca/data/en/dataset/0fe65119-e96e-4a57-8bfe-9d9245fba06b", "High Resolution Digital Elevation Model Mosaic (HRDEM Mosaic) CanElevation Series")),
+      tags$li(tags$a(href = "https://natural-resources.canada.ca/maps-tools-publications/satellite-elevation-air-photos/national-elevation-data-strategy", "National Elevation Data Strategy")),
+      tags$li(tags$a(href = "https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947", "LiDAR Point Clouds - CanElevation Series")),
+      tags$li(tags$a(href = "https://opendata.nfis.org/mapserver/PRF.html", "Petawawa Research Forest"))
     )
   )
 )
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
-browsable(
-  tags$section(
-    class = "column-screen homepage-footer-wrap",
-    tags$footer(
-      class = "homepage-footer",
-      tags$div(
-        class = "homepage-footer-inner",
-        tags$div(
-          tags$p(class = "homepage-footer-title", "ALS data coverage in Canadian forests"),
-          tags$p(class = "homepage-footer-update", paste("Last coverage update:", coverage_file_date))
-        ),
-        tags$nav(
-          class = "homepage-footer-links",
-          tags$a(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", "GitHub repository"),
-          tags$a(href = "log.html", "Update log"),
-          tags$a(href = "data.html", "Data access"),
-          tags$a(href = "contact.html", "Contact")
-        )
-      )
-    )
-  )
-)
+site_footer(coverage_file_date)
 ```
 
 ```{=html}
@@ -412,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const statNumbers = document.querySelectorAll('.homepage-stat-number');
   const statsSection = document.querySelector('.homepage-stats-grid');
   const header = document.querySelector('.homepage-fixed-header');
+  const internalLinks = document.querySelectorAll('a[href^="#"]');
 
   if (header) {
     const onScroll = () => {
@@ -420,6 +469,22 @@ document.addEventListener('DOMContentLoaded', () => {
     onScroll();
     document.addEventListener('scroll', onScroll, { passive: true });
   }
+
+  internalLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      event.preventDefault();
+      const headerOffset = header ? header.offsetHeight + 16 : 0;
+      const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({ top, behavior: 'smooth' });
+      if (history.replaceState) {
+        history.replaceState(null, '', href);
+      }
+    });
+  });
 
   if (!statNumbers.length || !statsSection) return;
 
