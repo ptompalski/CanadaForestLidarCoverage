@@ -246,14 +246,17 @@ browsable(
 browsable(
   tags$section(
     id = "explore",
-    class = "homepage-content-shell homepage-anchor-target homepage-explore-shell",
-    tags$h2("Additional maps"),
+    class = "level2 page-columns page-full homepage-anchor-target",
+    tags$h2(class = "anchored", `data-anchor-id` = "explore", "Additional maps"),
     tags$div(
-      class = "homepage-card-grid",
-      nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
-      nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
-      nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
-      nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+      class = "column-body",
+      tags$div(
+        class = "homepage-card-grid homepage-card-grid-explore",
+        nav_card("maps.html", "Static maps", "National overview", "Browse the static national map products, including coverage, density, acquisition year, and multitemporal views."),
+        nav_card("maps-west.html", "Static maps", "Western Canada", "Inspect the western map layouts for British Columbia, Alberta, Saskatchewan, and the territories."),
+        nav_card("maps-east.html", "Static maps", "Eastern Canada", "Inspect the eastern map layouts for Ontario, Quebec, and the Atlantic provinces."),
+        nav_card("multitemporal.html", "Static maps", "Multitemporal data", "Review overlapping ALS acquisitions and areas that have been surveyed more than once.")
+      )
     )
   )
 )

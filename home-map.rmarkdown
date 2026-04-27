@@ -1,0 +1,612 @@
+---
+title: "Homepage coverage map"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    toc: false
+engine: knitr
+date: today
+language:
+  title-block-published: "Last modified"
+---
+
+
+
+<style>
+html,
+body {
+  margin: 0;
+  background: #dfe7ea;
+  overflow: hidden;
+}
+
+#title-block-header,
+.quarto-title-block,
+#quarto-header,
+#quarto-margin-sidebar,
+#quarto-content > *:not(main) {
+  display: none !important;
+}
+
+#quarto-document-content {
+  padding: 0 !important;
+}
+
+#quarto-content {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+main.content,
+main.content.column-page,
+#quarto-document-content,
+#quarto-document-content.content.column-page {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  grid-column: 1 / -1 !important;
+}
+</style>
+
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+library(dplyr)
+library(fs)
+library(htmltools)
+library(jsonlite)
+library(sf)
+
+coverage_file <- dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
+  filter(grepl("^ALS_coverage_all_.*\\.rds$", path_file(path))) |>
+  arrange(desc(modification_time)) |>
+  slice(1) |>
+  pull(path)
+
+Stats <- readRDS("layers/Stats.rds")
+
+multitemporal_file <- dir_info("layers/ALS_coverage_layer/overlap", recurse = FALSE) |>
+  filter(grepl("^ALS_coverage_overlap_.*\\.gpkg$", path_file(path))) |>
+  arrange(desc(modification_time)) |>
+  slice(1) |>
+  pull(path)
+
+coverage <- readRDS(coverage_file) |>
+  st_make_valid() |>
+  st_collection_extract("POLYGON", warn = FALSE) |>
+  st_cast("MULTIPOLYGON", warn = FALSE) |>
+  mutate(
+    YEAR = as.numeric(YEAR),
+    PPM = as.numeric(PPM),
+    feature_id = row_number()
+  ) |>
+  mutate(
+    PPM_class = cut(
+      PPM,
+      breaks = c(0, 1, 2, 5, 10, 20, 50, 100),
+      labels = c("<1", "1-2", "2-5", "5-10", "10-20", "20-50", ">50")
+    )
+  ) |>
+  select(feature_id, Province, YEAR, PPM, PPM_class, isAvailable)
+
+coverage_3347 <- coverage |>
+  st_transform(3347)
+
+jurisdiction_hover <- Stats$theTable |>
+  mutate(
+    code = sub(".*\\(([A-Z]{2})\\)$", "\\1", Jurisdiction),
+    coverage_km2 = as.numeric(gsub(",", "", sub(" .*", "", `Total ALS coverage`))),
+    coverage_pct = sub(".*\\(([^)]+)\\).*", "\\1", `Total ALS coverage`),
+    coverage_ha = format(round(coverage_km2 * 100), big.mark = ",", scientific = FALSE),
+    coverage_label = paste0(coverage_ha, " ha"),
+    coverage_pct = ifelse(grepl("%$", coverage_pct), coverage_pct, paste0(coverage_pct, "%"))
+  ) |>
+  transmute(
+    code,
+    total_als_coverage_ha = coverage_label,
+    total_als_coverage_pct = coverage_pct
+  )
+
+multitemporal <- st_read(multitemporal_file, quiet = TRUE) |>
+  st_make_valid() |>
+  st_collection_extract("POLYGON", warn = FALSE) |>
+  st_cast("MULTIPOLYGON", warn = FALSE) |>
+  filter(YEAR_delta > 1) |>
+  mutate(
+    delta_class = cut(
+      YEAR_delta,
+      breaks = c(1, 2, 5, 10, 15, 99),
+      labels = c("1-2", "3-5", "6-10", "11-15", ">15")
+    ),
+    delta_class = as.character(delta_class)
+  ) |>
+  select(delta_class)
+
+multitemporal_3347 <- multitemporal |>
+  st_transform(3347)
+
+minimum_mapping_unit_km2 <- 25
+export_dir <- "scratch/homepage_layers"
+cleanup_buffer_m <- 750
+
+clean_group_geometry <- function(grp, mmu_km2, buffer_m) {
+  union_geom <- tryCatch(
+    st_union(grp),
+    error = function(e) st_union(st_buffer(grp, 0))
+  )
+
+  cleaned_geom <- st_sfc(union_geom, crs = st_crs(grp)) |>
+    st_make_valid() |>
+    st_buffer(buffer_m) |>
+    st_union() |>
+    st_buffer(-buffer_m) |>
+    st_make_valid()
+
+  parts <- st_sf(geometry = cleaned_geom) |>
+    st_cast("POLYGON", warn = FALSE) |>
+    mutate(
+      part_area_km2 = as.numeric(st_area(geometry)) / 1e6
+    ) |>
+    filter(part_area_km2 >= mmu_km2)
+
+  if (nrow(parts) == 0) {
+    parts <- st_sf(geometry = cleaned_geom) |>
+      st_cast("POLYGON", warn = FALSE) |>
+      mutate(
+        part_area_km2 = as.numeric(st_area(geometry)) / 1e6
+      ) |>
+      slice_max(part_area_km2, n = 1, with_ties = FALSE)
+  }
+
+  tryCatch(
+    st_union(parts),
+    error = function(e) st_union(st_buffer(parts, 0))
+  )
+}
+
+build_dissolved_layer <- function(x, group_col) {
+  split_groups <- split(x, x[[group_col]])
+
+  dissolved_groups <- lapply(names(split_groups), function(group_value) {
+    grp <- split_groups[[group_value]] |>
+      st_make_valid()
+    union_geom <- clean_group_geometry(
+      grp = grp,
+      mmu_km2 = minimum_mapping_unit_km2,
+      buffer_m = cleanup_buffer_m
+    )
+
+    st_sf(
+      group_value = as.character(group_value),
+      geometry = st_sfc(union_geom, crs = st_crs(x))
+    )
+  })
+
+  bind_rows(dissolved_groups) |>
+    st_make_valid() |>
+    st_cast("MULTIPOLYGON", warn = FALSE) |>
+    st_simplify(dTolerance = 500, preserveTopology = TRUE) |>
+    mutate(
+      area_km2 = as.numeric(st_area(geometry)) / 1e6
+    ) |>
+    st_make_valid() |>
+    st_cast("MULTIPOLYGON", warn = FALSE) |>
+    st_transform(4326)
+}
+
+layer_jurisdiction <- build_dissolved_layer(coverage_3347, "Province")
+layer_year <- build_dissolved_layer(filter(coverage_3347, !is.na(YEAR)), "YEAR")
+layer_density <- build_dissolved_layer(filter(coverage_3347, !is.na(PPM_class)), "PPM_class")
+layer_multitemporal <- build_dissolved_layer(filter(multitemporal_3347, !is.na(delta_class)), "delta_class")
+
+dir_create(export_dir, recurse = TRUE)
+
+export_layers <- list(
+  jurisdiction = layer_jurisdiction,
+  year = layer_year,
+  density = layer_density,
+  multitemporal = layer_multitemporal
+)
+
+invisible(lapply(names(export_layers), function(layer_name) {
+  export_path <- path(
+    export_dir,
+    paste0("homepage_", layer_name, "_mmu", minimum_mapping_unit_km2, ".gpkg")
+  )
+
+  st_write(
+    export_layers[[layer_name]],
+    export_path,
+    layer = "coverage",
+    driver = "GPKG",
+    quiet = TRUE,
+    delete_dsn = TRUE
+  )
+}))
+
+geojson_string <- function(x) {
+  geojson_file <- tempfile(fileext = ".geojson")
+  st_write(x, geojson_file, driver = "GeoJSON", quiet = TRUE, delete_dsn = TRUE)
+  paste(readLines(geojson_file, warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+}
+
+geojson_jurisdiction <- geojson_string(layer_jurisdiction)
+geojson_year <- geojson_string(layer_year)
+geojson_density <- geojson_string(layer_density)
+geojson_multitemporal <- geojson_string(layer_multitemporal)
+
+metadata <- list(
+  source_file = path_file(coverage_file),
+  multitemporal_source_file = path_file(multitemporal_file),
+  simplify_tolerance_m = 500,
+  minimum_mapping_unit_km2 = minimum_mapping_unit_km2,
+  year_min = min(coverage$YEAR, na.rm = TRUE),
+  year_max = max(coverage$YEAR, na.rm = TRUE),
+  provinces = sort(unique(coverage$Province)),
+  density_labels = levels(coverage$PPM_class),
+  multitemporal_labels = c("1-2", "3-5", "6-10", "11-15", ">15"),
+  jurisdiction_hover = setNames(
+    lapply(seq_len(nrow(jurisdiction_hover)), function(i) {
+      list(
+        total_als_coverage_ha = jurisdiction_hover$total_als_coverage_ha[[i]],
+        total_als_coverage_pct = jurisdiction_hover$total_als_coverage_pct[[i]]
+      )
+    }),
+    jurisdiction_hover$code
+  ),
+  feature_counts = list(
+    jurisdiction = nrow(layer_jurisdiction),
+    year = nrow(layer_year),
+    density = nrow(layer_density),
+    multitemporal = nrow(layer_multitemporal)
+  )
+)
+
+browsable(
+  tagList(
+    tags$link(
+      rel = "stylesheet",
+      href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+      integrity = "sha256-p4NxAoJBhIINfQ63Bf0OUSFdxxpz5yN2F1Mfd1C0g3s=",
+      crossorigin = ""
+    ),
+    tags$script(
+      src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+      integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
+      crossorigin = ""
+    ),
+    tags$style(HTML("
+      .map-shell {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: none;
+        position: relative;
+      }
+      #coverage-map {
+        width: 100%;
+        height: 680px;
+        border: 0;
+      }
+      .map-controls {
+        align-items: stretch;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(37, 58, 74, 0.18);
+        border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(18, 33, 45, 0.16);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.75rem 0.85rem;
+        box-sizing: border-box;
+        min-width: 12rem;
+        max-width: min(15rem, calc(100vw - 2rem));
+      }
+      .map-mode-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .map-action-group {
+        border-top: 1px solid rgba(37, 58, 74, 0.12);
+        margin-top: 0.1rem;
+        padding-top: 0.55rem;
+      }
+      .map-label {
+        color: #243746;
+        font-size: 0.84rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .map-controls button {
+        background: #f4f4f4;
+        border: 1px solid #c8c8c8;
+        border-radius: 4px;
+        cursor: pointer;
+        font: inherit;
+        padding: 0.45rem 0.65rem;
+        text-align: left;
+        width: 100%;
+      }
+      .map-controls button.active {
+        background: #284b63;
+        border-color: #284b63;
+        color: white;
+      }
+      .map-legend {
+        background: white;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
+        color: #222;
+        font: 12px/1.4 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        padding: 0.6rem 0.7rem;
+      }
+      .map-legend-title {
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+      .map-legend-row {
+        align-items: center;
+        display: flex;
+        gap: 0.45rem;
+        margin: 0.15rem 0;
+      }
+      .map-swatch {
+        display: inline-block;
+        height: 0.85rem;
+        width: 1.35rem;
+      }
+      .map-legend-gradient {
+        height: 0.85rem;
+        width: 10.5rem;
+        border-radius: 3px;
+        border: 1px solid rgba(36, 55, 70, 0.18);
+        background: linear-gradient(90deg,
+          #440154 0%,
+          #414487 20%,
+          #2a788e 40%,
+          #22a884 60%,
+          #7ad151 80%,
+          #fde725 100%);
+      }
+      .map-legend-scale {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 0.4rem;
+        font-size: 0.78rem;
+      }
+      .map-hover-tooltip {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(36, 55, 70, 0.22);
+        border-radius: 4px;
+        box-shadow: 0 6px 16px rgba(18, 33, 45, 0.14);
+        color: #223645;
+        font: 12px/1.45 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        padding: 0.45rem 0.55rem;
+      }
+      .map-hover-tooltip::before {
+        display: none;
+      }
+      .map-hover-tooltip .tooltip-title {
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+      }
+      @media (max-width: 720px) {
+        .map-controls {
+          min-width: 0;
+        }
+      }
+    ")),
+    tags$div(
+      class = "map-shell",
+      tags$div(id = "coverage-map")
+    ),
+    tags$script(HTML(sprintf(
+      "const coverageLayersData = {jurisdiction: %s, year: %s, density: %s, multitemporal: %s};\nconst coverageMeta = %s;",
+      geojson_jurisdiction,
+      geojson_year,
+      geojson_density,
+      geojson_multitemporal,
+      toJSON(metadata, auto_unbox = TRUE)
+    ))),
+    tags$script(HTML("
+      const map = L.map('coverage-map', {
+        minZoom: 3,
+        maxZoom: 9,
+        preferCanvas: true,
+        scrollWheelZoom: false
+      }).setView([58.5, -96], 3);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      }).addTo(map);
+
+      let currentMode = 'jurisdiction';
+      const provincePalette = {
+        AB: '#1f78b4',
+        BC: '#33a02c',
+        MB: '#e31a1c',
+        NB: '#6a3d9a',
+        NL: '#a6cee3',
+        NS: '#ff7f00',
+        NT: '#b2df8a',
+        NU: '#fb9a99',
+        ON: '#666666',
+        PE: '#800000',
+        QC: '#b15928',
+        SK: '#c71585',
+        YT: '#cab2d6'
+      };
+      const yearPalette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
+      const densityPalette = ['#ABC9C8', '#7BB2B9', '#549BB2', '#3A81A8', '#256391', '#11476D', '#0A3351'];
+      const multitemporalPalette = {
+        '1-2': '#3B0F70',
+        '3-5': '#8C2981',
+        '6-10': '#DE4968',
+        '11-15': '#FE9F6D',
+        '>15': '#FCFDBF'
+      };
+      const densityBreaks = [0, 1, 2, 5, 10, 20, 50, 100];
+      const densityLabels = ['<1', '1-2', '2-5', '5-10', '10-20', '20-50', '>50'];
+
+      function interpolateIndex(value, min, max, n) {
+        if (value === null || value === undefined || Number.isNaN(value)) return -1;
+        if (max <= min) return 0;
+        return Math.max(0, Math.min(n - 1, Math.floor((value - min) / (max - min) * n)));
+      }
+
+      function featureColor(feature) {
+        const p = feature.properties;
+        if (currentMode === 'jurisdiction') {
+          return provincePalette[p.group_value] || '#8a8a8a';
+        }
+        if (currentMode === 'year') {
+          const idx = interpolateIndex(Number(p.group_value), coverageMeta.year_min, coverageMeta.year_max + 1, yearPalette.length);
+          return idx < 0 ? '#bdbdbd' : yearPalette[idx];
+        }
+        if (currentMode === 'density') {
+          const idx = densityLabels.indexOf(String(p.group_value));
+          return idx < 0 ? '#bdbdbd' : densityPalette[idx];
+        }
+        if (currentMode === 'multitemporal') {
+          return multitemporalPalette[String(p.group_value)] || '#bdbdbd';
+        }
+        return '#8a8a8a';
+      }
+
+      function styleFeature(feature) {
+        return {
+          color: '#303030',
+          fillColor: featureColor(feature),
+          fillOpacity: 0.65,
+          opacity: 0.85,
+          weight: 0.7
+        };
+      }
+
+      function tooltipHtml(feature) {
+        const p = feature.properties;
+        if (currentMode === 'jurisdiction') {
+          const code = String(p.group_value || '');
+          const stats = (coverageMeta.jurisdiction_hover || {})[code];
+          if (!stats) return code;
+          return `<div class='tooltip-title'>${code}</div>
+            <div>Total ALS coverage: ${stats.total_als_coverage_ha}</div>
+            <div>${stats.total_als_coverage_pct}</div>`;
+        }
+        if (currentMode === 'year') {
+          return String(p.group_value || '');
+        }
+        if (currentMode === 'density') {
+          return String(p.group_value || '');
+        }
+        if (currentMode === 'multitemporal') {
+          return `${String(p.group_value || '')} years`;
+        }
+        return '';
+      }
+
+      function onEachFeature(feature, layer) {
+        const tooltip = tooltipHtml(feature);
+        if (!tooltip) return;
+        layer.bindTooltip(tooltip, {
+          sticky: true,
+          direction: 'auto',
+          opacity: 1,
+          className: 'map-hover-tooltip'
+        });
+      }
+
+      function makeLayer(mode) {
+        return L.geoJSON(coverageLayersData[mode], {
+          style: styleFeature,
+          onEachFeature: onEachFeature
+        });
+      }
+
+      const layerRegistry = {
+        jurisdiction: makeLayer('jurisdiction'),
+        year: makeLayer('year'),
+        density: makeLayer('density'),
+        multitemporal: makeLayer('multitemporal')
+      };
+
+      let activeLayer = layerRegistry[currentMode].addTo(map);
+      map.fitBounds(activeLayer.getBounds(), { padding: [12, 12] });
+
+      function switchLayer(mode) {
+        map.removeLayer(activeLayer);
+        currentMode = mode;
+        activeLayer = layerRegistry[currentMode];
+        activeLayer.setStyle(styleFeature);
+        activeLayer.addTo(map);
+      }
+
+      const controls = L.control({ position: 'topright' });
+      controls.onAdd = function() {
+        const div = L.DomUtil.create('div', 'map-controls leaflet-control');
+        div.innerHTML = `
+          <div class='map-mode-group'>
+            <span class='map-label'>Colour by</span>
+            <button class='active' type='button' data-mode='jurisdiction'>Jurisdiction</button>
+            <button type='button' data-mode='year'>Acquisition year</button>
+            <button type='button' data-mode='density'>Point density</button>
+            <button type='button' data-mode='multitemporal'>Multitemporal areas</button>
+          </div>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.disableScrollPropagation(div);
+        return div;
+      };
+      controls.addTo(map);
+
+      const legend = L.control({ position: 'bottomright' });
+      legend.onAdd = function() {
+        this._div = L.DomUtil.create('div', 'map-legend');
+        this.update();
+        return this._div;
+      };
+      legend.update = function() {
+        if (currentMode === 'jurisdiction') {
+          const provinces = (coverageMeta.provinces || []).filter(p => provincePalette[p]);
+          this._div.innerHTML = `<div class='map-legend-title'>Jurisdiction</div>` +
+            provinces.map(p => `<div class='map-legend-row'><span class='map-swatch' style='background:${provincePalette[p]}'></span>${p}</div>`).join('');
+        } else if (currentMode === 'year') {
+          this._div.innerHTML = `<div class='map-legend-title'>Acquisition year</div>
+            <div class='map-legend-gradient'></div>
+            <div class='map-legend-scale'>
+              <span>${coverageMeta.year_min}</span>
+              <span>${coverageMeta.year_max}</span>
+            </div>`;
+        } else if (currentMode === 'density') {
+          this._div.innerHTML = `<div class='map-legend-title'>Point density</div>` +
+            densityPalette.map((c, i) => `<div class='map-legend-row'><span class='map-swatch' style='background:${c}'></span>${densityLabels[i]}</div>`).join('');
+        } else if (currentMode === 'multitemporal') {
+          this._div.innerHTML = `<div class='map-legend-title'>Multitemporal areas</div>
+            ${(coverageMeta.multitemporal_labels || []).map(label => `<div class='map-legend-row'><span class='map-swatch' style='background:${multitemporalPalette[label]}'></span>${label}</div>`).join('')}`;
+        }
+      };
+      legend.addTo(map);
+
+      document.querySelectorAll('.map-controls button').forEach(button => {
+        if (!button.dataset.mode) return;
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.map-controls button').forEach(b => b.classList.remove('active'));
+          button.classList.add('active');
+          switchLayer(button.dataset.mode);
+          legend.update();
+        });
+      });
+    "))
+  )
+)
+```
+
