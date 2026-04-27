@@ -73,16 +73,36 @@ site_font_family <- "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', s
 
 getNewestFileDate <- function(dir) {
   path_dir <- file.path("layers", "source_layers", dir)
-  flist <- fs::dir_ls(path_dir, recurse = TRUE, glob = "*.shp$") |>
-    lapply(file.info) |>
-    bind_rows() |>
-    arrange(desc(ctime))
+  source_exts <- c(
+    "shp", "gpkg", "geojson", "json", "zip", "rds",
+    "tif", "tiff", "vrt", "parquet", "csv", "fgb", "gdb"
+  )
 
-  as.Date(flist[1, "ctime"][[1]])
+  flist <- fs::dir_info(path_dir, recurse = TRUE, type = "file") |>
+    mutate(
+      ext = tolower(fs::path_ext(path))
+    ) |>
+    filter(ext %in% source_exts) |>
+    arrange(desc(modification_time))
+
+  if (nrow(flist) == 0) {
+    return(as.Date(NA))
+  }
+
+  as.Date(flist$modification_time[[1]])
 }
 
 tbl_updates <- tibble(Jurisdiction = c("BC", "AB", "SK", "ON", "QC", "NB", "PE", "NS")) |>
-  mutate(`Last update` = vapply(Jurisdiction, function(x) format(getNewestFileDate(x), "%Y-%m-%d"), character(1)))
+  mutate(
+    `Last update` = vapply(
+      Jurisdiction,
+      function(x) {
+        dt <- getNewestFileDate(x)
+        if (is.na(dt)) "Unknown" else format(dt, "%Y-%m-%d")
+      },
+      character(1)
+    )
+  )
 
 jurisdiction_labels <- tribble(
   ~Jurisdiction, ~Jurisdiction_label,
