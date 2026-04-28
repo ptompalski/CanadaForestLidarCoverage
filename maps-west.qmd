@@ -34,7 +34,7 @@ site_header()
   <div class="subpage-hero-copy">
     <p class="subpage-eyebrow">Static maps</p>
     <h1>Western Canada</h1>
-    <p class="subpage-hero-lede">Regional static map layouts focused on British Columbia, Alberta, Saskatchewan, and adjacent western coverage. Use these views when you need the denser cartographic layouts rather than the homepage overview.</p>
+    <p class="subpage-hero-lede">National and regional static map products show ALS coverage, point density, acquisition timing, and multitemporal overlap. They are updated as new acquisitions are added to the compilation.</p>
   </div>
 </section>
 <div class="subpage-main">

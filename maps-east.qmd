@@ -34,7 +34,7 @@ site_header()
   <div class="subpage-hero-copy">
     <p class="subpage-eyebrow">Static maps</p>
     <h1>Eastern Canada</h1>
-    <p class="subpage-hero-lede">Regional static map layouts focused on Ontario, Quebec, and the Atlantic provinces. These pages keep the higher-detail cartographic views separate from the landing page overview.</p>
+    <p class="subpage-hero-lede">National and regional static map products show ALS coverage, point density, acquisition timing, and multitemporal overlap. They are updated as new acquisitions are added to the compilation.</p>
   </div>
 </section>
 <div class="subpage-main">
