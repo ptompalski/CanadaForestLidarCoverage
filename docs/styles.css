@@ -1,5 +1,11 @@
 /* Site-wide styles */
 
+:root {
+  --site-shell-max: 1200px;
+  --site-shell-pad: 1.5rem;
+  --site-text-max: 58rem;
+}
+
 html {
   scroll-behavior: smooth;
   background: #132433;
@@ -73,9 +79,9 @@ main.content.page-columns.page-full.column-body > :last-child {
 }
 
 .homepage-fixed-header-inner {
-  max-width: 1200px;
+  max-width: var(--site-shell-max);
   margin: 0 auto;
-  padding: 0.9rem 1.5rem;
+  padding: 0.9rem var(--site-shell-pad);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,7 +96,7 @@ main.content.page-columns.page-full.column-body > :last-child {
 }
 
 .homepage-hero-copy {
-  max-width: 52rem;
+  max-width: var(--site-text-max);
   margin: 0 auto;
   color: #f5f7fa;
 }
@@ -354,9 +360,9 @@ main.content.page-columns.page-full.column-body > :last-child {
 }
 
 .homepage-content-shell {
-  max-width: 1200px;
+  max-width: var(--site-shell-max);
   margin: 0 auto 4rem;
-  padding: 0 1.5rem;
+  padding: 0 var(--site-shell-pad);
 }
 
 .homepage-card-grid-explore {
@@ -364,7 +370,7 @@ main.content.page-columns.page-full.column-body > :last-child {
 }
 
 .homepage-body-copy-wide {
-  max-width: 58rem;
+  max-width: var(--site-text-max);
 }
 
 .homepage-section-kicker,
@@ -419,9 +425,9 @@ main.content.page-columns.page-full.column-body > :last-child {
 }
 
 .homepage-paper-band-inner {
-  max-width: 1200px;
+  max-width: var(--site-shell-max);
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 2.5rem var(--site-shell-pad);
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
   gap: 2rem;
@@ -557,6 +563,12 @@ h3 {
   margin-top: 2.25rem;
 }
 
+#overview,
+#interactive-map,
+#explore,
+#summary,
+#publication,
+#data-sources,
 .homepage-anchor-target {
   scroll-margin-top: 5.5rem;
 }
@@ -577,9 +589,9 @@ h3 {
 }
 
 .homepage-footer-inner {
-  max-width: 1200px;
+  max-width: var(--site-shell-max);
   margin: 0 auto;
-  padding: 2rem 1.5rem 2.5rem;
+  padding: 2rem var(--site-shell-pad) 2.5rem;
   display: grid;
   grid-template-columns: minmax(15rem, 1.1fr) minmax(0, 2fr);
   gap: 2rem;
