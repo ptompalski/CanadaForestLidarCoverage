@@ -521,7 +521,7 @@ main.content.page-columns.page-full.column-body > :last-child {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 1rem 1.05rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.18) 18%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0.9) 72%, rgba(255, 255, 255, 0.96) 100%);
