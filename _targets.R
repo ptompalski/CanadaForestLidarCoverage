@@ -74,6 +74,21 @@ nb_lidar_index_cgvd1928_file <- file.path(
   "geonb_li_idl_cgvd1928.shp"
 )
 
+# Ontario publishes the tile index behind an ArcGIS item and a direct GPKG
+# download. The ArcGIS item exposes a modified timestamp that we can use as the
+# lightweight update trigger without downloading the GeoPackage each run.
+on_tile_index_item_url <- "https://www.arcgis.com/sharing/rest/content/items/bdba227fb9ef49d1aa787c2ea70aef61?f=json"
+on_tile_index_download_url <- "https://download.fri.mnrf.gov.on.ca/api/api/Download/tile-index/FRI_Leaf_On_Tile_Index_GeoPackage/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+on_tile_index_dir <- "layers/source_layers/ON"
+on_tile_index_metadata_file <- file.path(
+  on_tile_index_dir,
+  "FRI_Leaf_On_Tile_Index_GeoPackage_remote.json"
+)
+on_tile_index_file <- file.path(
+  on_tile_index_dir,
+  "FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+)
+
 remote_file_metadata <- function(url) {
   response <- curl::curl_fetch_memory(
     url,
@@ -90,8 +105,24 @@ remote_file_metadata <- function(url) {
   )
 }
 
-same_remote_metadata <- function(x, y) {
-  fields <- c("url", "etag", "last_modified", "content_length")
+arcgis_item_metadata <- function(url) {
+  response <- curl::curl_fetch_memory(
+    url,
+    handle = curl::new_handle(followlocation = TRUE)
+  )
+
+  item <- jsonlite::fromJSON(rawToChar(response$content))
+
+  list(
+    url = url,
+    id = unname(item$id),
+    title = unname(item$title),
+    modified = unname(item$modified),
+    type = unname(item$type)
+  )
+}
+
+same_remote_metadata <- function(x, y, fields = c("url", "etag", "last_modified", "content_length")) {
   identical(x[fields], y[fields])
 }
 
@@ -149,6 +180,44 @@ download_zip_if_changed <- function(
   }
 
   output_files
+}
+
+download_file_if_changed <- function(
+  url,
+  metadata,
+  dest_file,
+  metadata_file,
+  compare_fields = c("url", "id", "modified")
+) {
+  dir_create(fs::path_dir(dest_file))
+  existing_metadata <- NULL
+
+  if (file.exists(metadata_file)) {
+    existing_metadata <- jsonlite::read_json(metadata_file, simplifyVector = TRUE)
+  }
+
+  output_exists <- file.exists(dest_file)
+  metadata_unchanged <- !is.null(existing_metadata) &&
+    same_remote_metadata(metadata, existing_metadata, fields = compare_fields)
+
+  # First-run adoption: if the file is already present locally and metadata is
+  # missing, trust the local file and seed the metadata snapshot without
+  # forcing a re-download.
+  if (output_exists && is.null(existing_metadata)) {
+    jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
+    return(dest_file)
+  }
+
+  if (!output_exists || !metadata_unchanged) {
+    temp_file <- tempfile(fileext = fs::path_ext(dest_file))
+    on.exit(unlink(temp_file, force = TRUE), add = TRUE)
+
+    download.file(url, temp_file, mode = "wb", quiet = TRUE)
+    file.copy(temp_file, dest_file, overwrite = TRUE)
+    jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
+  }
+
+  dest_file
 }
 
 # Source a set of legacy scripts inside one target while temporarily setting
@@ -421,6 +490,21 @@ list(
     ),
     format = "file"
   ),
+  tar_target(
+    on_tile_index_remote_metadata,
+    arcgis_item_metadata(on_tile_index_item_url),
+    cue = tar_cue(mode = "always")
+  ),
+  tar_target(
+    on_tile_index_source_file,
+    download_file_if_changed(
+      url = on_tile_index_download_url,
+      metadata = on_tile_index_remote_metadata,
+      dest_file = on_tile_index_file,
+      metadata_file = on_tile_index_metadata_file
+    ),
+    format = "file"
+  ),
 
   # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
   tar_target(
@@ -431,10 +515,16 @@ list(
         SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
-        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
       ),
       output_files = preprocessed_outputs,
-      input_files = c(source_preprocessing_files, nb_lidar_index_source_files, nb_lidar_index_cgvd1928_file)
+      input_files = c(
+        source_preprocessing_files,
+        nb_lidar_index_source_files,
+        nb_lidar_index_cgvd1928_file,
+        on_tile_index_source_file
+      )
     ),
     format = "file"
   ),

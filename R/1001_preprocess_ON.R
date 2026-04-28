@@ -5,7 +5,10 @@ if (!exists("the_crs") || !exists("coverage_output_paths")) {
 # preprocess ON data
 
 acquisition_file <- "layers/source_layers/ON/OMNR_Acquisition_Y1_to_Y8.shp"
-tile_index_file <- "layers/source_layers/ON/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+tile_index_file <- Sys.getenv(
+  "ON_TILE_INDEX_FILE",
+  unset = "layers/source_layers/ON/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+)
 density_file <- "layers/source_layers/ON/ALS_ON_Y1_to_Y8_wDensity.gpkg"
 density_cache_dir <- "layers/pre-processed/ON/density_samples"
 laz_temp_dir <- "layers/pre-processed/ON/laz_temp"
