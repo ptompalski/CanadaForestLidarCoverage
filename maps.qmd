@@ -34,7 +34,7 @@ site_header()
   <div class="subpage-hero-copy">
     <p class="subpage-eyebrow">Static maps</p>
     <h1>National overview</h1>
-    <p class="subpage-hero-lede">Browse the national static map products for ALS coverage, point density, acquisition timing, and multitemporal overlap. These views keep the print-style layouts while the homepage focuses on interactive exploration.</p>
+    <p class="subpage-hero-lede">National and regional static map products show ALS coverage, point density, acquisition timing, and multitemporal overlap. They are updated as new acquisitions are added to the compilation.</p>
   </div>
 </section>
 <div class="subpage-main">

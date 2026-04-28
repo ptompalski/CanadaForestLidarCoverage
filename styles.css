@@ -658,6 +658,13 @@ tbody tr:nth-child(even) {
   background: #fafcfd;
 }
 
+#data-sources table th:nth-child(2),
+#data-sources table td:nth-child(2) {
+  width: 8.5rem;
+  min-width: 8.5rem;
+  white-space: nowrap;
+}
+
 .homepage-inline-media {
   margin-top: 1.25rem;
 }

@@ -125,7 +125,7 @@ data_sources_combined <- tribble(
   left_join(tbl_updates, by = "Jurisdiction") |>
   mutate(
     `Source and sharing` = paste0(
-      "<strong>Source:</strong> ", `Data source`, "<br><br>",
+      "<strong>Source:</strong> ", `Data source`, "<br>",
       "<strong>Access:</strong> ", `Data sharing policy`
     )
   ) |>
@@ -190,7 +190,7 @@ browsable(
         tags$h1("ALS data coverage in Canadian forests"),
         tags$p(
           class = "homepage-hero-lede",
-          "Explore airborne laser scanning coverage across Canada's forested landscapes, with national extent, acquisition timing, density patterns, and repeated acquisitions prepared for forestry applications."
+          "Current airborne laser scanning coverage across Canada's forested landscapes."
         ),
         tags$p(
           class = "homepage-hero-update",
@@ -289,7 +289,7 @@ browsable(
     class = "homepage-section-intro homepage-anchor-target",
     tags$p(
       class = "homepage-body-copy homepage-body-copy-wide",
-      "The national overview is supported by jurisdiction-specific source checks and periodic refreshes. The table below summarizes the current ALS coverage figures used across the site, followed by cumulative acquisition area through time."
+      "The maps and descriptive statistics on this site show the current extent, availability, and characteristics of ALS data in Canada, with a focus on forestry applications. The compilation is limited to acquisitions within Canada's forested ecozones and does not include ALS collected for urban areas or individual research projects."
     )
   )
 )

@@ -37,7 +37,7 @@ site_header()
   <div class="subpage-hero-copy">
     <p class="subpage-eyebrow">Static maps</p>
     <h1>Multitemporal data</h1>
-    <p class="subpage-hero-lede">Repeated ALS acquisitions identify areas that have been surveyed more than once. This page combines the national summary, provincial totals, and static overlap maps in one place.</p>
+    <p class="subpage-hero-lede">National and regional static map products show ALS coverage, point density, acquisition timing, and multitemporal overlap. They are updated as new acquisitions are added to the compilation.</p>
   </div>
 </section>
 <div class="subpage-main">
