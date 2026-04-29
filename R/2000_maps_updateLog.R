@@ -34,11 +34,15 @@ coverage2 <- readRDS(f_two_most_recent[2]) #previous
 # coverage1_snapped <- st_snap(coverage1, coverage2, tolerance = 0.5)
 
 # difference
-coverage_change <- st_difference(coverage1, st_union(coverage2))
+coverage_change <- st_difference(
+  st_make_valid(coverage1),
+  st_union(st_make_valid(coverage2))
+)
 
 #filter slivers
-coverage_change <- coverage_change %>%  st_cast("MULTIPOLYGON") %>% st_cast("POLYGON")
-coverage_change <- coverage_change %>% mutate(area = as.numeric(st_area(.)))
+coverage_change <- coverage_change %>%
+  clean_coverage_polygons() %>%
+  mutate(area = as.numeric(st_area(.)))
 coverage_change <- coverage_change %>% filter(area > 1)
 
 coverage_change$Name <- "New ALS coverage"

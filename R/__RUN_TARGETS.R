@@ -12,6 +12,9 @@ if (!requireNamespace("targets", quietly = TRUE)) {
 
 # Edit this value when producing a new dated coverage release, or override it
 # before sourcing this script with Sys.setenv(COVERAGE_VERSION = "YYYYMMDD").
-coverage_version <- Sys.getenv("COVERAGE_VERSION", unset = "20260421")
+coverage_version <- Sys.getenv(
+  "COVERAGE_VERSION",
+  unset = format(Sys.Date(), "%Y%m%d")
+)
 Sys.setenv(COVERAGE_VERSION = coverage_version)
 targets::tar_make()
