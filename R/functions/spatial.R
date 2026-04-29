@@ -28,6 +28,26 @@ clean_coverage_polygons <- function(x) {
     st_as_sf()
 }
 
+assign_province_by_location <- function(
+  x,
+  province_col = "Province",
+  supported_codes = unique(provinces_area$jurisdiction_code),
+  province_boundaries = NULL
+) {
+  if (is.null(province_boundaries)) {
+    province_boundaries <- read_province_boundaries() %>%
+      st_transform(crs = the_crs) %>%
+      select(Province = PROV)
+  }
+
+  x %>%
+    clean_coverage_polygons() %>%
+    st_intersection(province_boundaries) %>%
+    filter(.data[[province_col]] %in% supported_codes) %>%
+    filter(!st_is_empty(geometry)) %>%
+    st_as_sf()
+}
+
 finalize_available_coverage <- function(x, province) {
   x %>%
     st_make_valid() %>%

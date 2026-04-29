@@ -12,9 +12,6 @@ gc_output_paths <- coverage_output_paths("GC")
 existing_preprocess_targets <- c("AB", "BC", "NB", "NS", "ON", "PEI", "QC", "SK")
 existing_jurisdiction_codes <- c("AB", "BC", "NB", "NS", "ON", "PE", "QC", "SK")
 
-province_boundaries <- read_province_boundaries() %>%
-  st_transform(crs = the_crs) %>%
-  select(Province = PROV)
 supported_provinces <- unique(provinces_area$jurisdiction_code)
 
 standardize_coverage_layer <- function(x) {
@@ -55,10 +52,7 @@ ALS_GC <- st_read(gc_source_file, layer = gc_source_layer, quiet = TRUE) %>%
 
 gc_supplement <- ALS_GC %>%
   filter(!st_is_empty(geometry)) %>%
-  clean_coverage_polygons() %>%
-  st_intersection(province_boundaries) %>%
-  filter(Province %in% supported_provinces) %>%
-  filter(!st_is_empty(geometry)) %>%
+  assign_province_by_location(supported_codes = supported_provinces) %>%
   group_by(Province, YEAR, PPM) %>%
   summarise(geometry = st_union(geometry), .groups = "drop") %>%
   mutate(

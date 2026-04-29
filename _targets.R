@@ -357,6 +357,46 @@ preprocessed_outputs <- c(
   coverage_output_paths("SK")$diss_file
 )
 
+preprocess_output_map <- list(
+  preprocess_ab = c(
+    coverage_output_paths("AB")$file,
+    coverage_output_paths("AB")$diss_file
+  ),
+  preprocess_bc = c(
+    coverage_output_paths("BC")$file,
+    coverage_output_paths("BC")$diss_file
+  ),
+  preprocess_nb = c(
+    coverage_output_paths("NB")$file,
+    coverage_output_paths("NB")$diss_file
+  ),
+  preprocess_ns = c(
+    coverage_output_paths("NS")$file,
+    coverage_output_paths("NS")$diss_file
+  ),
+  preprocess_on = c(
+    file.path("layers/source_layers/ON", "ALS_ON_Y1_to_Y8_wDensity.gpkg"),
+    coverage_output_paths("ON")$file,
+    coverage_output_paths("ON")$diss_file
+  ),
+  preprocess_pei = c(
+    coverage_output_paths("PEI")$file,
+    coverage_output_paths("PEI")$diss_file
+  ),
+  preprocess_qc = c(
+    coverage_output_paths("QC")$file,
+    coverage_output_paths("QC")$diss_file
+  ),
+  preprocess_sk = c(
+    coverage_output_paths("SK")$file,
+    coverage_output_paths("SK")$diss_file
+  ),
+  preprocess_gc = c(
+    coverage_output_paths("GC")$file,
+    coverage_output_paths("GC")$diss_file
+  )
+)
+
 # Versioned outputs created by the two processing scripts.
 coverage_main_file <- file.path(
   "layers/ALS_coverage_layer/main",
@@ -570,11 +610,12 @@ list(
     format = "file"
   ),
 
-  # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
+  # Jurisdiction preprocessing. Keeping one target per script allows targets to
+  # rerun only the changed jurisdictions instead of invalidating the full stage.
   tar_target(
-    preprocessing,
+    preprocess_ab,
     run_scripts_with_env(
-      scripts = preprocess_scripts,
+      scripts = "R/1001_preprocess_AB.R",
       env = c(
         SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
@@ -583,14 +624,176 @@ list(
         NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
         ON_TILE_INDEX_FILE = on_tile_index_source_file
       ),
-      output_files = preprocessed_outputs,
+      output_files = preprocess_output_map$preprocess_ab,
+      input_files = c(source_core_files, "R/1001_preprocess_AB.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_bc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_BC.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_bc,
+      input_files = c(source_core_files, "R/1001_preprocess_BC.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_nb,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_NB.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_nb,
       input_files = c(
-        source_preprocessing_files,
-        gc_metadata_source_files,
+        source_core_files,
+        "R/1001_preprocess_NB.R",
         nb_lidar_index_source_files,
-        nb_lidar_index_cgvd1928_file,
-        on_tile_index_source_file
+        nb_lidar_index_cgvd1928_file
       )
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_ns,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_NS.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_ns,
+      input_files = c(source_core_files, "R/1001_preprocess_NS.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_on,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_ON.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_on,
+      input_files = c(source_core_files, "R/1001_preprocess_ON.R", on_tile_index_source_file)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_pei,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_PEI.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_pei,
+      input_files = c(source_core_files, "R/1001_preprocess_PEI.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_qc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_QC_v2.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_qc,
+      input_files = c(source_core_files, "R/1001_preprocess_QC_v2.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_sk,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_SK.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_sk,
+      input_files = c(source_core_files, "R/1001_preprocess_SK.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_gc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_GC.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_gc,
+      input_files = c(
+        source_core_files,
+        "R/1001_preprocess_GC.R",
+        gc_metadata_source_files,
+        preprocess_ab,
+        preprocess_bc,
+        preprocess_nb,
+        preprocess_ns,
+        preprocess_on,
+        preprocess_pei,
+        preprocess_qc,
+        preprocess_sk
+      )
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocessing,
+    c(
+      preprocess_ab,
+      preprocess_bc,
+      preprocess_nb,
+      preprocess_ns,
+      preprocess_on,
+      preprocess_pei,
+      preprocess_qc,
+      preprocess_sk,
+      preprocess_gc
     ),
     format = "file"
   ),
