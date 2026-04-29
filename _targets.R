@@ -34,7 +34,8 @@ preprocess_scripts <- c(
   "R/1001_preprocess_ON.R",
   "R/1001_preprocess_PEI.R",
   "R/1001_preprocess_QC_v2.R",
-  "R/1001_preprocess_SK.R"
+  "R/1001_preprocess_SK.R",
+  "R/1001_preprocess_GC.R"
 )
 
 processing_scripts <- c(
@@ -89,6 +90,21 @@ on_tile_index_file <- file.path(
   "FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
 )
 
+# Geo.ca publishes national LiDAR project metadata as a zipped file geodatabase.
+# The metadata polygons include acquisition dates and aggregate density, so we
+# use the archive headers as the update trigger and unpack only when changed.
+gc_metadata_url <- "https://canelevation-lidar-point-clouds.s3-ca-central-1.amazonaws.com/pointclouds_nuagespoints/Metadata_PointCloud_NRCAN.gdb.zip"
+gc_metadata_dir <- "layers/source_layers/GC"
+gc_metadata_metadata_file <- file.path(
+  gc_metadata_dir,
+  "Metadata_PointCloud_NRCAN.gdb_headers.json"
+)
+gc_metadata_gdb_dir <- file.path(
+  gc_metadata_dir,
+  "Metadata_PointCloud_NRCAN.gdb"
+)
+gc_metadata_files <- c(gc_metadata_gdb_dir)
+
 remote_file_metadata <- function(url) {
   response <- curl::curl_fetch_memory(
     url,
@@ -126,6 +142,36 @@ same_remote_metadata <- function(x, y, fields = c("url", "etag", "last_modified"
   identical(x[fields], y[fields])
 }
 
+download_remote_file <- function(url, dest_file) {
+  try_download <- function(expr) {
+    tryCatch(
+      {
+        force(expr)
+        TRUE
+      },
+      error = function(e) FALSE,
+      warning = function(w) FALSE
+    )
+  }
+
+  ok <- try_download(
+    download.file(url, dest_file, mode = "wb", quiet = TRUE)
+  )
+
+  if (ok && file.exists(dest_file) && file.info(dest_file)$size > 0) {
+    return(dest_file)
+  }
+
+  handle <- curl::new_handle(
+    followlocation = TRUE,
+    ssl_verifypeer = FALSE,
+    ssl_verifyhost = FALSE
+  )
+  curl::curl_download(url, dest_file, mode = "wb", quiet = TRUE, handle = handle)
+
+  dest_file
+}
+
 download_zip_if_changed <- function(
   url,
   metadata,
@@ -150,7 +196,7 @@ download_zip_if_changed <- function(
     temp_dir <- tempfile()
     on.exit(unlink(c(temp_zip, temp_dir), recursive = TRUE, force = TRUE), add = TRUE)
 
-    download.file(url, temp_zip, mode = "wb", quiet = TRUE)
+    download_remote_file(url, temp_zip)
     utils::unzip(temp_zip, exdir = temp_dir, overwrite = TRUE)
 
     if (length(shapefile_basenames) == 0) {
@@ -212,7 +258,7 @@ download_file_if_changed <- function(
     temp_file <- tempfile(fileext = fs::path_ext(dest_file))
     on.exit(unlink(temp_file, force = TRUE), add = TRUE)
 
-    download.file(url, temp_file, mode = "wb", quiet = TRUE)
+    download_remote_file(url, temp_file)
     file.copy(temp_file, dest_file, overwrite = TRUE)
     jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
   }
@@ -294,6 +340,8 @@ preprocessed_outputs <- c(
   coverage_output_paths("AB")$diss_file,
   coverage_output_paths("BC")$file,
   coverage_output_paths("BC")$diss_file,
+  coverage_output_paths("GC")$file,
+  coverage_output_paths("GC")$diss_file,
   coverage_output_paths("NB")$file,
   coverage_output_paths("NB")$diss_file,
   coverage_output_paths("NS")$file,
@@ -505,6 +553,22 @@ list(
     ),
     format = "file"
   ),
+  tar_target(
+    gc_metadata_remote_metadata,
+    remote_file_metadata(gc_metadata_url),
+    cue = tar_cue(mode = "always")
+  ),
+  tar_target(
+    gc_metadata_source_files,
+    download_zip_if_changed(
+      url = gc_metadata_url,
+      metadata = gc_metadata_remote_metadata,
+      dest_dir = gc_metadata_dir,
+      metadata_file = gc_metadata_metadata_file,
+      output_files = gc_metadata_files
+    ),
+    format = "file"
+  ),
 
   # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
   tar_target(
@@ -514,6 +578,7 @@ list(
       env = c(
         SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
         NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
         NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
         ON_TILE_INDEX_FILE = on_tile_index_source_file
@@ -521,6 +586,7 @@ list(
       output_files = preprocessed_outputs,
       input_files = c(
         source_preprocessing_files,
+        gc_metadata_source_files,
         nb_lidar_index_source_files,
         nb_lidar_index_cgvd1928_file,
         on_tile_index_source_file
