@@ -7,6 +7,9 @@ if (!exists("the_crs") || !exists("coverage_output_paths")) {
 
 ab_source_dir <- "layers/source_layers/AB/shapfiles"
 ab_output_paths <- coverage_output_paths("AB")
+ab_province_boundaries <- read_province_boundaries() %>%
+  st_transform(crs = the_crs) %>%
+  select(Province = PROV)
 
 ALS_AB_for1 <- st_read(
   file.path(ab_source_dir, "forestry_division/clean_laz_tiles_z11.shp")
@@ -58,7 +61,8 @@ ALS_AB_ABMI %<>% mutate(isAvailable = 1)
 
 ALS_AB <- rbind(ALS_AB_for1, ALS_AB_for2, ALS_AB_riv1, ALS_AB_riv2, ALS_AB_gp)
 
-#dissolve by year and availability, calculate average PPM
+# dissolve by year and availability, calculate average PPM, then assign
+# jurisdiction by location so cross-boundary acquisitions count where they lie.
 ALS_AB <-
   ALS_AB %>%
   select(YEAR = year, PPM = pnt_den, isAvailable) %>%
@@ -71,8 +75,14 @@ ALS_AB <-
     area = sum(area),
     geometry = st_union(geometry)
   ) %>%
-  mutate(Province = "AB") %>%
-  st_cast() %>%
+  assign_province_by_location(province_boundaries = ab_province_boundaries) %>%
+  group_by(Province, YEAR, isAvailable) %>%
+  summarise(
+    PPM = mean(PPM),
+    area = sum(st_area(geometry)),
+    geometry = st_union(geometry),
+    .groups = "drop"
+  ) %>%
   select(Province, YEAR, PPM, area, isAvailable)
 
 
@@ -96,8 +106,13 @@ ALS_AB_ABMI <-
     area = sum(area),
     geometry = st_union(geometry)
   ) %>%
-  mutate(Province = "AB") %>%
-  st_cast() %>%
+  assign_province_by_location(province_boundaries = ab_province_boundaries) %>%
+  group_by(Province, YEAR, PPM, isAvailable) %>%
+  summarise(
+    area = sum(st_area(geometry)),
+    geometry = st_union(geometry),
+    .groups = "drop"
+  ) %>%
   select(Province, YEAR, PPM, area, isAvailable)
 
 #combine all AB acquisitions
@@ -111,7 +126,7 @@ st_write(ALS_AB, dsn = ab_output_paths$file, append = F)
 ALS_AB_diss <- remove_overlaps_by_attr(ALS_AB, "YEAR")
 
 #update area
-ALS_AB_diss <- ALS_AB_diss %>% mutate(area = st_area(geometry))
+ALS_AB_diss <- ALS_AB_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_AB_diss,

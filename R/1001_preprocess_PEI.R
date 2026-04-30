@@ -16,10 +16,8 @@ ALS_PEI_2020 <-
   mutate(area = st_area(.)) %>%
   group_by(YEAR, PPM) %>%
   summarise(n = n(), area = sum(area), geometry = st_union(geometry)) %>%
-  mutate(Province = "PE") %>%
   mutate(isAvailable = 1) %>%
-  st_cast() %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  select(YEAR, PPM, area, isAvailable)
 
 # Hey Adam,
 # I’ve answered the LiDAR questions below and included a shapefile of the completed LiDAR Acquisition. Our EFI should be delivered at the end of the month.
@@ -41,7 +39,6 @@ ALS_PEI_2010 %<>% st_transform(crs = the_crs)
 
 ALS_PEI_2010 %<>%
   mutate(
-    Province = "PE",
     YEAR = 2010,
     PPM = 1, #PPM is unknown
     # n = NA,
@@ -56,11 +53,13 @@ ALS_PEI <- bind_rows(
   ALS_PEI_2020
 )
 
-#dissolve by year and PPM
-ALS_PEI <- ALS_PEI %>% dissolve_coverage()
-
-
-ALS_PEI <- ALS_PEI %>% finalize_available_coverage("PE")
+#dissolve by year and PPM, then assign Province by location
+ALS_PEI <- ALS_PEI %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM, isAvailable) %>%
+  summarise(geometry = st_union(geometry), .groups = "drop") %>%
+  mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2)) %>%
+  select(Province, YEAR, PPM, area, isAvailable)
 
 st_write(ALS_PEI, dsn = pei_output_paths$file, append = F)
 
@@ -68,7 +67,7 @@ st_write(ALS_PEI, dsn = pei_output_paths$file, append = F)
 ALS_PEI_diss <- remove_overlaps_by_attr(ALS_PEI, "YEAR")
 
 #update area
-ALS_PEI_diss <- ALS_PEI_diss %>% mutate(area = st_area(geometry))
+ALS_PEI_diss <- ALS_PEI_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_PEI_diss,

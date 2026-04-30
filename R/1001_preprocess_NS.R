@@ -16,9 +16,10 @@ ALS_NS <-
   mutate(area = st_area(.)) %>%
   group_by(YEAR, PPM) %>%
   summarise(n = n(), area = sum(area), geometry = st_union(geometry)) %>%
-  mutate(Province = "NS") %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarise(area = sum(st_area(geometry)), geometry = st_union(geometry), .groups = "drop") %>%
   mutate(isAvailable = 1) %>%
-  st_cast() %>%
   select(Province, YEAR, PPM, area, isAvailable) %>%
   mutate(PPM = as.numeric(PPM))
 
@@ -34,7 +35,7 @@ st_write(
 ALS_NS_diss <- remove_overlaps_by_attr(ALS_NS, "YEAR")
 
 #update area
-ALS_NS_diss <- ALS_NS_diss %>% mutate(area = st_area(geometry))
+ALS_NS_diss <- ALS_NS_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_NS_diss,

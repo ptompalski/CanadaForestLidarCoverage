@@ -39,10 +39,10 @@ ALS_NB <- ALS_NB %>% dissolve_coverage(make_valid = TRUE)
 
 
 ALS_NB <- ALS_NB %>%
-  st_make_valid() %>%
-  st_as_sf() %>%
-  mutate(area = st_area(geometry)) %>%
-  mutate(Province = "NB") %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarise(geometry = st_union(geometry), .groups = "drop") %>%
+  mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2)) %>%
   mutate(isAvailable = 1) %>%
   relocate(Province, YEAR, PPM, area, isAvailable) %>%
   st_as_sf()
@@ -53,7 +53,7 @@ st_write(ALS_NB, dsn = nb_output_paths$file, append = F)
 ALS_NB_diss <- remove_overlaps_by_attr(ALS_NB, "YEAR")
 
 #update area
-ALS_NB_diss <- ALS_NB_diss %>% mutate(area = st_area(geometry))
+ALS_NB_diss <- ALS_NB_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_NB_diss,

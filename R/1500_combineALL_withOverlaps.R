@@ -22,7 +22,7 @@ overlap_output_file <- Sys.getenv(
 dir_create(dirname(multitemporal_output_file))
 dir_create(dirname(overlap_output_file))
 
-jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
+jurisdictions <- c("AB", "BC", "GC", "NB", "ON", "QC", "PEI", "NS", "SK")
 coverage_layers <- read_preprocessed_coverage(
   jurisdictions,
   path_overrides = c(
@@ -35,6 +35,8 @@ coverage_layers <- read_preprocessed_coverage(
 M <- do.call(rbind, coverage_layers)
 provinces2 <- read_province_boundaries()
 M <- st_intersection(M, provinces2)
+M <- clip_to_forested_ecozones(M)
+M <- clean_coverage_polygons(M)
 
 #classify point density
 M$PPM_class <- cut(
@@ -132,6 +134,8 @@ O <- O %>% filter(YEAR_delta > 2)
 
 # clean weird linear features
 O <- drop_slivers_buffer(O, 1000, FALSE)
+O <- clip_to_forested_ecozones(O)
+O <- clean_coverage_polygons(O)
 
 
 st_write(

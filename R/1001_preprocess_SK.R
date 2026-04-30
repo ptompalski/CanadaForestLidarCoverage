@@ -12,7 +12,20 @@ sk_output_paths <- coverage_output_paths("SK")
 ALS_SK <- st_read("layers/source_layers/SK/SK_combined.gpkg")
 st_geometry(ALS_SK) <- "geometry"
 
-ALS_SK <- ALS_SK %>% finalize_available_coverage("SK")
+ALS_SK <- ALS_SK %>%
+  st_transform(crs = the_crs) %>%
+  mutate(
+    YEAR = readr::parse_integer(as.character(YEAR)),
+    PPM = as.numeric(PPM)
+  ) %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarise(geometry = st_union(geometry), .groups = "drop") %>%
+  mutate(
+    area = units::set_units(as.numeric(st_area(geometry)), m^2),
+    isAvailable = 1
+  ) %>%
+  select(Province, YEAR, PPM, area, isAvailable)
 
 st_write(ALS_SK, dsn = sk_output_paths$file, append = F)
 
@@ -20,7 +33,7 @@ st_write(ALS_SK, dsn = sk_output_paths$file, append = F)
 ALS_SK_diss <- remove_overlaps_by_attr(ALS_SK, "YEAR")
 
 #update area
-ALS_SK_diss <- ALS_SK_diss %>% mutate(area = st_area(geometry))
+ALS_SK_diss <- ALS_SK_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_SK_diss,

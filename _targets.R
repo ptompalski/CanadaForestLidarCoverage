@@ -16,9 +16,34 @@ suppressPackageStartupMessages({
   }
 })
 
+target_workers <- suppressWarnings(as.integer(Sys.getenv("TARGETS_WORKERS", unset = "2")))
+if (is.na(target_workers) || target_workers < 1) {
+  target_workers <- 1L
+}
+
+target_controller <- NULL
+if (target_workers > 1L) {
+  if (!requireNamespace("crew", quietly = TRUE)) {
+    stop(
+      "Parallel targets execution requires the 'crew' package. ",
+      "Install it with install.packages('crew'), or set TARGETS_WORKERS=1 ",
+      "to run sequentially.",
+      call. = FALSE
+    )
+  }
+
+  target_controller <- crew::crew_controller_local(
+    workers = target_workers,
+    seconds_idle = 300
+  )
+}
+
 # R/0000_setup.R loads the project package stack. Keeping packages empty here
 # prevents targets from re-attaching packages and printing startup messages.
-tar_option_set(packages = character())
+tar_option_set(
+  packages = character(),
+  controller = target_controller
+)
 
 # Explicit dated version used in output filenames. Keeping this parameter stable
 # is what lets targets skip completed stages on later runs.
@@ -34,13 +59,12 @@ preprocess_scripts <- c(
   "R/1001_preprocess_ON.R",
   "R/1001_preprocess_PEI.R",
   "R/1001_preprocess_QC_v2.R",
-  "R/1001_preprocess_SK.R"
+  "R/1001_preprocess_SK.R",
+  "R/1001_preprocess_GC.R"
 )
 
-processing_scripts <- c(
-  "R/1100_combineAll_noOverlaps.R",
-  "R/1500_combineALL_withOverlaps.R"
-)
+processing_no_overlaps_scripts <- "R/1100_combineAll_noOverlaps.R"
+processing_with_overlaps_scripts <- "R/1500_combineALL_withOverlaps.R"
 
 core_source_files <- c(
   "R/0000_setup.R",
@@ -74,6 +98,36 @@ nb_lidar_index_cgvd1928_file <- file.path(
   "geonb_li_idl_cgvd1928.shp"
 )
 
+# Ontario publishes the tile index behind an ArcGIS item and a direct GPKG
+# download. The ArcGIS item exposes a modified timestamp that we can use as the
+# lightweight update trigger without downloading the GeoPackage each run.
+on_tile_index_item_url <- "https://www.arcgis.com/sharing/rest/content/items/bdba227fb9ef49d1aa787c2ea70aef61?f=json"
+on_tile_index_download_url <- "https://download.fri.mnrf.gov.on.ca/api/api/Download/tile-index/FRI_Leaf_On_Tile_Index_GeoPackage/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+on_tile_index_dir <- "layers/source_layers/ON"
+on_tile_index_metadata_file <- file.path(
+  on_tile_index_dir,
+  "FRI_Leaf_On_Tile_Index_GeoPackage_remote.json"
+)
+on_tile_index_file <- file.path(
+  on_tile_index_dir,
+  "FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+)
+
+# Geo.ca publishes national LiDAR project metadata as a zipped file geodatabase.
+# The metadata polygons include acquisition dates and aggregate density, so we
+# use the archive headers as the update trigger and unpack only when changed.
+gc_metadata_url <- "https://canelevation-lidar-point-clouds.s3-ca-central-1.amazonaws.com/pointclouds_nuagespoints/Metadata_PointCloud_NRCAN.gdb.zip"
+gc_metadata_dir <- "layers/source_layers/GC"
+gc_metadata_metadata_file <- file.path(
+  gc_metadata_dir,
+  "Metadata_PointCloud_NRCAN.gdb_headers.json"
+)
+gc_metadata_gdb_dir <- file.path(
+  gc_metadata_dir,
+  "Metadata_PointCloud_NRCAN.gdb"
+)
+gc_metadata_files <- c(gc_metadata_gdb_dir)
+
 remote_file_metadata <- function(url) {
   response <- curl::curl_fetch_memory(
     url,
@@ -90,9 +144,55 @@ remote_file_metadata <- function(url) {
   )
 }
 
-same_remote_metadata <- function(x, y) {
-  fields <- c("url", "etag", "last_modified", "content_length")
+arcgis_item_metadata <- function(url) {
+  response <- curl::curl_fetch_memory(
+    url,
+    handle = curl::new_handle(followlocation = TRUE)
+  )
+
+  item <- jsonlite::fromJSON(rawToChar(response$content))
+
+  list(
+    url = url,
+    id = unname(item$id),
+    title = unname(item$title),
+    modified = unname(item$modified),
+    type = unname(item$type)
+  )
+}
+
+same_remote_metadata <- function(x, y, fields = c("url", "etag", "last_modified", "content_length")) {
   identical(x[fields], y[fields])
+}
+
+download_remote_file <- function(url, dest_file) {
+  try_download <- function(expr) {
+    tryCatch(
+      {
+        force(expr)
+        TRUE
+      },
+      error = function(e) FALSE,
+      warning = function(w) FALSE
+    )
+  }
+
+  ok <- try_download(
+    download.file(url, dest_file, mode = "wb", quiet = TRUE)
+  )
+
+  if (ok && file.exists(dest_file) && file.info(dest_file)$size > 0) {
+    return(dest_file)
+  }
+
+  handle <- curl::new_handle(
+    followlocation = TRUE,
+    ssl_verifypeer = FALSE,
+    ssl_verifyhost = FALSE
+  )
+  curl::curl_download(url, dest_file, mode = "wb", quiet = TRUE, handle = handle)
+
+  dest_file
 }
 
 download_zip_if_changed <- function(
@@ -119,7 +219,7 @@ download_zip_if_changed <- function(
     temp_dir <- tempfile()
     on.exit(unlink(c(temp_zip, temp_dir), recursive = TRUE, force = TRUE), add = TRUE)
 
-    download.file(url, temp_zip, mode = "wb", quiet = TRUE)
+    download_remote_file(url, temp_zip)
     utils::unzip(temp_zip, exdir = temp_dir, overwrite = TRUE)
 
     if (length(shapefile_basenames) == 0) {
@@ -151,6 +251,44 @@ download_zip_if_changed <- function(
   output_files
 }
 
+download_file_if_changed <- function(
+  url,
+  metadata,
+  dest_file,
+  metadata_file,
+  compare_fields = c("url", "id", "modified")
+) {
+  dir_create(fs::path_dir(dest_file))
+  existing_metadata <- NULL
+
+  if (file.exists(metadata_file)) {
+    existing_metadata <- jsonlite::read_json(metadata_file, simplifyVector = TRUE)
+  }
+
+  output_exists <- file.exists(dest_file)
+  metadata_unchanged <- !is.null(existing_metadata) &&
+    same_remote_metadata(metadata, existing_metadata, fields = compare_fields)
+
+  # First-run adoption: if the file is already present locally and metadata is
+  # missing, trust the local file and seed the metadata snapshot without
+  # forcing a re-download.
+  if (output_exists && is.null(existing_metadata)) {
+    jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
+    return(dest_file)
+  }
+
+  if (!output_exists || !metadata_unchanged) {
+    temp_file <- tempfile(fileext = fs::path_ext(dest_file))
+    on.exit(unlink(temp_file, force = TRUE), add = TRUE)
+
+    download_remote_file(url, temp_file)
+    file.copy(temp_file, dest_file, overwrite = TRUE)
+    jsonlite::write_json(metadata, metadata_file, auto_unbox = TRUE, pretty = TRUE)
+  }
+
+  dest_file
+}
+
 # Source a set of legacy scripts inside one target while temporarily setting
 # environment variables for versioned inputs/outputs. Messages are suppressed to
 # keep the targets log readable, but warnings and errors are still shown.
@@ -173,6 +311,8 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
   do.call(Sys.setenv, as.list(env))
 
   target_env <- new.env(parent = globalenv())
+  source("R/0000_setup.R", local = target_env)
+
   for (i in seq_along(scripts)) {
     script <- scripts[[i]]
     start_time <- Sys.time()
@@ -225,6 +365,8 @@ preprocessed_outputs <- c(
   coverage_output_paths("AB")$diss_file,
   coverage_output_paths("BC")$file,
   coverage_output_paths("BC")$diss_file,
+  coverage_output_paths("GC")$file,
+  coverage_output_paths("GC")$diss_file,
   coverage_output_paths("NB")$file,
   coverage_output_paths("NB")$diss_file,
   coverage_output_paths("NS")$file,
@@ -238,6 +380,46 @@ preprocessed_outputs <- c(
   coverage_output_paths("QC")$diss_file,
   coverage_output_paths("SK")$file,
   coverage_output_paths("SK")$diss_file
+)
+
+preprocess_output_map <- list(
+  preprocess_ab = c(
+    coverage_output_paths("AB")$file,
+    coverage_output_paths("AB")$diss_file
+  ),
+  preprocess_bc = c(
+    coverage_output_paths("BC")$file,
+    coverage_output_paths("BC")$diss_file
+  ),
+  preprocess_nb = c(
+    coverage_output_paths("NB")$file,
+    coverage_output_paths("NB")$diss_file
+  ),
+  preprocess_ns = c(
+    coverage_output_paths("NS")$file,
+    coverage_output_paths("NS")$diss_file
+  ),
+  preprocess_on = c(
+    file.path("layers/source_layers/ON", "ALS_ON_Y1_to_Y8_wDensity.gpkg"),
+    coverage_output_paths("ON")$file,
+    coverage_output_paths("ON")$diss_file
+  ),
+  preprocess_pei = c(
+    coverage_output_paths("PEI")$file,
+    coverage_output_paths("PEI")$diss_file
+  ),
+  preprocess_qc = c(
+    coverage_output_paths("QC")$file,
+    coverage_output_paths("QC")$diss_file
+  ),
+  preprocess_sk = c(
+    coverage_output_paths("SK")$file,
+    coverage_output_paths("SK")$diss_file
+  ),
+  preprocess_gc = c(
+    coverage_output_paths("GC")$file,
+    coverage_output_paths("GC")$diss_file
+  )
 )
 
 # Versioned outputs created by the two processing scripts.
@@ -259,10 +441,12 @@ overlap_output_file <- file.path(
   glue("ALS_coverage_overlap_{target_version}.gpkg")
 )
 
-processing_outputs <- c(
+processing_no_overlaps_outputs <- c(
   coverage_main_file,
   coverage_clipped_file,
-  coverage_generalized_file,
+  coverage_generalized_file
+)
+processing_with_overlaps_outputs <- c(
   multitemporal_output_file,
   overlap_output_file
 )
@@ -349,8 +533,13 @@ list(
     format = "file"
   ),
   tar_target(
-    source_processing_files,
-    c(source_core_files, processing_scripts),
+    source_processing_no_overlaps_files,
+    c(source_core_files, processing_no_overlaps_scripts),
+    format = "file"
+  ),
+  tar_target(
+    source_processing_with_overlaps_files,
+    c(source_core_files, processing_with_overlaps_scripts),
     format = "file"
   ),
   tar_target(
@@ -421,41 +610,256 @@ list(
     ),
     format = "file"
   ),
-
-  # Jurisdiction preprocessing. This creates layers/pre-processed/* outputs.
   tar_target(
-    preprocessing,
-    run_scripts_with_env(
-      scripts = preprocess_scripts,
-      env = c(
-        SKIP_PROJECT_THEME = "true",
-        COVERAGE_VERSION = workflow_version,
-        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
-        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file
-      ),
-      output_files = preprocessed_outputs,
-      input_files = c(source_preprocessing_files, nb_lidar_index_source_files, nb_lidar_index_cgvd1928_file)
+    on_tile_index_remote_metadata,
+    arcgis_item_metadata(on_tile_index_item_url),
+    cue = tar_cue(mode = "always")
+  ),
+  tar_target(
+    on_tile_index_source_file,
+    download_file_if_changed(
+      url = on_tile_index_download_url,
+      metadata = on_tile_index_remote_metadata,
+      dest_file = on_tile_index_file,
+      metadata_file = on_tile_index_metadata_file
+    ),
+    format = "file"
+  ),
+  tar_target(
+    gc_metadata_remote_metadata,
+    remote_file_metadata(gc_metadata_url),
+    cue = tar_cue(mode = "always")
+  ),
+  tar_target(
+    gc_metadata_source_files,
+    download_zip_if_changed(
+      url = gc_metadata_url,
+      metadata = gc_metadata_remote_metadata,
+      dest_dir = gc_metadata_dir,
+      metadata_file = gc_metadata_metadata_file,
+      output_files = gc_metadata_files
     ),
     format = "file"
   ),
 
-  # National coverage products: no-overlap coverage, generalized coverage,
-  # multitemporal acquisitions, and overlap areas.
+  # Jurisdiction preprocessing. Keeping one target per script allows targets to
+  # rerun only the changed jurisdictions instead of invalidating the full stage.
   tar_target(
-    processing,
+    preprocess_ab,
     run_scripts_with_env(
-      scripts = processing_scripts,
+      scripts = "R/1001_preprocess_AB.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_ab,
+      input_files = c(source_core_files, "R/1001_preprocess_AB.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_bc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_BC.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_bc,
+      input_files = c(source_core_files, "R/1001_preprocess_BC.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_nb,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_NB.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_nb,
+      input_files = c(
+        source_core_files,
+        "R/1001_preprocess_NB.R",
+        nb_lidar_index_source_files,
+        nb_lidar_index_cgvd1928_file
+      )
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_ns,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_NS.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_ns,
+      input_files = c(source_core_files, "R/1001_preprocess_NS.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_on,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_ON.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_on,
+      input_files = c(source_core_files, "R/1001_preprocess_ON.R", on_tile_index_source_file)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_pei,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_PEI.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_pei,
+      input_files = c(source_core_files, "R/1001_preprocess_PEI.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_qc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_QC_v2.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_qc,
+      input_files = c(source_core_files, "R/1001_preprocess_QC_v2.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_sk,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_SK.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_sk,
+      input_files = c(source_core_files, "R/1001_preprocess_SK.R")
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocess_gc,
+    run_scripts_with_env(
+      scripts = "R/1001_preprocess_GC.R",
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
+        GC_METADATA_GDB_FILE = gc_metadata_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD2013_FILE = nb_lidar_index_source_files[[1]],
+        NB_LIDAR_INDEX_CGVD1928_FILE = nb_lidar_index_cgvd1928_file,
+        ON_TILE_INDEX_FILE = on_tile_index_source_file
+      ),
+      output_files = preprocess_output_map$preprocess_gc,
+      input_files = c(
+        source_core_files,
+        "R/1001_preprocess_GC.R",
+        gc_metadata_source_files,
+        preprocess_ab,
+        preprocess_bc,
+        preprocess_nb,
+        preprocess_ns,
+        preprocess_on,
+        preprocess_pei,
+        preprocess_qc,
+        preprocess_sk
+      )
+    ),
+    format = "file"
+  ),
+  tar_target(
+    preprocessing,
+    c(
+      preprocess_ab,
+      preprocess_bc,
+      preprocess_nb,
+      preprocess_ns,
+      preprocess_on,
+      preprocess_pei,
+      preprocess_qc,
+      preprocess_sk,
+      preprocess_gc
+    ),
+    format = "file"
+  ),
+
+  # National coverage products split into independent no-overlap and
+  # overlap-preserving branches so targets can run them in parallel.
+  tar_target(
+    processing_no_overlaps,
+    run_scripts_with_env(
+      scripts = processing_no_overlaps_scripts,
       env = c(
         SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         COVERAGE_MAIN_FILE = coverage_main_file,
         COVERAGE_CLIPPED_FILE = coverage_clipped_file,
-        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file
+      ),
+      output_files = processing_no_overlaps_outputs,
+      input_files = c(source_processing_no_overlaps_files, preprocessing)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    processing_with_overlaps,
+    run_scripts_with_env(
+      scripts = processing_with_overlaps_scripts,
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
-      output_files = processing_outputs,
-      input_files = c(source_processing_files, preprocessing)
+      output_files = processing_with_overlaps_outputs,
+      input_files = c(source_processing_with_overlaps_files, preprocessing)
     ),
     format = "file"
   ),
@@ -480,7 +884,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_main_outputs,
-      input_files = c(source_maps_main_files, processing)
+      input_files = c(
+        source_maps_main_files,
+        processing_no_overlaps,
+        processing_with_overlaps
+      )
     ),
     format = "file"
   ),
@@ -496,7 +904,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_focused_outputs,
-      input_files = c(source_maps_focused_files, processing)
+      input_files = c(
+        source_maps_focused_files,
+        processing_no_overlaps,
+        processing_with_overlaps
+      )
     ),
     format = "file"
   ),
@@ -514,7 +926,11 @@ list(
         UPDATE_LOG_PREVIOUS_FILE = previous_main_coverage
       ),
       output_files = map_update_log_outputs,
-      input_files = c(source_map_update_log_files, processing, previous_main_coverage)
+      input_files = c(
+        source_map_update_log_files,
+        processing_no_overlaps,
+        previous_main_coverage
+      )
     ),
     format = "file"
   ),
@@ -530,7 +946,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_animation_outputs,
-      input_files = c(source_map_animation_files, processing)
+      input_files = c(source_map_animation_files, processing_with_overlaps)
     ),
     format = "file"
   ),
@@ -546,7 +962,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = managed_unmanaged_outputs,
-      input_files = c(source_stats_managed_unmanaged_files, processing)
+      input_files = c(source_stats_managed_unmanaged_files, processing_no_overlaps)
     ),
     format = "file"
   ),
@@ -562,7 +978,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_summary_outputs,
-      input_files = c(source_stats_table_summary_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_table_summary_files,
+        processing_no_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),
@@ -578,7 +998,12 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_over_time_outputs,
-      input_files = c(source_stats_table_over_time_files, processing, stats_managed_unmanaged, stats_table_summary)
+      input_files = c(
+        source_stats_table_over_time_files,
+        processing_no_overlaps,
+        stats_managed_unmanaged,
+        stats_table_summary
+      )
     ),
     format = "file"
   ),
@@ -594,7 +1019,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = summary_multitemporal_outputs,
-      input_files = c(source_stats_multitemporal_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_multitemporal_files,
+        processing_with_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),
@@ -608,7 +1037,11 @@ list(
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file
       ),
       output_files = acquisition_area_over_time_outputs,
-      input_files = c(source_stats_acquisition_area_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_acquisition_area_files,
+        processing_with_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),

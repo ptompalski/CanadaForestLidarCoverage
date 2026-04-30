@@ -5,7 +5,10 @@ if (!exists("the_crs") || !exists("coverage_output_paths")) {
 # preprocess ON data
 
 acquisition_file <- "layers/source_layers/ON/OMNR_Acquisition_Y1_to_Y8.shp"
-tile_index_file <- "layers/source_layers/ON/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+tile_index_file <- Sys.getenv(
+  "ON_TILE_INDEX_FILE",
+  unset = "layers/source_layers/ON/FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
+)
 density_file <- "layers/source_layers/ON/ALS_ON_Y1_to_Y8_wDensity.gpkg"
 density_cache_dir <- "layers/pre-processed/ON/density_samples"
 laz_temp_dir <- "layers/pre-processed/ON/laz_temp"
@@ -260,12 +263,11 @@ ALS_ON <- ALS_ON_wDensity %>%
   ) %>%
   group_by(YEAR, PPM) %>%
   summarize(geometry = st_union(geometry), .groups = "drop") %>%
-  st_make_valid() %>%
-  st_collection_extract("POLYGON") %>%
-  st_as_sf() %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarize(geometry = st_union(geometry), .groups = "drop") %>%
   mutate(
-    area = st_area(geometry),
-    Province = "ON",
+    area = units::set_units(as.numeric(st_area(geometry)), m^2),
     isAvailable = 2
   ) %>%
   relocate(Province, YEAR, PPM, area, isAvailable)
@@ -276,7 +278,7 @@ st_write(ALS_ON, dsn = on_output_paths$file, append = FALSE)
 ALS_ON_diss <- remove_overlaps_by_attr(ALS_ON, "YEAR")
 
 # update area
-ALS_ON_diss <- ALS_ON_diss %>% mutate(area = st_area(geometry))
+ALS_ON_diss <- ALS_ON_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_ON_diss,

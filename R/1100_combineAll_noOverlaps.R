@@ -27,7 +27,7 @@ dir_create(dirname(coverage_main_file))
 dir_create(dirname(coverage_clipped_file))
 dir_create(dirname(coverage_generalized_file))
 
-jurisdictions <- c("AB", "BC", "NB", "ON", "QC", "PEI", "NS", "SK")
+jurisdictions <- c("AB", "BC", "GC", "NB", "ON", "QC", "PEI", "NS", "SK")
 coverage_diss <- read_preprocessed_coverage(jurisdictions, dissolved = TRUE)
 
 
@@ -81,6 +81,7 @@ D$YEAR <- as.numeric(D$YEAR)
 ## CLIP TO FORESTED ECOZONEZES ##
 #new step added on 2024-09-2024
 D <- clip_to_forested_ecozones(D)
+D <- clean_coverage_polygons(D)
 
 saveRDS(D, coverage_main_file)
 
@@ -91,6 +92,7 @@ saveRDS(D, coverage_main_file)
 # clip to provinces vector (no areas outside)
 provinces2 <- read_province_boundaries()
 Dx <- st_intersection(D, provinces2)
+Dx <- clean_coverage_polygons(Dx)
 saveRDS(Dx, coverage_clipped_file)
 
 # dissolve all to create a single poly
