@@ -41,8 +41,15 @@ forested_ALS_perc <- round(Stats$forested_ALS_perc, 1)
 summary_multitemporal_list <- readRDS("layers/summary_multitemporal_list.rds")
 summary_multitemporal_Canada <- summary_multitemporal_list$summary_multitemporal_Canada
 summary_multitemporal_managed <- summary_multitemporal_list$summary_multitemporal_managed
+coverage_managed_unmanaged <- readRDS("layers/coverageManagedUnmanaged.rds")
 
 total_ALS_area_million <- round(total_ALS_area / 1000000, 2)
+total_ALS_area_label <- format(round(total_ALS_area), big.mark = ",", scientific = FALSE)
+managed_ALS_area_total <- sum(
+  coverage_managed_unmanaged$area_ALS[coverage_managed_unmanaged$forest_type == "managed"],
+  na.rm = TRUE
+) / 100
+managed_ALS_area_label <- format(round(managed_ALS_area_total), big.mark = ",", scientific = FALSE)
 multitemporal_area <- as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area)
 multitemporal_area_million <- round(multitemporal_area / 1000000, 2)
 multitemporal_canada_perc <- round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop, 1)
@@ -221,7 +228,7 @@ browsable(
                 tags$span(class = "homepage-stat-number", `data-target` = forested_ALS_perc, `data-decimals` = 1, "0"),
                 tags$span(class = "homepage-stat-suffix", "%")
               ),
-              tags$p(class = "homepage-stat-detail", "Coverage across Canada's forested ecozones")
+              tags$p(class = "homepage-stat-detail", "of forested ecozone area nationally")
             ),
             tags$article(
               class = "homepage-stat",
@@ -231,7 +238,7 @@ browsable(
                 tags$span(class = "homepage-stat-number", `data-target` = managed_ALS_perc, `data-decimals` = 1, "0"),
                 tags$span(class = "homepage-stat-suffix", "%")
               ),
-              tags$p(class = "homepage-stat-detail", "Managed forest area with ALS coverage")
+              tags$p(class = "homepage-stat-detail", HTML(sprintf("%s km<sup>2</sup> in total", managed_ALS_area_label)))
             ),
             tags$article(
               class = "homepage-stat",
@@ -253,11 +260,21 @@ browsable(
     tags$section(
       id = "interactive-map",
       class = "column-screen homepage-map-band homepage-anchor-target",
-      tags$iframe(
-        class = "homepage-map-frame",
-        src = "home-map.html",
-        title = "Interactive ALS coverage map",
-        loading = "lazy"
+      tags$div(
+        class = "homepage-map-wrap",
+        tags$iframe(
+          class = "homepage-map-frame",
+          src = "home-map.html",
+          title = "Interactive ALS coverage map",
+          loading = "lazy"
+        ),
+        tags$p(
+          class = "homepage-map-note",
+          HTML(sprintf(
+            "Coverage as of %s. Dark outline indicates Canada's forested ecozones. ALS acquisitions shown on this site are limited to those ecozones. Note that the map may not be exhaustive.",
+            coverage_file_date
+          ))
+        )
       )
     )
   )

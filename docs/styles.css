@@ -241,7 +241,11 @@ main.content.page-columns.page-full.column-body > :last-child {
   margin-right: 0;
   padding: 0;
   overflow: visible;
-  line-height: 0;
+  line-height: normal;
+}
+
+.homepage-map-wrap {
+  width: 100%;
 }
 
 .homepage-map-frame {
@@ -252,6 +256,15 @@ main.content.page-columns.page-full.column-body > :last-child {
   min-height: 680px;
   max-height: 680px;
   display: block;
+  margin-bottom: 0;
+}
+
+.homepage-map-note {
+  margin: 0.18rem 0 1.35rem;
+  padding-left: 0.2rem;
+  color: #7a8791;
+  font-size: 0.79rem;
+  line-height: 1.45;
 }
 
 .homepage-stats-band {
@@ -325,6 +338,7 @@ main.content.page-columns.page-full.column-body > :last-child {
 
 .homepage-stats-band-hero .homepage-stat-value {
   color: #f7fbff;
+  font-size: clamp(2.2rem, 3.3vw, 3.3rem);
 }
 
 .homepage-stats-band-hero .homepage-stat-suffix {
