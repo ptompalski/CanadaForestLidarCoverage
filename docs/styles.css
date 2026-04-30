@@ -865,7 +865,7 @@ tbody tr:nth-child(even) {
   }
 
   .homepage-intro-band {
-    padding: 5.9rem 2.4rem 1.65rem;
+    padding: 6.8rem 2.4rem 1.65rem;
   }
 
   .subpage-hero-band {
@@ -883,8 +883,23 @@ tbody tr:nth-child(even) {
 }
 
 @media (max-width: 860px) {
+  .homepage-fixed-header {
+    position: static;
+    inset: auto;
+    background: rgba(12, 24, 34, 0.94);
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .homepage-fixed-header-inner {
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+
   .homepage-intro-band {
-    padding: 5.5rem 1.25rem 1.05rem;
+    padding: 2.2rem 1.25rem 1.05rem;
   }
 
   .subpage-hero-band {
