@@ -30,11 +30,6 @@ source("R/site_components.R")
 
 Stats <- readRDS("layers/Stats.rds")
 theTable <- Stats$theTable
-names(theTable) <- dplyr::recode(
-  names(theTable),
-  `Total ALS coverage` = "Total ALS coverage (km^2, %)",
-  `ALS coverage over managed forest` = "ALS coverage over managed forest (km^2, %)"
-)
 
 coverage_file_date <- get_latest_coverage_date()
 
@@ -310,7 +305,15 @@ browsable(
 ### Coverage by jurisdiction
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-knitr::kable(theTable)
+knitr::kable(
+  theTable,
+  escape = FALSE,
+  col.names = c(
+    "Jurisdiction",
+    "Total ALS coverage (km<sup>2</sup>, %)",
+    "ALS coverage over managed forest (km<sup>2</sup>, %)"
+  )
+)
 ```
 
 ### Coverage over time
