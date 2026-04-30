@@ -17,4 +17,22 @@ coverage_version <- Sys.getenv(
   unset = format(Sys.Date(), "%Y%m%d")
 )
 Sys.setenv(COVERAGE_VERSION = coverage_version)
+
+# Set TARGETS_WORKERS before sourcing this script to control the number of
+# concurrent local worker processes. The default is conservative because the
+# geospatial stages can be memory intensive on Windows.
+targets_workers <- Sys.getenv("TARGETS_WORKERS", unset = "2")
+Sys.setenv(TARGETS_WORKERS = targets_workers)
+
+workers_n <- suppressWarnings(as.integer(targets_workers))
+if (is.na(workers_n) || workers_n < 1L) {
+  workers_n <- 1L
+}
+
+if (workers_n > 1L) {
+  message("Running targets with ", workers_n, " local workers.")
+} else {
+  message("Running targets sequentially with 1 local worker.")
+}
+
 targets::tar_make()

@@ -16,9 +16,34 @@ suppressPackageStartupMessages({
   }
 })
 
+target_workers <- suppressWarnings(as.integer(Sys.getenv("TARGETS_WORKERS", unset = "2")))
+if (is.na(target_workers) || target_workers < 1) {
+  target_workers <- 1L
+}
+
+target_controller <- NULL
+if (target_workers > 1L) {
+  if (!requireNamespace("crew", quietly = TRUE)) {
+    stop(
+      "Parallel targets execution requires the 'crew' package. ",
+      "Install it with install.packages('crew'), or set TARGETS_WORKERS=1 ",
+      "to run sequentially.",
+      call. = FALSE
+    )
+  }
+
+  target_controller <- crew::crew_controller_local(
+    workers = target_workers,
+    seconds_idle = 300
+  )
+}
+
 # R/0000_setup.R loads the project package stack. Keeping packages empty here
 # prevents targets from re-attaching packages and printing startup messages.
-tar_option_set(packages = character())
+tar_option_set(
+  packages = character(),
+  controller = target_controller
+)
 
 # Explicit dated version used in output filenames. Keeping this parameter stable
 # is what lets targets skip completed stages on later runs.
@@ -38,10 +63,8 @@ preprocess_scripts <- c(
   "R/1001_preprocess_GC.R"
 )
 
-processing_scripts <- c(
-  "R/1100_combineAll_noOverlaps.R",
-  "R/1500_combineALL_withOverlaps.R"
-)
+processing_no_overlaps_scripts <- "R/1100_combineAll_noOverlaps.R"
+processing_with_overlaps_scripts <- "R/1500_combineALL_withOverlaps.R"
 
 core_source_files <- c(
   "R/0000_setup.R",
@@ -288,6 +311,8 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
   do.call(Sys.setenv, as.list(env))
 
   target_env <- new.env(parent = globalenv())
+  source("R/0000_setup.R", local = target_env)
+
   for (i in seq_along(scripts)) {
     script <- scripts[[i]]
     start_time <- Sys.time()
@@ -416,10 +441,12 @@ overlap_output_file <- file.path(
   glue("ALS_coverage_overlap_{target_version}.gpkg")
 )
 
-processing_outputs <- c(
+processing_no_overlaps_outputs <- c(
   coverage_main_file,
   coverage_clipped_file,
-  coverage_generalized_file,
+  coverage_generalized_file
+)
+processing_with_overlaps_outputs <- c(
   multitemporal_output_file,
   overlap_output_file
 )
@@ -506,8 +533,13 @@ list(
     format = "file"
   ),
   tar_target(
-    source_processing_files,
-    c(source_core_files, processing_scripts),
+    source_processing_no_overlaps_files,
+    c(source_core_files, processing_no_overlaps_scripts),
+    format = "file"
+  ),
+  tar_target(
+    source_processing_with_overlaps_files,
+    c(source_core_files, processing_with_overlaps_scripts),
     format = "file"
   ),
   tar_target(
@@ -798,23 +830,36 @@ list(
     format = "file"
   ),
 
-  # National coverage products: no-overlap coverage, generalized coverage,
-  # multitemporal acquisitions, and overlap areas.
+  # National coverage products split into independent no-overlap and
+  # overlap-preserving branches so targets can run them in parallel.
   tar_target(
-    processing,
+    processing_no_overlaps,
     run_scripts_with_env(
-      scripts = processing_scripts,
+      scripts = processing_no_overlaps_scripts,
       env = c(
         SKIP_PROJECT_THEME = "true",
         COVERAGE_VERSION = workflow_version,
         COVERAGE_MAIN_FILE = coverage_main_file,
         COVERAGE_CLIPPED_FILE = coverage_clipped_file,
-        COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
+        COVERAGE_GENERALIZED_FILE = coverage_generalized_file
+      ),
+      output_files = processing_no_overlaps_outputs,
+      input_files = c(source_processing_no_overlaps_files, preprocessing)
+    ),
+    format = "file"
+  ),
+  tar_target(
+    processing_with_overlaps,
+    run_scripts_with_env(
+      scripts = processing_with_overlaps_scripts,
+      env = c(
+        SKIP_PROJECT_THEME = "true",
+        COVERAGE_VERSION = workflow_version,
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
-      output_files = processing_outputs,
-      input_files = c(source_processing_files, preprocessing)
+      output_files = processing_with_overlaps_outputs,
+      input_files = c(source_processing_with_overlaps_files, preprocessing)
     ),
     format = "file"
   ),
@@ -839,7 +884,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_main_outputs,
-      input_files = c(source_maps_main_files, processing)
+      input_files = c(
+        source_maps_main_files,
+        processing_no_overlaps,
+        processing_with_overlaps
+      )
     ),
     format = "file"
   ),
@@ -855,7 +904,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_focused_outputs,
-      input_files = c(source_maps_focused_files, processing)
+      input_files = c(
+        source_maps_focused_files,
+        processing_no_overlaps,
+        processing_with_overlaps
+      )
     ),
     format = "file"
   ),
@@ -873,7 +926,11 @@ list(
         UPDATE_LOG_PREVIOUS_FILE = previous_main_coverage
       ),
       output_files = map_update_log_outputs,
-      input_files = c(source_map_update_log_files, processing, previous_main_coverage)
+      input_files = c(
+        source_map_update_log_files,
+        processing_no_overlaps,
+        previous_main_coverage
+      )
     ),
     format = "file"
   ),
@@ -889,7 +946,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = map_animation_outputs,
-      input_files = c(source_map_animation_files, processing)
+      input_files = c(source_map_animation_files, processing_with_overlaps)
     ),
     format = "file"
   ),
@@ -905,7 +962,7 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = managed_unmanaged_outputs,
-      input_files = c(source_stats_managed_unmanaged_files, processing)
+      input_files = c(source_stats_managed_unmanaged_files, processing_no_overlaps)
     ),
     format = "file"
   ),
@@ -921,7 +978,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_summary_outputs,
-      input_files = c(source_stats_table_summary_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_table_summary_files,
+        processing_no_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),
@@ -937,7 +998,12 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = table_over_time_outputs,
-      input_files = c(source_stats_table_over_time_files, processing, stats_managed_unmanaged, stats_table_summary)
+      input_files = c(
+        source_stats_table_over_time_files,
+        processing_no_overlaps,
+        stats_managed_unmanaged,
+        stats_table_summary
+      )
     ),
     format = "file"
   ),
@@ -953,7 +1019,11 @@ list(
         OVERLAP_OUTPUT_FILE = overlap_output_file
       ),
       output_files = summary_multitemporal_outputs,
-      input_files = c(source_stats_multitemporal_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_multitemporal_files,
+        processing_with_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),
@@ -967,7 +1037,11 @@ list(
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file
       ),
       output_files = acquisition_area_over_time_outputs,
-      input_files = c(source_stats_acquisition_area_files, processing, stats_managed_unmanaged)
+      input_files = c(
+        source_stats_acquisition_area_files,
+        processing_with_overlaps,
+        stats_managed_unmanaged
+      )
     ),
     format = "file"
   ),
