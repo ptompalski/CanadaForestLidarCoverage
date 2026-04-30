@@ -115,7 +115,8 @@ jurisdiction_labels <- tribble(
   "QC", "Quebec (QC)",
   "NB", "New Brunswick (NB)",
   "PE", "Prince Edward Island (PE)",
-  "NS", "Nova Scotia (NS)"
+  "NS", "Nova Scotia (NS)",
+  "GC", "Supplemental national source"
 )
 
 data_sources_combined <- tribble(
@@ -127,11 +128,23 @@ data_sources_combined <- tribble(
   "QC", "Ministere des Ressources naturelles et des Forets, [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).", "ALS open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).",
   "NB", "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp).", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp). Derivatives (DEM, CHM, hillshade, slope) are also available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
   "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS data available for download: [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/).",
-  "NS", "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/))."
+  "NS", "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/)).",
+  "GC", "[Geo.ca (CanElevation Series)](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947).", "National LiDAR project coverage metadata and downloadable point cloud products used to supplement jurisdictional sources where applicable."
 ) |>
   left_join(jurisdiction_labels, by = "Jurisdiction") |>
+  left_join(
+    tibble(
+      Jurisdiction = "GC",
+      `Last update_gc` = {
+        dt <- getNewestFileDate("GC")
+        if (is.na(dt)) "Unknown" else format(dt, "%Y-%m-%d")
+      }
+    ),
+    by = "Jurisdiction"
+  ) |>
   left_join(tbl_updates, by = "Jurisdiction") |>
   mutate(
+    `Last update` = dplyr::coalesce(`Last update_gc`, `Last update`, "Unknown"),
     `Source and sharing` = paste0(
       "<strong>Source:</strong> ", `Data source`, "<br>",
       "<strong>Access:</strong> ", `Data sharing policy`
