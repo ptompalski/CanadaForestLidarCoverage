@@ -1,34 +1,82 @@
 ---
 title: "Multitemporal data"
-format: html
+format:
+  html:
+    page-layout: full
+    toc: false
 engine: knitr
 date: today
-language: 
+language:
   title-block-published: "Last modified"
 ---
 
+<style>
+#title-block-header,
+#quarto-header,
+#quarto-header-headroom {
+  display: none !important;
+}
+</style>
+
 ```{r, echo=F, warning=F, message=F}
 source("R/0000_setup.R")
+source("R/site_components.R")
 
-#stats for the multitemporal data
 summary_multitemporal_list <- readRDS("layers/summary_multitemporal_list.rds")
 summary_multitemporal_Canada <- summary_multitemporal_list$summary_multitemporal_Canada
 summary_multitemporal_managed <- summary_multitemporal_list$summary_multitemporal_managed
-
+coverage_file_date <- get_latest_coverage_date()
 ```
 
-An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada’s land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+site_header()
+```
 
+```{=html}
+<section class="column-screen subpage-hero-band">
+  <div class="subpage-hero-copy">
+    <p class="subpage-eyebrow">Static maps</p>
+    <h1>Multitemporal data</h1>
+    <p class="subpage-hero-lede">National and regional static map products show ALS coverage, point density, acquisition timing, and multitemporal overlap. They are updated as new acquisitions are added to the compilation.</p>
+  </div>
+</section>
+<div class="subpage-main">
+```
+
+```{=html}
+<nav class="subpage-jump-links" aria-label="Static map pages">
+  <a class="subpage-jump-link" href="maps.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">National overview</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-west.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Western Canada</span>
+  </a>
+  <a class="subpage-jump-link" href="maps-east.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Eastern Canada</span>
+  </a>
+  <a class="subpage-jump-link is-current" href="multitemporal.html">
+    <span class="subpage-jump-link-eyebrow">Static maps</span>
+    <span class="subpage-jump-link-title">Multitemporal data</span>
+  </a>
+</nav>
+```
+
+::: {.subpage-copy-wide}
+An area of `r format(as.numeric(summary_multitemporal_Canada$total_multitemporal_ALS_area, scientific=FALSE, big.mark=","))` km^2^ has been surveyed more than once using ALS, providing multitemporal coverage that represents about **`r round(summary_multitemporal_Canada$total_multitemporal_ALS_area_prop,1)`%** of Canada's land area and **`r round(summary_multitemporal_managed$total_managed_multitemporal_ALS_area_prop,1)`%** of managed forests.
+:::
 
 ```{r, echo=F, warning=F, message=F}
 summary_multitemporal_list$summary_multitemporal_byProvince %>%
-    mutate(Jurisdiction = paste0(jurisdiction_name, " (", jurisdiction_code, ")")  ) %>%
-  relocate(Jurisdiction)%>%
-  select(-jurisdiction_name,-jurisdiction_code) %>%
-    mutate(
+  mutate(Jurisdiction = paste0(jurisdiction_name, " (", jurisdiction_code, ")")) %>%
+  relocate(Jurisdiction) %>%
+  select(-jurisdiction_name, -jurisdiction_code) %>%
+  mutate(
     `Multitemporal ALS coverage` = paste0(
       format(
-        round(as.numeric(multitemporal_ALS_area )),
+        round(as.numeric(multitemporal_ALS_area)),
         big.mark = ",",
         scientific = FALSE
       ),
@@ -37,18 +85,14 @@ summary_multitemporal_list$summary_multitemporal_byProvince %>%
       "%)"
     )
   ) %>%
-    select(
-        -multitemporal_ALS_area, 
-        -multitemporal_ALS_area_prop,
-        -managed_multitemporal_ALS_area,
-        - managed_multitemporal_ALS_area_prop) %>%
-      knitr::kable()  
-#   glimpse()
-    
-
+  select(
+    -multitemporal_ALS_area,
+    -multitemporal_ALS_area_prop,
+    -managed_multitemporal_ALS_area,
+    -managed_multitemporal_ALS_area_prop
+  ) %>%
+  knitr::kable()
 ```
-
-<br>
 
 ## Areas of multiple acquisitions {#maps-overlap}
 
@@ -60,3 +104,11 @@ summary_multitemporal_list$summary_multitemporal_byProvince %>%
 
 ### Eastern regional extent
 ![](img/map4_ALS_overlap_focus2.png){group="maps"}
+
+```{=html}
+</div>
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+site_footer(coverage_file_date)
+```

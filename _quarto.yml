@@ -5,9 +5,6 @@ project:
 website:
   title: "ALS data coverage in Canadian forests"
   repo-url: https://github.com/ptompalski/CanadaForestLidarCoverage
-  repo-actions:
-    - source
-    - issue
   navbar:
     pinned: true
     left:
@@ -25,8 +22,6 @@ website:
             text: Multitemporal data
       - text: Resources
         menu:
-          - href: data.qmd
-            text: Data access
           - href: log.qmd
             text: Update log
           - href: contact.qmd
