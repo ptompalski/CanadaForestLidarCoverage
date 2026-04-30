@@ -213,6 +213,20 @@ layer_year <- build_dissolved_layer(filter(coverage_3347, !is.na(YEAR)), "YEAR")
 layer_density <- build_dissolved_layer(filter(coverage_3347, !is.na(PPM_class)), "PPM_class")
 layer_multitemporal <- build_dissolved_layer(filter(multitemporal_3347, !is.na(delta_class)), "delta_class")
 
+startup_extent_min_area_km2 <- 5000
+startup_extent_layer <- layer_jurisdiction |>
+  filter(area_km2 >= startup_extent_min_area_km2)
+
+if (nrow(startup_extent_layer) == 0) {
+  startup_extent_layer <- layer_jurisdiction
+}
+
+startup_bbox <- st_bbox(startup_extent_layer)
+startup_bounds <- list(
+  c(unname(startup_bbox["ymin"]), unname(startup_bbox["xmin"])),
+  c(unname(startup_bbox["ymax"]), unname(startup_bbox["xmax"]))
+)
+
 geojson_string <- function(x) {
   geojson_file <- tempfile(fileext = ".geojson")
   st_write(x, geojson_file, driver = "GeoJSON", quiet = TRUE, delete_dsn = TRUE)
@@ -235,6 +249,8 @@ metadata <- list(
   provinces = sort(unique(coverage$Province)),
   density_labels = levels(coverage$PPM_class),
   multitemporal_labels = c("1-2", "3-5", "6-10", "11-15", ">15"),
+  initial_bounds = startup_bounds,
+  initial_bounds_min_area_km2 = startup_extent_min_area_km2,
   jurisdiction_hover = setNames(
     lapply(seq_len(nrow(jurisdiction_hover)), function(i) {
       list(
@@ -538,7 +554,7 @@ browsable(
       };
 
       let activeLayer = layerRegistry[currentMode].addTo(map);
-      map.fitBounds(activeLayer.getBounds(), { padding: [12, 12] });
+      map.fitBounds(coverageMeta.initial_bounds || activeLayer.getBounds(), { padding: [12, 12] });
 
       function switchLayer(mode) {
         map.removeLayer(activeLayer);
