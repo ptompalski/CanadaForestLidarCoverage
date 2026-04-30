@@ -139,9 +139,10 @@ ALS_BC <- ALS_BC %>% dissolve_coverage()
 
 
 ALS_BC <- ALS_BC %>%
-  clean_coverage_polygons() %>%
-  mutate(area = st_area(geometry)) %>%
-  mutate(Province = "BC") %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarise(geometry = st_union(geometry), .groups = "drop") %>%
+  mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2)) %>%
   mutate(isAvailable = 1) %>%
   relocate(Province, YEAR, PPM, area, isAvailable) %>%
   st_as_sf()
@@ -154,7 +155,7 @@ ALS_BC_diss <- remove_overlaps_by_attr(ALS_BC, "YEAR")
 #update area
 ALS_BC_diss <- ALS_BC_diss %>%
   clean_coverage_polygons() %>%
-  mutate(area = st_area(geometry))
+  mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_BC_diss,

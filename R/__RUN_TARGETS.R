@@ -21,7 +21,7 @@ Sys.setenv(COVERAGE_VERSION = coverage_version)
 # Set TARGETS_WORKERS before sourcing this script to control the number of
 # concurrent local worker processes. The default is conservative because the
 # geospatial stages can be memory intensive on Windows.
-targets_workers <- Sys.getenv("TARGETS_WORKERS", unset = "2")
+targets_workers <- 8 #Sys.getenv("TARGETS_WORKERS", unset = "8")
 Sys.setenv(TARGETS_WORKERS = targets_workers)
 
 workers_n <- suppressWarnings(as.integer(targets_workers))

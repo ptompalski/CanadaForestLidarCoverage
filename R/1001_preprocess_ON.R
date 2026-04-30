@@ -263,12 +263,11 @@ ALS_ON <- ALS_ON_wDensity %>%
   ) %>%
   group_by(YEAR, PPM) %>%
   summarize(geometry = st_union(geometry), .groups = "drop") %>%
-  st_make_valid() %>%
-  st_collection_extract("POLYGON") %>%
-  st_as_sf() %>%
+  assign_province_by_location() %>%
+  group_by(Province, YEAR, PPM) %>%
+  summarize(geometry = st_union(geometry), .groups = "drop") %>%
   mutate(
-    area = st_area(geometry),
-    Province = "ON",
+    area = units::set_units(as.numeric(st_area(geometry)), m^2),
     isAvailable = 2
   ) %>%
   relocate(Province, YEAR, PPM, area, isAvailable)
@@ -279,7 +278,7 @@ st_write(ALS_ON, dsn = on_output_paths$file, append = FALSE)
 ALS_ON_diss <- remove_overlaps_by_attr(ALS_ON, "YEAR")
 
 # update area
-ALS_ON_diss <- ALS_ON_diss %>% mutate(area = st_area(geometry))
+ALS_ON_diss <- ALS_ON_diss %>% mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2))
 
 st_write(
   ALS_ON_diss,
