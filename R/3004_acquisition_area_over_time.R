@@ -27,8 +27,11 @@ Q <- st_read(f2)
 
 Q <- Q %>%
   st_make_valid() %>%
-  st_collection_extract("POLYGON") %>%
-  st_cast("MULTIPOLYGON", warn = FALSE)
+  clean_coverage_polygons()
+
+# Snap coordinates to a modest grid before repeated yearly unions. This helps
+# avoid GEOS topology failures from nearly coincident segment intersections.
+sf::st_precision(Q) <- 1
 
 Q$YEAR <- as.numeric(Q$YEAR)
 years <- sort(unique(Q$YEAR))
@@ -40,8 +43,10 @@ years <- sort(unique(Q$YEAR))
 ALS_coverage_by_year <- map_dfr(years, function(y) {
   Q %>%
     filter(YEAR <= y) %>%
+    clean_coverage_polygons() %>%
     group_by(Province) %>%
     summarize(.groups = "drop") %>% # dissolve by Province (handles overlap)
+    clean_coverage_polygons() %>%
     mutate(total_area_dissolved = set_units(st_area(.), km^2), year = y) %>%
     select(
       jurisdiction_code = Province,
