@@ -95,7 +95,7 @@ coverage_3347 <- coverage |>
 jurisdiction_hover <- Stats$theTable |>
   mutate(
     code = sub(".*\\(([A-Z]{2})\\)$", "\\1", Jurisdiction),
-    coverage_km2 = as.numeric(gsub(",", "", sub(" .*", "", `Total ALS coverage`))),
+    coverage_km2 = readr::parse_number(`Total ALS coverage`),
     coverage_pct = sub(".*\\(([^)]+)\\).*", "\\1", `Total ALS coverage`),
     coverage_ha = format(round(coverage_km2 * 100), big.mark = ",", scientific = FALSE),
     coverage_label = paste0(coverage_ha, " ha"),
