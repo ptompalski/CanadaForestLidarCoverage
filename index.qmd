@@ -454,7 +454,7 @@ browsable(
         tags$h2("Enhanced forest inventories in Canada: implementation, status, and research needs"),
         tags$p(
           class = "homepage-body-copy",
-          "This website extends the published national overview with updated coverage sources, current summary statistics, and interactive map products that continue to evolve beyond the paper snapshot."
+          "This website extends the published national overview with updated coverage sources, current summary statistics, and interactive map."
         ),
         tags$p(
           class = "homepage-paper-citation",
