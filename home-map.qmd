@@ -308,6 +308,33 @@ browsable(
         min-width: 12rem;
         max-width: min(15rem, calc(100vw - 2rem));
       }
+      .map-controls-toggle {
+        align-items: center;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(37, 58, 74, 0.22);
+        border-radius: 4px;
+        color: #1f3342;
+        cursor: pointer;
+        display: none;
+        font: inherit;
+        font-size: 0.92rem;
+        font-weight: 700;
+        gap: 0.45rem;
+        justify-content: center;
+        padding: 0.5rem 0.7rem;
+        width: 100%;
+      }
+      .map-controls-toggle svg {
+        display: block;
+        height: 1rem;
+        width: 1rem;
+      }
+      .map-controls-panel {
+        display: contents;
+      }
+      .map-controls.is-collapsed .map-controls-panel {
+        display: none;
+      }
       .map-mode-group {
         display: flex;
         flex-direction: column;
@@ -401,6 +428,25 @@ browsable(
       }
       @media (max-width: 720px) {
         .map-controls {
+          min-width: 0;
+          padding: 0.45rem;
+          width: min(13rem, calc(100vw - 1.5rem));
+        }
+        .map-controls-toggle {
+          display: inline-flex;
+        }
+        .map-controls-panel {
+          display: none;
+          margin-top: 0.45rem;
+        }
+        .map-controls.is-open .map-controls-panel {
+          display: block;
+        }
+        .map-controls:not(.is-open) {
+          width: auto;
+          min-width: 0;
+        }
+        .map-controls.is-open {
           min-width: 0;
         }
       }
@@ -566,14 +612,22 @@ browsable(
 
       const controls = L.control({ position: 'topright' });
       controls.onAdd = function() {
-        const div = L.DomUtil.create('div', 'map-controls leaflet-control');
+        const div = L.DomUtil.create('div', 'map-controls leaflet-control is-collapsed');
         div.innerHTML = `
-          <div class='map-mode-group'>
-            <span class='map-label'>Colour by</span>
-            <button class='active' type='button' data-mode='jurisdiction'>Jurisdiction</button>
-            <button type='button' data-mode='year'>Acquisition year</button>
-            <button type='button' data-mode='density'>Point density</button>
-            <button type='button' data-mode='multitemporal'>Multitemporal areas</button>
+          <button class='map-controls-toggle' type='button' aria-expanded='false' aria-label='Choose map layer'>
+            <svg viewBox='0 0 16 16' aria-hidden='true' focusable='false'>
+              <path fill='currentColor' d='M8 1 1.5 4.2 8 7.4l6.5-3.2L8 1Zm0 7.8L1.5 5.6V8.5L8 11.7l6.5-3.2V5.6L8 8.8Zm0 4.3-6.5-3.2v1.9L8 15l6.5-3.2V9.9L8 13.1Z'></path>
+            </svg>
+            <span>Layers</span>
+          </button>
+          <div class='map-controls-panel'>
+            <div class='map-mode-group'>
+              <span class='map-label'>Colour by</span>
+              <button class='active' type='button' data-mode='jurisdiction'>Jurisdiction</button>
+              <button type='button' data-mode='year'>Acquisition year</button>
+              <button type='button' data-mode='density'>Point density</button>
+              <button type='button' data-mode='multitemporal'>Multitemporal areas</button>
+            </div>
           </div>
         `;
         L.DomEvent.disableClickPropagation(div);
@@ -610,13 +664,56 @@ browsable(
       };
       legend.addTo(map);
 
-      document.querySelectorAll('.map-controls button').forEach(button => {
+      const mapControls = document.querySelector('.map-controls');
+      const mapControlsToggle = mapControls ? mapControls.querySelector('.map-controls-toggle') : null;
+
+      function isMobileControls() {
+        return window.matchMedia('(max-width: 720px)').matches;
+      }
+
+      function setControlsOpen(isOpen) {
+        if (!mapControls || !mapControlsToggle) return;
+        mapControls.classList.toggle('is-open', isOpen);
+        mapControlsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+
+      function syncControlsMode() {
+        if (!mapControls) return;
+        mapControls.classList.toggle('is-collapsed', isMobileControls());
+        if (!isMobileControls()) {
+          setControlsOpen(true);
+        } else {
+          setControlsOpen(false);
+        }
+      }
+
+      if (mapControlsToggle) {
+        mapControlsToggle.addEventListener('click', () => {
+          if (!isMobileControls()) return;
+          setControlsOpen(!mapControls.classList.contains('is-open'));
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        if (!isMobileControls() || !mapControls) return;
+        if (!mapControls.contains(event.target)) {
+          setControlsOpen(false);
+        }
+      });
+
+      window.addEventListener('resize', syncControlsMode);
+      syncControlsMode();
+
+      document.querySelectorAll('.map-controls button[data-mode]').forEach(button => {
         if (!button.dataset.mode) return;
         button.addEventListener('click', () => {
-          document.querySelectorAll('.map-controls button').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.map-controls button[data-mode]').forEach(b => b.classList.remove('active'));
           button.classList.add('active');
           switchLayer(button.dataset.mode);
           legend.update();
+          if (isMobileControls()) {
+            setControlsOpen(false);
+          }
         });
       });
     "))
