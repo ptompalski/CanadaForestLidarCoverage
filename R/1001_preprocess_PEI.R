@@ -17,7 +17,8 @@ ALS_PEI_2020 <-
   group_by(YEAR, PPM) %>%
   summarise(n = n(), area = sum(area), geometry = st_union(geometry)) %>%
   mutate(isAvailable = 1) %>%
-  select(YEAR, PPM, area, isAvailable)
+  add_source_metadata("PEI data portal", "Open point cloud and derivatives") %>%
+  select(YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 # Hey Adam,
 # I’ve answered the LiDAR questions below and included a shapefile of the completed LiDAR Acquisition. Our EFI should be delivered at the end of the month.
@@ -43,8 +44,9 @@ ALS_PEI_2010 %<>%
     PPM = 1, #PPM is unknown
     # n = NA,
     area = set_units(st_area(.), m^2),
-    isAvailable = 0
+    isAvailable = 1
   ) %>%
+  add_source_metadata("PEI data portal", "Open point cloud and derivatives") %>%
   select(-(ENCLOSED_A:NORTH))
 
 
@@ -56,10 +58,10 @@ ALS_PEI <- bind_rows(
 #dissolve by year and PPM, then assign Province by location
 ALS_PEI <- ALS_PEI %>%
   assign_province_by_location() %>%
-  group_by(Province, YEAR, PPM, isAvailable) %>%
+  group_by(Province, YEAR, PPM, isAvailable, source_provider, source_access) %>%
   summarise(geometry = st_union(geometry), .groups = "drop") %>%
   mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2)) %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 st_write(ALS_PEI, dsn = pei_output_paths$file, append = F)
 

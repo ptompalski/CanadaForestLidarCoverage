@@ -28,7 +28,21 @@ standardize_coverage_layer <- function(x) {
       PPM = as.numeric(PPM),
       area = units::set_units(as.numeric(area), m^2)
     ) %>%
-    select(Province, YEAR, PPM, area, isAvailable, geometry)
+    {
+      if (!"source_provider" %in% names(.)) {
+        mutate(., source_provider = as.character(Province))
+      } else {
+        .
+      }
+    } %>%
+    {
+      if (!"source_access" %in% names(.)) {
+        mutate(., source_access = NA_character_)
+      } else {
+        .
+      }
+    } %>%
+    select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access, geometry)
 }
 
 ALS_GC <- st_read(gc_source_file, layer = gc_source_layer, quiet = TRUE) %>%
@@ -59,7 +73,8 @@ gc_supplement <- ALS_GC %>%
     area = units::set_units(as.numeric(st_area(geometry)), m^2),
     isAvailable = 1
   ) %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  add_source_metadata("Geo.ca / CanElevation", "Supplemental national open source") %>%
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 st_write(gc_supplement, dsn = gc_output_paths$file, append = FALSE)
 

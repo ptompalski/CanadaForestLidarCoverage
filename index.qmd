@@ -121,14 +121,14 @@ jurisdiction_labels <- tribble(
 
 data_sources_combined <- tribble(
   ~Jurisdiction, ~`Data source`, ~`Data sharing policy`,
-  "BC", "BC Ministry of Forests and [lidar.gov.bc.ca](https://lidar.gov.bc.ca/).", "ALS open data. DEM and CHM from systematic provincial acquisition will be shared. [www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
+  "BC", "BC Ministry of Forests and lidar.gov.bc.ca.", "ALS open data. DEM and CHM from systematic provincial acquisition will be shared. [www.lidar.gov.bc.ca](https://www.lidar.gov.bc.ca)",
   "AB", "AB Forestry and Parks, Alberta Biodiversity Monitoring Institute (ABMI).", "Initial provincial coverage ALS data and derivatives were acquired with a licence. Sharing is limited to GoA partners for collaborative projects and forest industry. FRIP-funded industry projects are not currently open. ABMI acquisitions [will be made freely available](https://abmi.ca/home/news-events/news/Open-Lidar-Data-Announcement.html?mode=detail&scroll).",
   "SK", "SK Ministry of Environment.", "ALS point clouds are not currently shared as open data. Derivatives (DEM) are shared openly, though not all are lidar-derived: [environment-saskatchewan.hub.arcgis.com](https://environment-saskatchewan.hub.arcgis.com/pages/forest_resource_inventory).",
   "ON", "Ministry of Natural Resources.", "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/pages/forest-resources-inventory).",
-  "QC", "Ministere des Ressources naturelles et des Forets, [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).", "ALS open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).",
-  "NB", "NB Natural Resources and Energy Development, and [www.snb.ca/geonb1](http://www.snb.ca/geonb1/e/dc/catalogue-E.asp).", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp). Derivatives (DEM, CHM, hillshade, slope) are also available as [WMS/WCS service](https://www2.gnb.ca/content/gnb/en/departments/erd/open-data/raster-data.html#12).",
-  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS data available for download: [download-telecharger.services.geo.ca](https://download-telecharger.services.geo.ca/pub/elevation/pointclouds_nuagespoints/PEI/).",
-  "NS", "[nsgi.novascotia.ca/datalocator](https://nsgi.novascotia.ca/datalocator/elevation/) and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data ([nsgi.novascotia.ca/datalocator/elevation/](https://nsgi.novascotia.ca/datalocator/elevation/)).",
+  "QC", "Ministere des Ressources naturelles et des Forets, Donnees Quebec.", "ALS open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).",
+  "NB", "NB Natural Resources and Energy Development, and GeoNB.", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp). Derivatives (DEM, CHM, hillshade, slope) are also available as WMS/WCS services.",
+  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS point clouds and derivatives are open data, available through the [Prince Edward Island data portal](https://data.princeedwardisland.ca/pages/8b6e350d228c49169b67b966af4f951e).",
+  "NS", "NSGI Data Locator and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data through the [NSGI Data Locator](https://nsgi.novascotia.ca/datalocator/elevation/).",
   "GC", "[Geo.ca (CanElevation Series)](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947).", "National LiDAR project coverage metadata and downloadable point cloud products used to supplement jurisdictional sources where applicable."
 ) |>
   left_join(jurisdiction_labels, by = "Jurisdiction") |>
@@ -490,7 +490,7 @@ browsable(
     tags$p(class = "homepage-section-kicker", "Coverage sources and availability"),
     tags$p(
       class = "homepage-body-copy homepage-body-copy-wide",
-      HTML("The jurisdictional coverage layers in this compilation come from a mix of public download services and direct exchanges with provincial organizations responsible for ALS data management. <code>Last update</code> is the date when the jurisdictional coverage layer in this project was refreshed, not the date of the latest ALS acquisition.")
+      HTML("The jurisdictional coverage layers in this compilation come from a mix of public download services and direct exchanges with provincial organizations responsible for ALS data management. A map showing the source provider and access category for each coverage area is available in the <a href=\"maps.html#maps-source\">Data source and access map</a>. <code>Last update</code> is the date when the jurisdictional coverage layer in this project was refreshed, not the date of the latest ALS acquisition.")
     )
   )
 )

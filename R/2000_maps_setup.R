@@ -63,7 +63,7 @@ r <- rast("layers/manage_unmanaged_v2_aggreg.tif")
 r <- terra::as.factor(r)
 
 
-f2 <- Sys.getenv(
+overlap_output_file <- Sys.getenv(
   "OVERLAP_OUTPUT_FILE",
   unset = latest_file_by_pattern(
     file.path(PATH, "overlap/ALS_coverage_overlap_*.gpkg"),
@@ -72,16 +72,24 @@ f2 <- Sys.getenv(
   )
 )
 
-O <- st_read(f2)
+load_overlap_data <- function(path = overlap_output_file) {
+  if (!file.exists(path)) {
+    stop("Overlap coverage file does not exist: ", path, call. = FALSE)
+  }
 
-#exclude delta year of a year or less
-O %<>% filter(YEAR_delta > 1)
+  O <- st_read(path)
 
-O$delta_class <- cut(
-  O$YEAR_delta,
-  breaks = c(1, 2, 5, 10, 15, 99),
-  labels = c("1-2", "3-5", "6-10", "11-15", ">15")
-)
+  #exclude delta year of a year or less
+  O %<>% filter(YEAR_delta > 1)
+
+  O$delta_class <- cut(
+    O$YEAR_delta,
+    breaks = c(1, 2, 5, 10, 15, 99),
+    labels = c("1-2", "3-5", "6-10", "11-15", ">15")
+  )
+
+  O
+}
 
 
 # additional data
@@ -126,6 +134,50 @@ provinces_labels <- provinces_labels %>% bind_cols(coords)
 
 # mask / crop acquisition polygons with jurisdiction polygons
 Dx <- st_intersection(D, provinces2)
+
+if (!"source_provider" %in% names(Dx)) {
+  Dx$source_provider <- Dx$Province
+}
+
+if (!"source_access" %in% names(Dx)) {
+  Dx$source_access <- NA_character_
+}
+
+Dx <- Dx %>%
+  mutate(
+    source_provider = case_when(
+      Province == "PE" & source_provider == "PEI / Geo.ca" ~ "PEI data portal",
+      Province == "PE" & source_provider == "PEI provincial source" ~ "PEI data portal",
+      TRUE ~ source_provider
+    ),
+    source_access = case_when(
+      Province == "PE" & source_provider == "PEI data portal" ~ "Open point cloud and derivatives",
+      TRUE ~ source_access
+    ),
+    source_label = case_when(
+      !is.na(source_access) & source_access != "" ~ paste0(source_provider, "\n", source_access),
+      TRUE ~ source_provider
+    )
+  )
+
+source_label_levels <- c(
+  "AB ABMI\nOpen point cloud and derivatives",
+  "AB Government of Alberta\nRestricted / not open",
+  "BC lidar.gov.bc.ca\nOpen point cloud and derivatives",
+  "SK Ministry of Environment\nOpen derivatives only",
+  "ON GeoHub / LIO\nOpen point cloud and derivatives",
+  "QC donneesquebec.ca\nOpen point cloud and derivatives",
+  "NB GeoNB\nOpen point cloud and derivatives",
+  "PEI data portal\nOpen point cloud and derivatives",
+  "NS GeoNOVA / NSGI\nOpen point cloud and derivatives",
+  "Geo.ca / CanElevation\nSupplemental national open source"
+)
+
+Dx$source_label <- factor(
+  Dx$source_label,
+  levels = c(source_label_levels, setdiff(sort(unique(Dx$source_label)), source_label_levels))
+)
+
 #classify point density
 Dx$PPM_class <- cut(
   Dx$PPM,

@@ -270,7 +270,8 @@ ALS_ON <- ALS_ON_wDensity %>%
     area = units::set_units(as.numeric(st_area(geometry)), m^2),
     isAvailable = 2
   ) %>%
-  relocate(Province, YEAR, PPM, area, isAvailable)
+  add_source_metadata("ON GeoHub / LIO", "Open point cloud and derivatives") %>%
+  relocate(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 st_write(ALS_ON, dsn = on_output_paths$file, append = FALSE)
 

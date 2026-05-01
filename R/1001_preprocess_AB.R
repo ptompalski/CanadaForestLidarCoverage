@@ -58,6 +58,13 @@ ALS_AB_riv2 %<>% mutate(isAvailable = 1)
 ALS_AB_gp %<>% mutate(isAvailable = 1)
 ALS_AB_ABMI %<>% mutate(isAvailable = 1)
 
+ALS_AB_for1 %<>% add_source_metadata("AB Government of Alberta", "Restricted / not open")
+ALS_AB_for2 %<>% add_source_metadata("AB Government of Alberta", "Restricted / not open")
+ALS_AB_riv1 %<>% add_source_metadata("AB Government of Alberta", "Restricted / not open")
+ALS_AB_riv2 %<>% add_source_metadata("AB Government of Alberta", "Restricted / not open")
+ALS_AB_gp %<>% add_source_metadata("AB Government of Alberta", "Restricted / not open")
+ALS_AB_ABMI %<>% add_source_metadata("AB ABMI", "Open point cloud and derivatives")
+
 
 ALS_AB <- rbind(ALS_AB_for1, ALS_AB_for2, ALS_AB_riv1, ALS_AB_riv2, ALS_AB_gp)
 
@@ -65,10 +72,10 @@ ALS_AB <- rbind(ALS_AB_for1, ALS_AB_for2, ALS_AB_riv1, ALS_AB_riv2, ALS_AB_gp)
 # jurisdiction by location so cross-boundary acquisitions count where they lie.
 ALS_AB <-
   ALS_AB %>%
-  select(YEAR = year, PPM = pnt_den, isAvailable) %>%
+  select(YEAR = year, PPM = pnt_den, isAvailable, source_provider, source_access) %>%
   st_make_valid() %>%
   mutate(area = st_area(.)) %>%
-  group_by(YEAR, isAvailable) %>%
+  group_by(YEAR, isAvailable, source_provider, source_access) %>%
   summarise(
     PPM = mean(PPM),
     # n = n(),
@@ -76,14 +83,14 @@ ALS_AB <-
     geometry = st_union(geometry)
   ) %>%
   assign_province_by_location(province_boundaries = ab_province_boundaries) %>%
-  group_by(Province, YEAR, isAvailable) %>%
+  group_by(Province, YEAR, isAvailable, source_provider, source_access) %>%
   summarise(
     PPM = mean(PPM),
     area = sum(st_area(geometry)),
     geometry = st_union(geometry),
     .groups = "drop"
   ) %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 
 #remove holes
@@ -96,10 +103,10 @@ ALS_AB <- nngeo::st_remove_holes(ALS_AB)
 ALS_AB_ABMI <-
   ALS_AB_ABMI %>%
   # mutate(PPM=12) %>%
-  select(YEAR, PPM = AveragePPM, isAvailable) %>%
+  select(YEAR, PPM = AveragePPM, isAvailable, source_provider, source_access) %>%
   st_make_valid() %>%
   mutate(area = st_area(.)) %>%
-  group_by(YEAR, PPM, isAvailable) %>%
+  group_by(YEAR, PPM, isAvailable, source_provider, source_access) %>%
   summarise(
     PPM = mean(PPM),
     # n = n(),
@@ -107,13 +114,13 @@ ALS_AB_ABMI <-
     geometry = st_union(geometry)
   ) %>%
   assign_province_by_location(province_boundaries = ab_province_boundaries) %>%
-  group_by(Province, YEAR, PPM, isAvailable) %>%
+  group_by(Province, YEAR, PPM, isAvailable, source_provider, source_access) %>%
   summarise(
     area = sum(st_area(geometry)),
     geometry = st_union(geometry),
     .groups = "drop"
   ) %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 #combine all AB acquisitions
 ALS_AB <-

@@ -25,7 +25,8 @@ ALS_SK <- ALS_SK %>%
     area = units::set_units(as.numeric(st_area(geometry)), m^2),
     isAvailable = 1
   ) %>%
-  select(Province, YEAR, PPM, area, isAvailable)
+  add_source_metadata("SK Ministry of Environment", "Open derivatives only") %>%
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 st_write(ALS_SK, dsn = sk_output_paths$file, append = F)
 

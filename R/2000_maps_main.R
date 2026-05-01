@@ -172,6 +172,8 @@ save_map_with_logo(
 
 #### map4 - overlap areas ####
 
+O <- load_overlap_data()
+
 # O <- st_read("C:/Users/ptompals/OneDrive - NRCan RNCan/__WORK/5_lidarStatusCanada/ALS_coverage_multitemporal_v2.gpkg")
 #
 # #exclude delta year of a year or less
@@ -217,3 +219,76 @@ map_overlap <-
 # ggsave(plot = map_overlap, filename = "img/map4_ALS_overlap.png", width = 7, height=5)
 fout <- "img/map4_ALS_overlap.png"
 save_map_with_logo(map_overlap, fout, width = 7, height = 5, dpi = 300)
+
+
+#### map5 - source provider and access ####
+
+source_palette <- c(
+  "AB ABMI\nOpen point cloud and derivatives" = "#1B9E77",
+  "AB Government of Alberta\nRestricted / not open" = "#D95F02",
+  "BC lidar.gov.bc.ca\nOpen point cloud and derivatives" = "#7570B3",
+  "SK Ministry of Environment\nOpen derivatives only" = "#E7298A",
+  "ON GeoHub / LIO\nOpen point cloud and derivatives" = "#66A61E",
+  "QC donneesquebec.ca\nOpen point cloud and derivatives" = "#E6AB02",
+  "NB GeoNB\nOpen point cloud and derivatives" = "#A6761D",
+  "PEI data portal\nOpen point cloud and derivatives" = "#1F78B4",
+  "NS GeoNOVA / NSGI\nOpen point cloud and derivatives" = "#A6CEE3",
+  "Geo.ca / CanElevation\nSupplemental national open source" = "#666666"
+)
+
+source_palette <- source_palette[names(source_palette) %in% levels(Dx$source_label)]
+missing_source_colours <- setdiff(
+  levels(droplevels(Dx$source_label)),
+  names(source_palette)
+)
+if (length(missing_source_colours) > 0) {
+  source_palette <- c(
+    source_palette,
+    setNames(
+      grDevices::hcl.colors(length(missing_source_colours), "Dark 3"),
+      missing_source_colours
+    )
+  )
+}
+
+map_source <-
+  ggplot(data = NULL) +
+  WATER +
+  ECOZONES +
+  ECOZONES_formatting +
+  guides(fill = "none") +
+  new_scale_fill() +
+
+  geom_sf(data = Dx, aes(fill = source_label), color = NA) +
+
+  JURISDICTIONS +
+  LABELS +
+
+  scale_fill_manual(
+    values = source_palette,
+    name = "Data source and access",
+    na.translate = FALSE,
+    guide = guide_legend(
+      ncol = 2,
+      order = 1,
+      title.position = "top",
+      byrow = TRUE,
+      reverse = FALSE
+    )
+  ) +
+  EXTENT +
+  THEME_SETTINGS +
+  theme(
+    legend.text = element_text(size = 7),
+    legend.title = element_text(size = 10),
+    legend.key.height = unit(0.65, "cm"),
+    legend.spacing.y = unit(0.3, "cm"),
+    legend.box = "vertical",
+    legend.background = element_rect(fill = alpha("white", 0.78), color = NA),
+    legend.box.background = element_rect(fill = alpha("white", 0.78), color = NA)
+  ) +
+  SCALEBAR +
+  CREDITS
+
+fout <- "img/map5_ALS_source.png"
+save_map_with_logo(map_source, fout, width = 7, height = 5, dpi = 300)

@@ -252,6 +252,8 @@ map_coverage_forFocusedMaps <-
 
 ### overlap ###
 
+O <- load_overlap_data()
+
 map_overlap_forFocusedMaps <-
   ggplot(data = NULL) +
   WATER +

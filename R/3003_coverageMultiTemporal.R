@@ -12,6 +12,7 @@ summary_multitemporal_file <- Sys.getenv(
 #### BY JURISDICTION ####
 
 # load data - should be loaded with the 2000_maps_setup.R
+O <- load_overlap_data()
 O1 <- O %>%
   group_by(Province) %>%
 
