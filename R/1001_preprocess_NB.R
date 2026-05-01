@@ -44,7 +44,8 @@ ALS_NB <- ALS_NB %>%
   summarise(geometry = st_union(geometry), .groups = "drop") %>%
   mutate(area = units::set_units(as.numeric(st_area(geometry)), m^2)) %>%
   mutate(isAvailable = 1) %>%
-  relocate(Province, YEAR, PPM, area, isAvailable) %>%
+  add_source_metadata("NB GeoNB", "Open point cloud and derivatives") %>%
+  relocate(Province, YEAR, PPM, area, isAvailable, source_provider, source_access) %>%
   st_as_sf()
 
 st_write(ALS_NB, dsn = nb_output_paths$file, append = F)

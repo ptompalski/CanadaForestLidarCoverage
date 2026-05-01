@@ -340,12 +340,37 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
 # dated coverage layer. This helper finds the previous layer without relying on
 # "latest file" logic inside the map script.
 previous_main_coverage_file <- function(current_file) {
-  files <- latest_files_by_pattern(
-    file.path("layers/ALS_coverage_layer/main", "ALS_coverage_all_*.rds"),
-    n = 2,
-    stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
-    label = "main ALS coverage RDS"
+  pattern <- file.path("layers/ALS_coverage_layer/main", "ALS_coverage_all_*.rds")
+  files <- Sys.glob(pattern)
+
+  if (length(files) < 2) {
+    stop(
+      "Expected at least 2 files for main ALS coverage RDS: ",
+      pattern,
+      call. = FALSE
+    )
+  }
+
+  stamps <- regmatches(
+    basename(files),
+    regexec("ALS_coverage_all_(\\d{8})\\.rds", basename(files))
   )
+  stamps <- vapply(
+    stamps,
+    function(x) if (length(x) >= 2) x[[2]] else NA_character_,
+    character(1)
+  )
+  files <- files[!is.na(stamps)]
+  stamps <- stamps[!is.na(stamps)]
+
+  if (length(files) < 2) {
+    stop(
+      "Expected at least 2 files with a parseable date stamp for main ALS coverage RDS.",
+      call. = FALSE
+    )
+  }
+
+  files <- files[order(stamps, decreasing = TRUE)][seq_len(2)]
 
   normalized_current <- normalizePath(current_file, winslash = "/", mustWork = FALSE)
   normalized_files <- normalizePath(files, winslash = "/", mustWork = FALSE)
@@ -456,7 +481,8 @@ map_main_outputs <- c(
   "img/map1_ALS_coverage.png",
   "img/map2_ALS_density.png",
   "img/map3_ALS_AcquisitionYear.png",
-  "img/map4_ALS_overlap.png"
+  "img/map4_ALS_overlap.png",
+  "img/map5_ALS_source.png"
 )
 map_focused_outputs <- c(
   "img/map2_ALS_density_focused1.png",

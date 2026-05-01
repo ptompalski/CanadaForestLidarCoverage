@@ -307,7 +307,8 @@ browsable(
         nav_card("maps.html", NULL, "National overview", "img/map1_ALS_coverage.png", "National static ALS coverage map"),
         nav_card("maps-west.html", NULL, "Western Canada", "img/map1_ALS_coverage_focused1.png", "Western Canada static ALS coverage map"),
         nav_card("maps-east.html", NULL, "Eastern Canada", "img/map1_ALS_coverage_focused2.png", "Eastern Canada static ALS coverage map"),
-        nav_card("multitemporal.html", NULL, "Multitemporal data", "img/map4_ALS_overlap_focus1.png", "Multitemporal static ALS overlap map", "homepage-nav-card-zoom")
+        nav_card("multitemporal.html", NULL, "Multitemporal data", "img/map4_ALS_overlap_focus1.png", "Multitemporal static ALS overlap map", "homepage-nav-card-zoom"),
+        nav_card("maps.html#maps-source", NULL, "Data source and access", "img/map5_ALS_source.png", "Static map showing source provider and access category")
       )
     )
   )

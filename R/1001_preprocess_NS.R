@@ -20,7 +20,8 @@ ALS_NS <-
   group_by(Province, YEAR, PPM) %>%
   summarise(area = sum(st_area(geometry)), geometry = st_union(geometry), .groups = "drop") %>%
   mutate(isAvailable = 1) %>%
-  select(Province, YEAR, PPM, area, isAvailable) %>%
+  add_source_metadata("NS GeoNOVA / NSGI", "Open point cloud and derivatives") %>%
+  select(Province, YEAR, PPM, area, isAvailable, source_provider, source_access) %>%
   mutate(PPM = as.numeric(PPM))
 
 

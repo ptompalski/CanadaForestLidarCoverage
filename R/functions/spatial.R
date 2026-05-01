@@ -20,6 +20,14 @@ dissolve_coverage <- function(x, group_cols = c("YEAR", "PPM"), crs = the_crs, m
     summarize(geometry = st_union(geometry), .groups = "drop")
 }
 
+add_source_metadata <- function(x, provider, access) {
+  x %>%
+    mutate(
+      source_provider = provider,
+      source_access = access
+    )
+}
+
 clean_coverage_polygons <- function(x) {
   x %>%
     st_make_valid() %>%
