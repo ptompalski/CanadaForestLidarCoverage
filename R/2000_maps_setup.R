@@ -145,6 +145,15 @@ if (!"source_access" %in% names(Dx)) {
 
 Dx <- Dx %>%
   mutate(
+    source_provider = case_when(
+      Province == "PE" & source_provider == "PEI / Geo.ca" ~ "PEI data portal",
+      Province == "PE" & source_provider == "PEI provincial source" ~ "PEI data portal",
+      TRUE ~ source_provider
+    ),
+    source_access = case_when(
+      Province == "PE" & source_provider == "PEI data portal" ~ "Open point cloud and derivatives",
+      TRUE ~ source_access
+    ),
     source_label = case_when(
       !is.na(source_access) & source_access != "" ~ paste0(source_provider, "\n", source_access),
       TRUE ~ source_provider
@@ -159,8 +168,7 @@ source_label_levels <- c(
   "ON GeoHub / LIO\nOpen point cloud and derivatives",
   "QC donneesquebec.ca\nOpen point cloud and derivatives",
   "NB GeoNB\nOpen point cloud and derivatives",
-  "PEI / Geo.ca\nOpen derivatives only",
-  "PEI provincial source\nRestricted / not open",
+  "PEI data portal\nOpen point cloud and derivatives",
   "NS GeoNOVA / NSGI\nOpen point cloud and derivatives",
   "Geo.ca / CanElevation\nSupplemental national open source"
 )

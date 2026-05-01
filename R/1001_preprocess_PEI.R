@@ -17,7 +17,7 @@ ALS_PEI_2020 <-
   group_by(YEAR, PPM) %>%
   summarise(n = n(), area = sum(area), geometry = st_union(geometry)) %>%
   mutate(isAvailable = 1) %>%
-  add_source_metadata("PEI / Geo.ca", "Open derivatives only") %>%
+  add_source_metadata("PEI data portal", "Open point cloud and derivatives") %>%
   select(YEAR, PPM, area, isAvailable, source_provider, source_access)
 
 # Hey Adam,
@@ -44,9 +44,9 @@ ALS_PEI_2010 %<>%
     PPM = 1, #PPM is unknown
     # n = NA,
     area = set_units(st_area(.), m^2),
-    isAvailable = 0
+    isAvailable = 1
   ) %>%
-  add_source_metadata("PEI provincial source", "Restricted / not open") %>%
+  add_source_metadata("PEI data portal", "Open point cloud and derivatives") %>%
   select(-(ENCLOSED_A:NORTH))
 
 

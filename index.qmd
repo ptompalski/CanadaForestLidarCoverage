@@ -127,7 +127,7 @@ data_sources_combined <- tribble(
   "ON", "Ministry of Natural Resources.", "ALS point clouds and derivatives (DEM, CHM, DSM) are open data, available at [geohub.lio.gov.on.ca](https://geohub.lio.gov.on.ca/pages/forest-resources-inventory).",
   "QC", "Ministere des Ressources naturelles et des Forets, Donnees Quebec.", "ALS open data: [donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec](https://www.donneesquebec.ca/recherche/dataset/donnees-lidar-du-quebec).",
   "NB", "NB Natural Resources and Energy Development, and GeoNB.", "ALS data are open and available for download: [www.snb.ca/geonb1/e/dc/lidar.asp](http://www.snb.ca/geonb1/e/dc/lidar.asp). Derivatives (DEM, CHM, hillshade, slope) are also available as WMS/WCS services.",
-  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS data are available through the [Prince Edward Island data portal](https://data.princeedwardisland.ca/pages/8b6e350d228c49169b67b966af4f951e).",
+  "PE", "Prince Edward Island Department of Environment, Energy and Climate Action.", "ALS point clouds and derivatives are open data, available through the [Prince Edward Island data portal](https://data.princeedwardisland.ca/pages/8b6e350d228c49169b67b966af4f951e).",
   "NS", "NSGI Data Locator and Department of Natural Resources and Renewables.", "ALS files and derivatives are open data through the [NSGI Data Locator](https://nsgi.novascotia.ca/datalocator/elevation/).",
   "GC", "[Geo.ca (CanElevation Series)](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947).", "National LiDAR project coverage metadata and downloadable point cloud products used to supplement jurisdictional sources where applicable."
 ) |>

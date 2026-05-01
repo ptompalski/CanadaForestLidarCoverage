@@ -231,8 +231,7 @@ source_palette <- c(
   "ON GeoHub / LIO\nOpen point cloud and derivatives" = "#66A61E",
   "QC donneesquebec.ca\nOpen point cloud and derivatives" = "#E6AB02",
   "NB GeoNB\nOpen point cloud and derivatives" = "#A6761D",
-  "PEI / Geo.ca\nOpen derivatives only" = "#1F78B4",
-  "PEI provincial source\nRestricted / not open" = "#B15928",
+  "PEI data portal\nOpen point cloud and derivatives" = "#1F78B4",
   "NS GeoNOVA / NSGI\nOpen point cloud and derivatives" = "#A6CEE3",
   "Geo.ca / CanElevation\nSupplemental national open source" = "#666666"
 )
