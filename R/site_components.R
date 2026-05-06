@@ -67,7 +67,7 @@ site_footer <- function(coverage_file_date = NULL) {
                 list(href = "log.html", label = "Update log"),
                 list(href = "contact.html", label = "Contact"),
                 list(href = "https://github.com/ptompalski/CanadaForestLidarCoverage", label = "GitHub repository"),
-                list(href = "https://doi.org/10.1139/cjfr-2024-0155", label = "Read the paper")
+                list(href = "https://cdnsciencepub.com/doi/full/10.1139/cjfr-2024-0255", label = "Read the paper")
               )
             )
           )
