@@ -443,6 +443,19 @@ g
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 browsable(
+  tags$figure(
+    class = "homepage-animation-figure",
+    tags$img(
+      src = "img/animation_ALS_over_time.gif",
+      alt = "Animated progression of ALS coverage through time"
+    ),
+    tags$figcaption("Animated progression of ALS coverage through time")
+  )
+)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+browsable(
   tags$section(
     id = "publication",
     class = "column-screen homepage-paper-band homepage-anchor-target",
@@ -467,13 +480,28 @@ browsable(
             class = "homepage-button homepage-button-primary",
             "Read the paper"
           )
+        ),
+        tags$div(
+          class = "homepage-site-citation",
+          tags$p(
+            class = "homepage-site-citation-text",
+            HTML(paste0(
+              "<strong>Suggested website citation:</strong> Tompalski, P., and White, J.C. (2026). <em>ALS data coverage in Canadian forests.</em> Natural Resources Canada, Canadian Forest Service. Updated ",
+              coverage_file_date,
+              ". Available at: https://ptompalski.github.io/CanadaForestLidarCoverage/ [accessed date]."
+            ))
+          )
         )
       ),
       tags$div(
         class = "homepage-paper-media",
-        tags$img(
-          src = "img/paper.png",
-          alt = "Front page of the related publication"
+        tags$a(
+          href = "https://cdnsciencepub.com/doi/full/10.1139/cjfr-2024-0255",
+          `aria-label` = "Read the paper",
+          tags$img(
+            src = "img/paper.png",
+            alt = "Front page of the related publication"
+          )
         )
       )
     )
