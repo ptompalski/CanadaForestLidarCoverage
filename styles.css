@@ -445,7 +445,7 @@ main.content.page-columns.page-full.column-body > :last-child {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
   gap: 2rem;
-  align-items: center;
+  align-items: stretch;
 }
 
 .homepage-paper-copy {
@@ -492,23 +492,26 @@ main.content.page-columns.page-full.column-body > :last-child {
 
 .homepage-paper-media {
   position: relative;
-  min-height: 320px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-end;
 }
 
 .homepage-paper-media a {
   display: block;
   width: min(100%, 29rem);
+  height: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 .homepage-paper-media img {
   position: relative;
   z-index: 0;
   width: 100%;
-  max-height: 360px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: contain;
   object-position: top center;
   opacity: 1;
   box-shadow: 0 20px 48px rgba(4, 10, 16, 0.22);
@@ -973,13 +976,18 @@ tbody tr:nth-child(even) {
   }
 
   .homepage-paper-media {
-    min-height: 0;
     justify-content: flex-start;
   }
 
-  .homepage-paper-media img {
+  .homepage-paper-media a {
     width: min(100%, 24rem);
-    max-height: 280px;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .homepage-paper-media img {
+    height: 100%;
   }
 
   .subpage-jump-links,
