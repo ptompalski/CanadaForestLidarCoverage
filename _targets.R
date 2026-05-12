@@ -113,6 +113,15 @@ on_tile_index_file <- file.path(
   "FRI_Leaf_On_Tile_Index_GeoPackage.gpkg"
 )
 
+ab_frip_source_file_base <- file.path(
+  "layers/source_layers/AB/shapfiles/FRIP",
+  "LiDAR_AOI_Alberta_info_diss"
+)
+ab_frip_source_files <- paste0(
+  ab_frip_source_file_base,
+  c(".shp", ".dbf", ".shx", ".prj", ".cpg")
+)
+
 # Geo.ca publishes national LiDAR project metadata as a zipped file geodatabase.
 # The metadata polygons include acquisition dates and aggregate density, so we
 # use the archive headers as the update trigger and unpack only when changed.
@@ -203,7 +212,7 @@ download_zip_if_changed <- function(
   output_files,
   shapefile_basenames = character()
 ) {
-  dir_create(dest_dir)
+  fs::dir_create(dest_dir)
   existing_metadata <- NULL
 
   if (file.exists(metadata_file)) {
@@ -258,7 +267,7 @@ download_file_if_changed <- function(
   metadata_file,
   compare_fields = c("url", "id", "modified")
 ) {
-  dir_create(fs::path_dir(dest_file))
+  fs::dir_create(fs::path_dir(dest_file))
   existing_metadata <- NULL
 
   if (file.exists(metadata_file)) {
@@ -683,7 +692,7 @@ list(
         ON_TILE_INDEX_FILE = on_tile_index_source_file
       ),
       output_files = preprocess_output_map$preprocess_ab,
-      input_files = c(source_core_files, "R/1001_preprocess_AB.R")
+      input_files = c(source_core_files, "R/1001_preprocess_AB.R", ab_frip_source_files)
     ),
     format = "file"
   ),
