@@ -102,10 +102,19 @@ gc_reconciled <- bind_rows(
     group_split(Province) %>%
     map_dfr(
       ~ .x %>%
-        arrange(desc(YEAR), source_rank) %>%
-        remove_overlaps_by_attr("YEAR") %>%
+        mutate(
+          open_access_priority = case_when(
+            source_access %in% c(
+              "Open point cloud and derivatives",
+              "Supplemental national open source"
+            ) ~ 1,
+            TRUE ~ 0
+          ),
+          overlap_priority = YEAR * 100 + open_access_priority * 10 + (1L - source_rank)
+        ) %>%
+        remove_overlaps_by_attr("overlap_priority", quiet = TRUE) %>%
         filter(source_tag == "gc") %>%
-        select(-source_rank, -source_tag)
+        select(-source_rank, -source_tag, -open_access_priority, -overlap_priority)
     )
 )
 
