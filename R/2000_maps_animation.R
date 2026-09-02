@@ -20,8 +20,19 @@ Q$PPM_class <- factor(
   levels = c("<1", "1-2", "2-5", "5-10", "10-20", "20-50", ">50")
 )
 
+frame_dir <- Sys.getenv(
+  "MAP_ANIMATION_FRAME_DIR",
+  unset = file.path("img", "animation_ALS_over_time_frames")
+)
 
-for (current_year in all_years) {
+dir.create(frame_dir, recursive = TRUE, showWarnings = FALSE)
+
+unlink(file.path(frame_dir, "*.png"))
+
+frame_files <- character(length(all_years))
+
+for (i in seq_along(all_years)) {
+  current_year <- all_years[[i]]
   print(current_year)
 
   Dx_current <- Q %>% filter(YEAR <= current_year)
@@ -84,16 +95,20 @@ for (current_year in all_years) {
     CREDITS #+LOGO
 
   # map_density
-  fout <- glue("temp/map_animation_{current_year}.png")
-  save_map_with_logo(map_x, fout, width = 7, height = 5, dpi = 300)
+  frame_file <- file.path(
+    frame_dir,
+    glue("animation_ALS_over_time_frame_{sprintf('%03d', i)}_{current_year}.png")
+  )
+
+  save_map_with_logo(map_x, frame_file, width = 7, height = 5, dpi = 300)
+
+  frame_files[[i]] <- frame_file
 }
 
 
 # make a gif
 
-png_files = list.files("temp", full.names = T)
-
-png_files <- c(png_files, rep(tail(png_files, 1), 10)) # Adjust repetition count
+png_files <- c(frame_files, rep(tail(frame_files, 1), 10)) # Adjust repetition count
 
 gifski::gifski(
   png_files = png_files,

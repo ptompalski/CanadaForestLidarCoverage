@@ -2,7 +2,7 @@ library(htmltools)
 
 get_latest_coverage_date <- function() {
   coverage_info <- fs::dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
-    dplyr::filter(grepl("^ALS_coverage_all_.*\\.rds$", basename(path))) |>
+    dplyr::filter(grepl("^ALS_coverage_all_.*\\.gpkg$", basename(path))) |>
     dplyr::arrange(desc(modification_time)) |>
     dplyr::slice(1)
 

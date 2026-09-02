@@ -349,12 +349,12 @@ run_scripts_with_env <- function(scripts, env, output_files, input_files = chara
 # dated coverage layer. This helper finds the previous layer without relying on
 # "latest file" logic inside the map script.
 previous_main_coverage_file <- function(current_file) {
-  pattern <- file.path("layers/ALS_coverage_layer/main", "ALS_coverage_all_*.rds")
+  pattern <- file.path("layers/ALS_coverage_layer/main", "ALS_coverage_all_*.gpkg")
   files <- Sys.glob(pattern)
 
   if (length(files) < 2) {
     stop(
-      "Expected at least 2 files for main ALS coverage RDS: ",
+      "Expected at least 2 files for main ALS coverage GPKG: ",
       pattern,
       call. = FALSE
     )
@@ -362,7 +362,7 @@ previous_main_coverage_file <- function(current_file) {
 
   stamps <- regmatches(
     basename(files),
-    regexec("ALS_coverage_all_(\\d{8})\\.rds", basename(files))
+    regexec("ALS_coverage_all_(\\d{8})\\.gpkg", basename(files))
   )
   stamps <- vapply(
     stamps,
@@ -374,7 +374,7 @@ previous_main_coverage_file <- function(current_file) {
 
   if (length(files) < 2) {
     stop(
-      "Expected at least 2 files with a parseable date stamp for main ALS coverage RDS.",
+      "Expected at least 2 files with a parseable date stamp for main ALS coverage GPKG.",
       call. = FALSE
     )
   }
@@ -459,7 +459,7 @@ preprocess_output_map <- list(
 # Versioned outputs created by the two processing scripts.
 coverage_main_file <- file.path(
   "layers/ALS_coverage_layer/main",
-  glue("ALS_coverage_all_{target_version}.rds")
+  glue("ALS_coverage_all_{target_version}.gpkg")
 )
 coverage_clipped_file <- "layers/ALS_coverage_all_2025_clipped.rds"
 coverage_generalized_file <- file.path(
@@ -504,7 +504,11 @@ map_focused_outputs <- c(
   "img/map4_ALS_overlap_focus2.png"
 )
 map_update_log_outputs <- glue("img/UpdateLog/map_newAcquisitions_{ymd(target_version)}.png")
-map_animation_outputs <- "img/animation_ALS_over_time.gif"
+map_animation_frame_dir <- "img/animation_ALS_over_time_frames"
+map_animation_outputs <- c(
+  "img/animation_ALS_over_time.gif",
+  map_animation_frame_dir
+)
 
 # Static map outputs and the animation produced by the map scripts.
 map_outputs <- c(
@@ -978,7 +982,8 @@ list(
         COVERAGE_MAIN_FILE = coverage_main_file,
         COVERAGE_GENERALIZED_FILE = coverage_generalized_file,
         MULTITEMPORAL_OUTPUT_FILE = multitemporal_output_file,
-        OVERLAP_OUTPUT_FILE = overlap_output_file
+        OVERLAP_OUTPUT_FILE = overlap_output_file,
+        MAP_ANIMATION_FRAME_DIR = map_animation_frame_dir
       ),
       output_files = map_animation_outputs,
       input_files = c(source_map_animation_files, processing_with_overlaps)

@@ -8,10 +8,10 @@ update_log_previous_file <- Sys.getenv("UPDATE_LOG_PREVIOUS_FILE", unset = NA)
 if (is.na(update_log_current_file) || is.na(update_log_previous_file)) {
   #get two newest coverage files
   f_two_most_recent <- latest_files_by_pattern(
-    file.path(PATH, "main/ALS_coverage_all_*.rds"),
+    file.path(PATH, "main/ALS_coverage_all_*.gpkg"),
     n = 2,
-    stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
-    label = "main ALS coverage RDS"
+    stamp_regex = "ALS_coverage_all_(\\d{8})\\.gpkg",
+    label = "main ALS coverage GPKG"
   )
 } else {
   f_two_most_recent <- c(update_log_current_file, update_log_previous_file)
@@ -20,14 +20,14 @@ if (is.na(update_log_current_file) || is.na(update_log_previous_file)) {
 #get the date of the newest
 updateDate <- str_match(
   basename(f_two_most_recent[1]),
-  "ALS_coverage_all_(\\d{8})\\.rds"
+  "ALS_coverage_all_(\\d{8})\\.gpkg"
 )[, 2] %>%
   ymd() %>%
   as.character()
 
 #read
-coverage1 <- readRDS(f_two_most_recent[1]) #newest
-coverage2 <- readRDS(f_two_most_recent[2]) #previous
+coverage1 <- st_read(f_two_most_recent[1], quiet = TRUE) #newest
+coverage2 <- st_read(f_two_most_recent[2], quiet = TRUE) #previous
 
 
 

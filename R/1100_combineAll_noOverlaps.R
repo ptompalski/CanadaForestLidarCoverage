@@ -10,7 +10,7 @@ if (!exists("the_crs") || !exists("read_preprocessed_coverage")) {
 
 coverage_main_file <- Sys.getenv(
   "COVERAGE_MAIN_FILE",
-  unset = glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.rds")
+  unset = glue("layers/ALS_coverage_layer/main/ALS_coverage_all_{ver}.gpkg")
 )
 coverage_clipped_file <- Sys.getenv(
   "COVERAGE_CLIPPED_FILE",
@@ -83,9 +83,7 @@ D$YEAR <- as.numeric(D$YEAR)
 D <- clip_to_forested_ecozones(D)
 D <- clean_coverage_polygons(D)
 
-saveRDS(D, coverage_main_file)
-
-# st_write(D, glue("ALS_coverage_all_{ver}.gpkg"), append=F)
+st_write(D, coverage_main_file, append = FALSE, delete_dsn = TRUE)
 
 #postprocess the acquisition polygons
 

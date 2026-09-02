@@ -11,14 +11,14 @@ PATH <- "layers/ALS_coverage_layer/"
 f <- Sys.getenv(
   "COVERAGE_MAIN_FILE",
   unset = latest_file_by_pattern(
-    file.path(PATH, "main/ALS_coverage_all_*.rds"),
-    stamp_regex = "ALS_coverage_all_(\\d{8})\\.rds",
-    label = "main ALS coverage RDS"
+    file.path(PATH, "main/ALS_coverage_all_*.gpkg"),
+    stamp_regex = "ALS_coverage_all_(\\d{8})\\.gpkg",
+    label = "main ALS coverage GPKG"
   )
 )
 
 # ALS coverage
-D <- readRDS(f)
+D <- st_read(f, quiet = TRUE)
 
 
 #dissolve into one poly

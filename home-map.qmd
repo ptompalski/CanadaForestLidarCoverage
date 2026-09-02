@@ -58,7 +58,7 @@ library(jsonlite)
 library(sf)
 
 coverage_file <- dir_info("layers/ALS_coverage_layer/main", recurse = FALSE) |>
-  filter(grepl("^ALS_coverage_all_.*\\.rds$", path_file(path))) |>
+  filter(grepl("^ALS_coverage_all_.*\\.gpkg$", path_file(path))) |>
   arrange(desc(modification_time)) |>
   slice(1) |>
   pull(path)
@@ -73,7 +73,7 @@ multitemporal_file <- dir_info("layers/ALS_coverage_layer/overlap", recurse = FA
   slice(1) |>
   pull(path)
 
-coverage <- readRDS(coverage_file) |>
+coverage <- st_read(coverage_file, quiet = TRUE) |>
   st_make_valid() |>
   st_collection_extract("POLYGON", warn = FALSE) |>
   st_cast("MULTIPOLYGON", warn = FALSE) |>
@@ -472,7 +472,7 @@ browsable(
         scrollWheelZoom: false
       }).setView([58.5, -96], 3);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2tn6_1_872ff155ecc2910db22939d4', {
         maxZoom: 19,
         subdomains: 'abcd',
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
